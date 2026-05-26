@@ -23,9 +23,9 @@ export function LessonPager({ lesson }: LessonPagerProps) {
       {previous ? (
         <Link
           href={lessonHref(previous)}
-          className="rounded-md border border-[color:var(--border)] bg-[color:var(--panel)] p-4 text-slate-200 hover:border-sky-400/60"
+          className="rounded-md border border-[color:var(--border)] bg-[color:var(--panel)] p-4 text-[color:var(--text)] transition hover:border-[color:var(--accent-strong)] hover:bg-[color:var(--panel-soft)]"
         >
-          <span className="mb-2 flex items-center gap-2 text-xs uppercase tracking-normal text-slate-500">
+          <span className="mb-2 flex items-center gap-2 text-xs uppercase tracking-normal text-[color:var(--muted)]">
             <ArrowLeft size={14} aria-hidden="true" />
             Previous
           </span>
@@ -38,9 +38,9 @@ export function LessonPager({ lesson }: LessonPagerProps) {
       {next ? (
         <Link
           href={lessonHref(next)}
-          className="rounded-md border border-[color:var(--border)] bg-[color:var(--panel)] p-4 text-right text-slate-200 hover:border-sky-400/60"
+          className="rounded-md border border-[color:var(--border)] bg-[color:var(--panel)] p-4 text-right text-[color:var(--text)] transition hover:border-[color:var(--accent-strong)] hover:bg-[color:var(--panel-soft)]"
         >
-          <span className="mb-2 flex items-center justify-end gap-2 text-xs uppercase tracking-normal text-slate-500">
+          <span className="mb-2 flex items-center justify-end gap-2 text-xs uppercase tracking-normal text-[color:var(--muted)]">
             Next
             <ArrowRight size={14} aria-hidden="true" />
           </span>

@@ -27,7 +27,7 @@ export async function compileCourseMdx(filePath: string) {
           [
             rehypePrettyCode,
             {
-              theme: "github-dark",
+              theme: "dark-plus",
               keepBackground: false,
             },
           ],

@@ -12,16 +12,22 @@ export function CourseShell({ children, currentSlug }: CourseShellProps) {
       <SidebarNav currentSlug={currentSlug} />
       <main className="min-w-0">
         <div className="mx-auto w-full max-w-5xl px-5 py-8 md:px-8 lg:px-10">
-          <div className="mb-8 flex flex-wrap items-center gap-3 text-sm text-slate-400">
-            <Link href="/" className="hover:text-white">
+          <div className="mb-8 flex flex-wrap items-center gap-3 text-sm text-[color:var(--muted-strong)]">
+            <Link href="/" className="hover:text-[color:var(--accent-strong)]">
               Overview
             </Link>
             <span>/</span>
-            <Link href="/glossary" className="hover:text-white">
+            <Link
+              href="/glossary"
+              className="hover:text-[color:var(--accent-strong)]"
+            >
               Glossary
             </Link>
             <span>/</span>
-            <Link href="/extensions" className="hover:text-white">
+            <Link
+              href="/extensions"
+              className="hover:text-[color:var(--accent-strong)]"
+            >
               Extensions
             </Link>
           </div>
