@@ -156,20 +156,28 @@ Day 5: เพิ่ม auth, security และ deployment overview
 
 ## Slide 5: ภาพรวมระบบเว็บหนึ่งระบบ
 
-```text
-User
-  |
-  v
-Browser
-  |
-  v
-Frontend
-  |
-  v
-Backend
-  |
-  v
-Database
+```mermaid
+flowchart LR
+  user(["User<br/>ผู้ใช้งาน"])
+  browser["Browser<br/>Chrome / Edge / Safari"]
+  frontend["Frontend<br/>HTML / CSS / TypeScript"]
+  backend["Backend<br/>Validation / Auth / API"]
+  database[("Database<br/>Issues / Users")]
+
+  user -->|"คลิก / กรอกข้อมูล"| browser
+  browser -->|"แสดงหน้าเว็บ"| frontend
+  frontend <-->|"request / response"| backend
+  backend <-->|"read / write"| database
+
+  classDef user fill:#1f3a5f,stroke:#3794ff,color:#ffffff;
+  classDef client fill:#252526,stroke:#3c3c3c,color:#ffffff;
+  classDef server fill:#2a2d2e,stroke:#73c991,color:#ffffff;
+  classDef data fill:#2a2d2e,stroke:#cca700,color:#ffffff;
+
+  class user user;
+  class browser,frontend client;
+  class backend server;
+  class database data;
 ```
 
 ### อธิบายสั้น ๆ
@@ -282,9 +290,17 @@ Backend คือจุดที่ต้องจริงจังกับ va
 
 ### เมื่อผู้ใช้เปิดหน้าเว็บ
 
-```text
-Browser -> Request -> Server
-Browser <- Response <- Server
+```mermaid
+sequenceDiagram
+  autonumber
+  participant User as User
+  participant Browser as Browser
+  participant Server as Server
+
+  User->>Browser: เปิดหน้าเว็บ / กด submit
+  Browser->>Server: Request
+  Server-->>Browser: Response
+  Browser-->>User: แสดงผลบนหน้าเว็บ
 ```
 
 ### Request คืออะไร
@@ -314,16 +330,31 @@ Browser <- Response <- Server
 
 ## Slide 10: Flow การแจ้งปัญหา 1 รายการ
 
-```text
-1. User เปิดหน้าแจ้งปัญหา
-2. Browser ขอหน้า form จาก server
-3. User กรอกข้อมูล
-4. User กด submit
-5. Browser ส่งข้อมูลไป server
-6. Server validate ข้อมูล
-7. Server บันทึกข้อมูลลง database
-8. Server ส่งผลลัพธ์กลับมา
-9. Browser แสดงข้อความว่าส่งสำเร็จ
+```mermaid
+flowchart LR
+  open["เปิดหน้าแจ้งปัญหา"]
+  form["กรอกข้อมูล"]
+  submit["กด Submit"]
+  validate{"Backend validate ผ่านไหม?"}
+  save[("บันทึกลง Database")]
+  success["แสดงข้อความสำเร็จ"]
+  error["แสดง error ให้แก้"]
+
+  open --> form --> submit --> validate
+  validate -->|"ผ่าน"| save --> success
+  validate -->|"ไม่ผ่าน"| error --> form
+
+  classDef action fill:#252526,stroke:#3c3c3c,color:#ffffff;
+  classDef decision fill:#2a2d2e,stroke:#3794ff,color:#ffffff;
+  classDef data fill:#2a2d2e,stroke:#cca700,color:#ffffff;
+  classDef ok fill:#173b2b,stroke:#73c991,color:#ffffff;
+  classDef warn fill:#3a2f14,stroke:#cca700,color:#ffffff;
+
+  class open,form,submit action;
+  class validate decision;
+  class save data;
+  class success ok;
+  class error warn;
 ```
 
 ### Speaker Notes
