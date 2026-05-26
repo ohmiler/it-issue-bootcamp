@@ -12,7 +12,11 @@ export const mdxComponents: MDXComponents = {
   ul: (props) => <ul {...props} />,
   ol: (props) => <ol {...props} />,
   li: (props) => <li {...props} />,
-  table: (props) => <table {...props} />,
+  table: (props) => (
+    <div className="lesson-table-scroll">
+      <table {...props} />
+    </div>
+  ),
   th: (props) => <th {...props} />,
   td: (props) => <td {...props} />,
   blockquote: (props) => <blockquote {...props} />,
