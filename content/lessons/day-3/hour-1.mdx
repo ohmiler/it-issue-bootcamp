@@ -1,0 +1,745 @@
+---
+title: "Tailwind Setup and Utilities"
+day: 3
+hour: 1
+duration: 60
+source: "day-3-hour-1-tailwind-setup-and-utilities.md"
+---
+
+# Tailwind Setup and Utilities
+
+## Day 3 - ชั่วโมงที่ 1: Tailwind CSS Setup and Utility-first Styling
+
+### เป้าหมายของชั่วโมงนี้
+
+หลังจบชั่วโมงแรกของ Day 3 ผู้เรียนควรสามารถ:
+
+1. เข้าใจว่า Tailwind CSS คืออะไร และต่างจาก CSS ปกติอย่างไร
+2. ติดตั้ง Tailwind CSS ใน Next.js project ที่สร้างจาก Day 2 ได้
+3. เข้าใจว่า `globals.css` ยังมีบทบาทอย่างไรหลังใช้ Tailwind
+4. ใช้ utility class พื้นฐาน เช่น spacing, typography, color, border และ layout ได้
+5. ค่อย ๆ แปลง style จาก CSS เดิมไปเป็น Tailwind class ได้
+6. เข้าใจว่า Tailwind จะช่วยให้ component ใน Day 2 ปรับ UI ได้เร็วขึ้น
+
+### ไฟล์ที่ใช้ในชั่วโมงนี้
+
+ติดตั้ง package ที่ project root
+
+สร้างหรือแก้ไฟล์:
+
+```text
+postcss.config.mjs
+src/app/globals.css
+src/app/layout.tsx
+src/app/page.tsx
+src/components/*.tsx
+```
+
+ถ้า slide เป็น config ให้ระบุ `File: postcss.config.mjs`
+
+ถ้า slide เป็น Tailwind class ของ UI ให้ระบุไฟล์ที่แก้ เช่น `src/app/layout.tsx`, `src/app/page.tsx` หรือไฟล์ component
+
+---
+
+## โครงสร้างเวลา 60 นาที
+
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-5 นาที | Recap Day 2 | ถามตอบ |
+| 5-15 นาที | Tailwind CSS คืออะไร | Explain |
+| 15-25 นาที | ติดตั้ง Tailwind ใน Next.js project | Live coding |
+| 25-35 นาที | Utility class พื้นฐาน | Demo |
+| 35-42 นาที | แปลง navigation จาก CSS เดิมเป็น Tailwind | Live coding |
+| 42-52 นาที | แปลง layout เดิมบางส่วนเป็น Tailwind | Live coding |
+| 52-60 นาที | สรุปสิ่งที่ทำ | ทำทีละขั้นตอน |
+
+---
+
+## Slide 1: Recap จาก Day 2
+
+### ตอนนี้ project ของเรามีอะไรแล้ว
+
+- Next.js project
+- `page.tsx`
+- `layout.tsx`
+- `globals.css`
+- `Issue` type
+- mock data `issues: Issue[]`
+- `IssueForm`
+- `IssueList`
+- `StatusBadge`
+- route พื้นฐาน เช่น `/issues`, `/issues/new`, `/issues/[id]`
+
+### ปัญหาที่เริ่มเห็น
+
+- CSS ใน `globals.css` เริ่มยาว
+- บาง style ผูกกับ selector กว้างเกินไป
+- ถ้า component เยอะขึ้น การตั้ง class เองอาจเริ่มดูแลยาก
+- UI ยังเป็น static prototype มากกว่า application UI
+
+### Key Message
+
+Day 3 เราจะทำให้ Next.js app พร้อมเป็น frontend CRUD prototype มากขึ้น โดยเริ่มจากปรับ UI ด้วย Tailwind CSS
+
+---
+
+## Slide 2: Day 3 จะทำอะไรทั้งวัน
+
+### เป้าหมายของ Day 3
+
+ทำให้ app จาก Day 2 พร้อมต่อยอดเข้า database ใน Day 4
+
+```text
+Hour 1: ติดตั้ง Tailwind และเข้าใจ utility class
+Hour 2: ปรับ component UI และ responsive layout
+Hour 3: เพิ่ม form state และ validation ฝั่ง frontend
+Hour 4: ทำ mock CRUD flow และเตรียมเชื่อม database
+```
+
+### Key Message
+
+วันนี้ยังไม่เชื่อม database จริง แต่เราจะทำให้ flow ฝั่ง frontend ใกล้กับระบบจริงมากขึ้น
+
+---
+
+## Slide 3: Tailwind CSS คืออะไร
+
+### Tailwind CSS
+
+Tailwind คือ utility-first CSS framework
+
+แทนที่จะเขียน CSS แบบนี้:
+
+```css
+.panel {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+}
+```
+
+เราเขียน class ใน JSX/TSX แบบนี้:
+
+```tsx
+<section className="rounded-lg border border-slate-200 bg-white p-6">
+  ...
+</section>
+```
+
+### Key Message
+
+Tailwind ไม่ได้ทำให้ไม่ต้องเข้าใจ CSS แต่ทำให้เราใช้ CSS concept ผ่าน class สำเร็จรูปได้เร็วขึ้น
+
+---
+
+## Slide 4: CSS ปกติ vs Tailwind
+
+### CSS ปกติ
+
+```tsx
+<button className="primary-button">ส่งข้อมูล</button>
+```
+
+```css
+.primary-button {
+  border-radius: 6px;
+  padding: 12px 16px;
+  background: #0f766e;
+  color: white;
+}
+```
+
+### Tailwind
+
+```tsx
+<button className="rounded-md bg-teal-700 px-4 py-3 font-bold text-white hover:bg-teal-800">
+  ส่งข้อมูล
+</button>
+```
+
+### ข้อดี
+
+- เห็น style อยู่ใกล้ component
+- ลดการตั้งชื่อ class เอง
+- ปรับ responsive และ state ได้เร็ว
+- เหมาะกับ component-based UI
+
+---
+
+## Slide 5: ติดตั้ง Tailwind CSS ใน Next.js Project
+
+### ถ้า Day 2 เลือก Tailwind CSS: No
+
+ให้ติดตั้ง Tailwind เพิ่มใน project เดิม
+
+### ตำแหน่งที่รันคำสั่ง
+
+รันที่ project root ของ Next.js ซึ่งเป็น folder ที่มี `package.json`
+
+```bash
+npm install tailwindcss @tailwindcss/postcss postcss
+```
+
+### สร้างไฟล์ `postcss.config.mjs`
+
+วางไฟล์นี้ไว้ที่ project root ระดับเดียวกับ `package.json`
+
+```js
+const config = {
+  plugins: {
+  "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+```
+
+### เพิ่มใน `src/app/globals.css`
+
+วาง `@import "tailwindcss";` ไว้บรรทัดแรกของไฟล์ `src/app/globals.css`
+
+```css
+@import "tailwindcss";
+```
+
+### หมายเหตุ
+
+ถ้า project ถูกสร้างพร้อม Tailwind ตั้งแต่ Day 2 อยู่แล้ว ให้ตรวจว่ามี `postcss.config.mjs` และ `@import "tailwindcss";` แล้ว จากนั้นข้ามขั้นตอนติดตั้งได้
+
+---
+
+## Slide 6: `globals.css` ยังจำเป็นไหม
+
+### ยังจำเป็น
+
+แม้ใช้ Tailwind แล้ว `globals.css` ยังใช้สำหรับ:
+
+- import Tailwind
+- reset หรือ style global ที่จำเป็น
+- body background/font พื้นฐาน
+- style เฉพาะบางอย่างที่ไม่อยากเขียนซ้ำ
+
+### ตัวอย่าง
+
+```css
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+```
+
+### Key Message
+
+Tailwind ไม่ได้แปลว่าต้องลบ CSS ทั้งหมดทันที เราจะค่อย ๆ ย้ายจาก CSS เดิมไปเป็น utility class
+
+---
+
+## Slide 7: Utility Class พื้นฐาน - Spacing
+
+### Padding
+
+```tsx
+<div className="p-4">padding ทุกด้าน</div>
+<div className="px-4 py-2">padding แนวนอนและแนวตั้ง</div>
+```
+
+### Margin
+
+```tsx
+<section className="mt-6">margin-top</section>
+<main className="mx-auto">margin ซ้ายขวา auto</main>
+```
+
+### Gap
+
+```tsx
+<div className="flex gap-4">...</div>
+<div className="grid gap-6">...</div>
+```
+
+### ความหมายคร่าว ๆ
+
+```text
+p-4  -> padding
+px-4 -> padding left/right
+py-2 -> padding top/bottom
+mt-6 -> margin-top
+gap-4 -> gap ระหว่าง child
+```
+
+---
+
+## Slide 8: Utility Class พื้นฐาน - Typography
+
+```tsx
+<h1 className="text-3xl font-bold text-slate-950">
+  ระบบแจ้งปัญหา IT
+</h1>
+
+<p className="text-sm text-slate-600">
+  แจ้งและติดตามปัญหาการใช้งานระบบภายใน
+</p>
+```
+
+### Class ที่ใช้บ่อย
+
+| Class | ความหมาย |
+|---|---|
+| `text-sm` | ตัวอักษรขนาดเล็ก |
+| `text-lg` | ตัวอักษรขนาดใหญ่ |
+| `text-3xl` | heading ขนาดใหญ่ |
+| `font-medium` | น้ำหนักตัวอักษรกลาง |
+| `font-bold` | ตัวหนา |
+| `text-slate-600` | สีตัวอักษร |
+
+---
+
+## Slide 9: Utility Class พื้นฐาน - Color, Border, Radius
+
+```tsx
+<section className="rounded-lg border border-slate-200 bg-white">
+  ...
+</section>
+```
+
+### Class ที่ใช้บ่อย
+
+| Class | ความหมาย |
+|---|---|
+| `bg-white` | พื้นหลังสีขาว |
+| `bg-slate-50` | พื้นหลังเทาอ่อน |
+| `text-slate-900` | ตัวอักษรสีเข้ม |
+| `border` | เส้นขอบ |
+| `border-slate-200` | สีเส้นขอบ |
+| `rounded-md` | มุมโค้งปานกลาง |
+| `rounded-lg` | มุมโค้งใหญ่กว่า |
+
+---
+
+## Slide 10: Utility Class พื้นฐาน - Layout
+
+### Container
+
+```tsx
+<main className="mx-auto max-w-5xl px-6 py-8">
+  ...
+</main>
+```
+
+### Flex
+
+```tsx
+<div className="flex items-center justify-between gap-4">
+  ...
+</div>
+```
+
+### Grid
+
+```tsx
+<div className="grid gap-4 md:grid-cols-2">
+  ...
+</div>
+```
+
+### Key Message
+
+Tailwind ใช้ responsive prefix เช่น `md:` เพื่อบอกว่า style นี้เริ่มทำงานตั้งแต่ breakpoint นั้นขึ้นไป
+
+---
+
+## Slide 11: Responsive Prefix
+
+### ตัวอย่าง
+
+```tsx
+<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  ...
+</div>
+```
+
+### อธิบาย
+
+```text
+default       -> 1 column
+md:grid-cols-2 -> จอกลางขึ้นไปเป็น 2 columns
+lg:grid-cols-3 -> จอใหญ่ขึ้นไปเป็น 3 columns
+```
+
+### ใช้กับระบบเรา
+
+- form field เรียงแนวตั้งบน mobile
+- ชื่อผู้แจ้งและอีเมลเป็น 2 คอลัมน์บน desktop
+- dashboard card อาจเป็น 3 คอลัมน์บนจอกว้าง
+
+---
+
+## Slide 12: State Prefix
+
+### Hover
+
+```tsx
+<button className="bg-teal-700 hover:bg-teal-800">
+  ส่งข้อมูล
+</button>
+```
+
+### Focus
+
+```tsx
+<input className="focus:border-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100" />
+```
+
+### Disabled
+
+```tsx
+<button className="disabled:cursor-not-allowed disabled:bg-slate-300">
+  ส่งข้อมูล
+</button>
+```
+
+### Key Message
+
+Hover/focus/disabled ที่เราเรียนใน CSS Day 1 ยังเป็น concept เดิม แค่เขียนด้วย Tailwind class
+
+---
+
+## Slide 13: แปลง Navigation เป็น Tailwind
+
+### File
+
+```text
+src/app/layout.tsx
+```
+
+### ตำแหน่งที่แก้
+
+แทนที่เฉพาะ `<nav>...</nav>` เดิมใน `RootLayout` ด้วย navigation เวอร์ชัน Tailwind นี้
+
+```tsx
+<nav className="border-b border-slate-200 bg-white" aria-label="เมนูหลัก">
+  <div className="mx-auto flex max-w-5xl flex-wrap gap-2 px-6 py-3">
+    <Link
+      href="/"
+      className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-950"
+    >
+      หน้าแรก
+    </Link>
+    <Link
+      href="/issues"
+      className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-950"
+    >
+      รายการปัญหา
+    </Link>
+    <Link
+      href="/issues/new"
+      className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-950"
+    >
+      แจ้งปัญหาใหม่
+    </Link>
+  </div>
+</nav>
+```
+
+### หลังจากเปลี่ยนแล้ว
+
+class เดิมอย่าง `.app-nav` และ `.app-nav-inner` ใน `src/app/globals.css` ยังไม่ต้องรีบลบทันที แต่ถ้าเช็คแล้วไม่มีที่ไหนใช้ ค่อยลบออกได้
+
+### Key Message
+
+Navigation อยู่ใน `layout.tsx` เพราะใช้ร่วมกันทุกหน้า ส่วน Tailwind class ทำให้ style อยู่ใกล้ JSX ที่แสดง UI นั้นจริง ๆ
+
+---
+
+## Slide 14: แปลง Header เป็น Tailwind
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่แก้
+
+แทนที่ `<header>...</header>` เดิมใน `HomePage` ด้วย header เวอร์ชัน Tailwind นี้
+
+### จาก CSS เดิม
+
+```tsx
+<header>
+  <h1>ระบบแจ้งปัญหา IT</h1>
+  <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
+</header>
+```
+
+### เป็น Tailwind
+
+```tsx
+<header className="bg-teal-800 px-6 py-8 text-white">
+  <div className="mx-auto max-w-5xl">
+  <h1 className="text-3xl font-bold">ระบบแจ้งปัญหา IT</h1>
+  <p className="mt-2 text-teal-100">
+    แจ้งและติดตามปัญหาการใช้งานระบบภายใน
+  </p>
+  </div>
+</header>
+```
+
+### Key Message
+
+เริ่มแปลงทีละส่วน อย่าแปลงทั้งหน้าในครั้งเดียว
+
+---
+
+## Slide 15: แปลง Main และ Section
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่แก้
+
+ปรับ `<main>` เดิมใน `HomePage` ให้มี className และปรับ section แรกของ form ให้เป็น section เวอร์ชันนี้
+
+```tsx
+<main className="mx-auto max-w-5xl px-6 py-8">
+  <section className="rounded-lg border border-slate-200 bg-white p-6">
+  <h2 className="text-xl font-bold text-slate-950">แจ้งปัญหาใหม่</h2>
+  <p className="mt-1 text-sm text-slate-600">
+    กรอกข้อมูลปัญหาที่ต้องการแจ้งให้ฝ่าย IT ตรวจสอบ
+  </p>
+  </section>
+</main>
+```
+
+### อธิบาย
+
+- `mx-auto max-w-5xl` จำกัดความกว้างและจัดกลาง
+- `px-6 py-8` กำหนดระยะห่าง
+- `rounded-lg border bg-white p-6` ทำ section เป็นพื้นที่อ่านง่าย
+
+---
+
+## Slide 16: แปลง Form Group
+
+### File
+
+```text
+src/app/page.tsx หรือ src/components/IssueForm.tsx
+```
+
+### ตำแหน่งที่แก้
+
+ใช้ code Tailwind นี้แทน `<div className="form-group">...</div>` ของ field `title` ก่อน จากนั้นค่อยปรับ field อื่นด้วย pattern เดียวกัน
+
+### HTML/TSX เดิม
+
+```tsx
+<div className="form-group">
+  <label htmlFor="title">หัวข้อปัญหา</label>
+  <input id="title" name="title" type="text" required />
+</div>
+```
+
+### Tailwind
+
+```tsx
+<div className="grid gap-2">
+  <label htmlFor="title" className="text-sm font-semibold text-slate-800">
+  หัวข้อปัญหา
+  </label>
+  <input
+  id="title"
+  name="title"
+  type="text"
+  required
+  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100"
+  />
+</div>
+```
+
+### Speaker Notes
+
+อย่าเพิ่งให้ผู้เรียนจำ class ทั้งหมด ให้เข้าใจว่าแต่ละกลุ่มคือ spacing, border, font, focus state
+
+---
+
+## Slide 17: แปลง Button
+
+### File
+
+```text
+src/app/page.tsx หรือ src/components/IssueForm.tsx
+```
+
+### ตำแหน่งที่แก้
+
+แทนที่ปุ่ม submit เดิมใน form:
+
+```tsx
+<button type="submit">ส่งข้อมูล</button>
+```
+
+ด้วยปุ่มที่ใส่ Tailwind class นี้
+
+```tsx
+<button
+  type="submit"
+  className="rounded-md bg-teal-700 px-4 py-3 text-sm font-bold text-white hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-100 disabled:cursor-not-allowed disabled:bg-slate-300"
+>
+  ส่งข้อมูล
+</button>
+```
+
+### เชื่อมกับ Day 1
+
+นี่คือ concept เดิม:
+
+- background
+- padding
+- border radius
+- hover
+- focus
+- disabled
+
+แต่เขียนด้วย Tailwind class
+
+---
+
+## Slide 18: ควรลบ CSS เดิมไหม
+
+### คำตอบ
+
+ยังไม่ต้องลบทั้งหมดทันที
+
+### วิธีที่แนะนำ
+
+1. ติดตั้ง Tailwind
+2. แปลง navigation, page หรือ component ทีละส่วน
+3. ตรวจหน้าเว็บ
+4. ถ้า section ไหนไม่ใช้ CSS เดิมแล้ว ค่อยลบ selector นั้น
+5. เก็บ global style ที่จำเป็นไว้
+
+### Key Message
+
+การ migrate UI ที่ดีควรทำทีละขั้น เพื่อให้รู้ว่าถ้า layout พัง มันพังจากจุดไหน
+
+---
+
+## Slide 19: โค้ดสุดท้ายของ Tailwind ขั้นแรก
+
+### ขั้นตอน
+
+ใน Next.js project:
+
+1. ติดตั้ง Tailwind ถ้ายังไม่มี
+2. เพิ่ม `@import "tailwindcss";` ใน `globals.css`
+3. แปลง navigation ใน `layout.tsx` เป็น Tailwind
+4. แปลง header เป็น Tailwind
+5. แปลง `main` และ section แรกเป็น Tailwind
+6. แปลง button submit เป็น Tailwind
+7. เปิด browser ตรวจว่า UI ยังแสดงถูกต้อง
+
+### ผลลัพธ์
+
+หน้าแรกยังเป็นระบบแจ้งปัญหาเหมือนเดิม แต่เริ่มมี Tailwind class ใน JSX/TSX แล้ว
+
+### ตัวอย่างโค้ดสุดท้ายที่ควรเห็น
+
+```tsx
+<nav className="border-b border-slate-200 bg-white" aria-label="เมนูหลัก">
+  <div className="mx-auto flex max-w-5xl flex-wrap gap-2 px-6 py-3">
+    <Link
+      href="/"
+      className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+    >
+      หน้าแรก
+    </Link>
+  </div>
+</nav>
+
+<header className="bg-teal-800 px-6 py-8 text-white">
+  <div className="mx-auto max-w-5xl">
+    <h1 className="text-3xl font-bold">ระบบแจ้งปัญหา IT</h1>
+    <p className="mt-2 text-teal-100">
+      แจ้งและติดตามปัญหาการใช้งานระบบภายใน
+    </p>
+  </div>
+</header>
+
+<main className="mx-auto max-w-5xl px-6 py-8">
+  <section className="rounded-lg border border-slate-200 bg-white p-6">
+    <h2 className="text-xl font-bold text-slate-950">แจ้งปัญหาใหม่</h2>
+    <button
+      type="submit"
+      className="rounded-md bg-teal-700 px-4 py-3 text-sm font-bold text-white hover:bg-teal-800"
+    >
+      ส่งข้อมูล
+    </button>
+  </section>
+</main>
+```
+
+---
+
+## Slide 20: Common Mistakes
+
+### ข้อผิดพลาดที่พบบ่อย
+
+- ลืม restart dev server หลังติดตั้ง package
+- ลืมเพิ่ม `@import "tailwindcss";`
+- สะกด class ผิด
+- ใส่ class ยาวเกินไปจนอ่านยาก
+- ลบ CSS เดิมเร็วเกินไปจนหน้าเว็บพัง
+- ใช้สีเยอะเกินไปจน UI ไม่เป็นระบบ
+- พยายามจำทุก class แทนที่จะเข้าใจ pattern
+
+### Speaker Notes
+
+Tailwind ควรช่วยให้ทำงานเร็วขึ้น ไม่ใช่ทำให้ผู้เรียนกังวลว่าต้องจำ class ทั้งหมด
+
+---
+
+## Slide 21: Recap ชั่วโมงแรกของ Day 3
+
+### สิ่งที่ได้เรียน
+
+- Tailwind คือ utility-first CSS framework
+- Tailwind ใช้ CSS concept เดิม เช่น spacing, color, border, layout, state
+- Next.js project ที่ไม่ได้เลือก Tailwind ตั้งแต่แรกสามารถติดตั้งเพิ่มได้
+- `globals.css` ยังใช้ import Tailwind และเก็บ global style ได้
+- การแปลง CSS เดิมไป Tailwind ควรทำทีละส่วน
+
+### ต่อไป
+
+เราจะปรับ component จาก Day 2 เช่น `IssueForm`, `IssueList` และ `StatusBadge` ให้ใช้ Tailwind และ responsive layout ที่พร้อมใช้งานมากขึ้น
+
+---
+
+
+---
+
+## คำศัพท์สำคัญ
+
+| คำศัพท์ | ความหมาย |
+|---|---|
+| Tailwind CSS | CSS framework แบบ utility-first |
+| Utility class | class สำเร็จรูปที่แทน CSS property |
+| Responsive prefix | prefix เช่น `md:` หรือ `lg:` สำหรับ breakpoint |
+| State prefix | prefix เช่น `hover:`, `focus:`, `disabled:` |
+| `globals.css` | CSS กลางของ Next.js app |
+| PostCSS | เครื่องมือประมวลผล CSS ที่ Tailwind ใช้ร่วมกับ Next.js |
+
+---
+
+## อ้างอิงสำหรับผู้สอน
+
+- [Install Tailwind CSS with Next.js](https://tailwindcss.com/docs/guides/nextjs)
+- [Next.js CSS and Tailwind CSS](https://nextjs.org/docs/app/getting-started/css)

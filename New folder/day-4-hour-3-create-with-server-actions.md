@@ -1,0 +1,583 @@
+﻿# Day 4 - ชั่วโมงที่ 3: Create Issues with Server Actions
+
+## เป้าหมายของชั่วโมงนี้
+
+หลังจบชั่วโมงที่สามของ Day 4 ผู้เรียนควรสามารถ:
+
+1. เข้าใจว่า Server Actions ใช้แทน mock client submit จาก Day 3 อย่างไร
+2. สร้าง Server Action สำหรับ create issue ได้
+3. อ่าน `FormData` ฝั่ง server ได้
+4. validate input ฝั่ง server ได้
+5. insert issue ลง Supabase ได้
+6. ใช้ `revalidatePath()` และ `redirect()` หลังสร้างข้อมูลได้
+7. ปรับ `IssueForm` ให้ใช้ `<form action={...}>` ได้
+
+## ไฟล์ที่ใช้ในชั่วโมงนี้
+
+สร้างหรือแก้ไฟล์:
+
+```text
+src/app/actions.ts
+src/lib/issues.ts
+src/components/IssueForm.tsx
+src/app/issues/new/page.tsx
+src/types/issue.ts
+```
+
+---
+
+# โครงสร้างเวลา 60 นาที
+
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-5 นาที | Recap read จาก Supabase | ถามตอบ |
+| 5-15 นาที | จาก Client Submit ไป Server Action | Explain |
+| 15-30 นาที | สร้าง validation และ `createIssue()` | Live coding |
+| 30-45 นาที | สร้าง `createIssueAction()` | Live coding |
+| 45-55 นาที | ปรับ `IssueForm` ให้ใช้ action | ทำทีละขั้นตอน |
+| 55-60 นาที | Recap และ security note | สรุป |
+
+---
+
+# Slide 1: Recap ชั่วโมงที่ 2
+
+## ตอนนี้เราทำอะไรได้แล้ว
+
+- อ่าน issue list จาก Supabase
+- เปิด `/issues` แล้วเห็นข้อมูลจาก database
+- เปิด `/issues/[id]` แล้วเห็น detail
+
+## สิ่งที่ยังทำไม่ได้
+
+- submit form แล้วบันทึกลง database
+
+## Key Message
+
+ชั่วโมงนี้เราจะเปลี่ยน Create จาก mock state เป็น insert ลง Supabase จริง
+
+---
+
+# Slide 2: จาก Day 3 Client Submit ไป Day 4 Server Action
+
+## Day 3
+
+```text
+IssueForm onSubmit -> useState -> IssueList
+```
+
+## Day 4
+
+```text
+IssueForm action -> Server Action -> validate -> Supabase insert -> redirect
+```
+
+## Key Message
+
+เมื่อข้อมูลต้องบันทึกถาวร ให้ logic สำคัญย้ายมาฝั่ง server
+
+---
+
+# Slide 3: Server Action คืออะไร
+
+## Server Action
+
+function ฝั่ง server ที่เรียกจาก form หรือ component ได้
+
+## ตัวอย่าง concept
+
+```tsx
+<form action={createIssueAction}>
+  ...
+</form>
+```
+
+เมื่อ submit form:
+
+```text
+browser -> server action -> database
+```
+
+## Key Message
+
+Server Action ช่วยให้ form เชื่อมกับ server logic ได้โดยไม่ต้องเขียน API route แยกในกรณีพื้นฐาน
+
+---
+
+# Slide 4: Type สำหรับ Create Input
+
+## File
+
+```text
+src/types/issue.ts
+```
+
+## ตำแหน่งที่วาง
+
+วาง `NewIssueInput` ต่อจาก type `Issue` เดิมใน `src/types/issue.ts` แล้ว export เพื่อให้ `actions.ts` และ `issues.ts` ใช้ร่วมกันได้
+
+## Code
+
+```ts
+export type NewIssueInput = {
+  reporterName: string;
+  reporterEmail: string;
+  title: string;
+  description: string;
+};
+```
+
+## Key Message
+
+`NewIssueInput` คือข้อมูลก่อนเข้า database ยังไม่มี `id`, `status`, `createdAt`
+
+---
+
+# Slide 5: Server-side Validation
+
+## File
+
+```text
+src/app/actions.ts
+```
+
+## ตำแหน่งที่วาง
+
+สร้างไฟล์ `src/app/actions.ts` ถ้ายังไม่มี แล้ววาง import และ helper `parseIssueInput` ไว้ด้านบนไฟล์ ก่อน server action หลัก
+
+## Code
+
+```ts
+import type { NewIssueInput } from "@/types/issue";
+
+function parseIssueInput(formData: FormData): NewIssueInput {
+  return {
+  reporterName: String(formData.get("reporterName") ?? "").trim(),
+  reporterEmail: String(formData.get("reporterEmail") ?? "").trim(),
+  title: String(formData.get("title") ?? "").trim(),
+  description: String(formData.get("description") ?? "").trim(),
+  };
+}
+```
+
+---
+
+# Slide 6: Validate Required Fields
+
+## File
+
+```text
+src/app/actions.ts
+```
+
+## ตำแหน่งที่วาง
+
+วาง function `validateIssueInput` ต่อจาก `parseIssueInput` และก่อน `createIssueAction`
+
+## Code
+
+```ts
+function validateIssueInput(input: NewIssueInput): string[] {
+  const errors: string[] = [];
+
+  if (input.reporterName.length < 2) {
+  errors.push("Reporter name is required");
+  }
+
+  if (!input.reporterEmail.includes("@")) {
+  errors.push("Reporter email is invalid");
+  }
+
+  if (input.title.length < 5) {
+  errors.push("Title must be at least 5 characters");
+  }
+
+  if (input.description.length < 10) {
+  errors.push("Description must be at least 10 characters");
+  }
+
+  return errors;
+}
+```
+
+## Key Message
+
+Day 3 validation เพื่อ UX แต่ Day 4 validation ฝั่ง server คือสิ่งจำเป็นก่อนบันทึก database
+
+---
+
+# Slide 7: เพิ่ม `createIssue()`
+
+## File
+
+```text
+src/lib/issues.ts
+```
+
+## ตำแหน่งที่วาง
+
+วาง import `NewIssueInput` ไว้บนสุดของไฟล์ และวาง function `createIssue` ต่อจาก `getIssueById`
+
+## Code
+
+```ts
+import type { NewIssueInput } from "@/types/issue";
+
+export async function createIssue(input: NewIssueInput) {
+  const supabase = createSupabaseServerClient();
+
+  const { error } = await supabase.from("issues").insert({
+  reporter_name: input.reporterName,
+  reporter_email: input.reporterEmail,
+  title: input.title,
+  description: input.description,
+  status: "OPEN",
+  });
+
+  if (error) {
+  throw new Error(`Failed to create issue: ${error.message}`);
+  }
+}
+```
+
+---
+
+# Slide 8: สร้าง `createIssueAction()`
+
+## File
+
+```text
+src/app/actions.ts
+```
+
+## ตำแหน่งที่วาง
+
+วาง `"use server";` เป็นบรรทัดแรกของไฟล์ จากนั้นวาง `createIssueAction` ต่อจาก helper `parseIssueInput` และ `validateIssueInput`
+
+## Code
+
+```ts
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createIssue } from "@/lib/issues";
+
+export async function createIssueAction(formData: FormData) {
+  const input = parseIssueInput(formData);
+  validateIssueInput(input);
+
+  await createIssue(input);
+
+  revalidatePath("/issues");
+  redirect("/issues");
+}
+```
+
+## Key Message
+
+หลัง insert สำเร็จ เรา revalidate หน้า list แล้ว redirect ผู้ใช้กลับไปดูรายการ
+
+---
+
+# Slide 9: ปรับ `IssueForm`
+
+## File
+
+```text
+src/components/IssueForm.tsx
+```
+
+## ตำแหน่งที่แก้
+
+ใช้ตัวอย่างนี้ปรับ form เดิม โดยเปลี่ยนจาก `onSubmit={...}` หรือ form เปล่า ให้เป็น `<form action={createIssueAction}>`; ถ้าไฟล์มี `"use client"` จาก Day 3 ให้ลบออกเมื่อไม่มี state/event handler แล้ว
+
+## Code
+
+```tsx
+import { createIssueAction } from "@/app/actions";
+
+export function IssueForm() {
+  return (
+  <form action={createIssueAction} className="mt-6 grid gap-5">
+    {/* fields */}
+    <button
+      type="submit"
+      className="rounded-md bg-teal-700 px-4 py-3 text-sm font-bold text-white hover:bg-teal-800"
+    >
+      ส่งข้อมูล
+    </button>
+  </form>
+  );
+}
+```
+
+## สำคัญ
+
+ถ้า `IssueForm` ไม่ใช้ `useState` หรือ event handler แล้ว ไม่ต้องมี `"use client"`
+
+---
+
+# Slide 10: หน้า `/issues/new`
+
+## File
+
+```text
+src/app/issues/new/page.tsx
+```
+
+## ตำแหน่งที่แก้
+
+ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `src/app/issues/new/page.tsx` จาก placeholder ของ Day 2
+
+## Code
+
+```tsx
+import { IssueForm } from "@/components/IssueForm";
+
+export default function NewIssuePage() {
+  return (
+  <main className="mx-auto max-w-3xl px-6 py-8">
+    <section className="rounded-lg border border-slate-200 bg-white p-6">
+      <h1 className="text-2xl font-bold text-slate-950">แจ้งปัญหาใหม่</h1>
+      <p className="mt-2 text-sm text-slate-600">
+        กรอกข้อมูลปัญหาที่ต้องการให้ฝ่าย IT ตรวจสอบ
+      </p>
+      <IssueForm />
+    </section>
+  </main>
+  );
+}
+```
+
+---
+
+# Slide 11: Field `name` ต้องตรง
+
+## Form field
+
+```tsx
+<input id="title" name="title" type="text" required />
+```
+
+## Server Action
+
+```ts
+formData.get("title")
+```
+
+## Key Message
+
+ชื่อ `name` ที่ตั้งตั้งแต่ Day 1 ยังเป็นตัวเชื่อมสำคัญถึง Day 4
+
+---
+
+# Slide 12: Test Create Flow
+
+## ขั้นตอนทดสอบ
+
+1. เปิด `/issues/new`
+2. กรอก form
+3. กด submit
+4. ระบบ redirect ไป `/issues`
+5. issue ใหม่แสดงใน list
+6. refresh หน้า
+7. issue ยังอยู่
+
+## ถ้าไม่ขึ้น
+
+ตรวจ:
+
+- terminal error
+- Supabase Table Editor
+- RLS insert policy
+- env vars
+- field `name`
+
+---
+
+# Slide 13: Error UX ตอนนี้ยังไม่สมบูรณ์
+
+## ตอนนี้ถ้า validation fail
+
+อาจเห็น error page ของ Next.js
+
+## ทำไมยังยอมรับได้ในชั่วโมงนี้
+
+เป้าหมายคือเข้าใจ server action + insert ก่อน
+
+## ต่อไปควรทำ
+
+- ใช้ `useActionState`
+- return field errors
+- แสดง error ใกล้ form
+
+## Speaker Notes
+
+อธิบายแนวคิด error state แบบสั้น ๆ เพื่อให้เห็นว่ายังมีจุดที่ต้องปรับเมื่อทำระบบจริง
+
+---
+
+# Slide 14: Server Validation vs Database Constraint
+
+## Server validation
+
+```ts
+if (input.title.length < 5) {
+  throw new Error("Title must be at least 5 characters");
+}
+```
+
+## Database constraint
+
+```sql
+title text not null check (char_length(title) >= 5)
+```
+
+## Key Message
+
+ควรมีทั้งสองชั้น เพราะ server ให้ error ที่ควบคุมได้ ส่วน database เป็นด่านสุดท้าย
+
+---
+
+# Slide 15: Create Issue ลง Supabase
+
+## ขั้นตอน
+
+1. เพิ่ม `NewIssueInput`
+2. เพิ่ม `createIssue()` ใน `src/lib/issues.ts`
+3. สร้าง `src/app/actions.ts`
+4. เขียน `parseIssueInput()`
+5. เขียน `validateIssueInput()`
+6. เขียน `createIssueAction()`
+7. ปรับ `IssueForm` ให้ใช้ `action={createIssueAction}`
+8. ทดสอบสร้าง issue จริง
+
+## ผลลัพธ์
+
+submit form แล้วข้อมูลใหม่เข้า Supabase และแสดงใน `/issues`
+
+---
+
+# Slide 16: โค้ดสุดท้ายของ Create Flow
+
+## `src/app/actions.ts`
+
+Server Action รับ `FormData`, validate, insert แล้ว redirect:
+
+```ts
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createIssue } from "@/lib/issues";
+
+export async function createIssueAction(formData: FormData) {
+  const input = parseIssueInput(formData);
+  const errors = validateIssueInput(input);
+
+  if (errors.length > 0) {
+  throw new Error(errors.join(", "));
+  }
+
+  await createIssue(input);
+  revalidatePath("/issues");
+  redirect("/issues");
+}
+```
+
+## `src/components/IssueForm.tsx`
+
+form ไม่ต้องใช้ `onSubmit` แล้ว ให้เรียก server action ผ่าน `action`:
+
+```tsx
+import { createIssueAction } from "@/app/actions";
+
+export function IssueForm() {
+  return (
+  <form action={createIssueAction}>
+    {/* fields ใช้ name เดิมจาก Day 1 */}
+    <button type="submit">ส่งข้อมูล</button>
+  </form>
+  );
+}
+```
+
+## ภาพรวม
+
+```text
+IssueForm
+-> createIssueAction(formData)
+-> validate ฝั่ง server
+-> createIssue(input)
+-> Supabase insert
+-> revalidatePath("/issues")
+-> redirect("/issues")
+```
+
+---
+
+# Slide 17: Common Mistakes
+
+## ข้อผิดพลาดที่พบบ่อย
+
+- ลืม `"use server"`
+- ใส่ `"use client"` ใน form ที่ import server action แล้วเจอปัญหา
+- field `name` ไม่ตรงกับ `formData.get`
+- RLS policy ไม่อนุญาต insert
+- ลืม `revalidatePath("/issues")`
+- redirect ก่อน insert สำเร็จ
+- ไม่ restart หลังแก้ env
+- คิดว่า `required` ใน HTML พอแล้ว
+
+---
+
+# Slide 18: Recap ชั่วโมงที่สามของ Day 4
+
+## สิ่งที่ได้เรียน
+
+- Server Action ใช้รับ form submit ฝั่ง server
+- `FormData` ใช้ได้ทั้ง client และ server
+- ต้อง validate ฝั่ง server ก่อน insert
+- `createIssue()` insert ลง Supabase
+- `revalidatePath()` ทำให้หน้า list ได้ข้อมูลใหม่
+- `redirect()` พาผู้ใช้กลับไปหน้า list
+
+## ต่อไป
+
+เราจะเพิ่ม update status ลง database, พูดเรื่อง delete เป็น concept และ deploy project ไป Vercel
+
+---
+
+
+---
+
+# คำศัพท์สำคัญ
+
+| คำศัพท์ | ความหมาย |
+|---|---|
+| Server Action | function ฝั่ง server ที่ form เรียกได้ |
+| `FormData` | object สำหรับอ่านค่าจาก form |
+| `revalidatePath` | สั่งให้ Next.js refresh/cache path ที่เกี่ยวข้อง |
+| `redirect` | เปลี่ยนหน้าแบบ server-side |
+| Server validation | validation ก่อนบันทึกฝั่ง server |
+| Database constraint | validation ชั้น database |
+
+---
+
+# อ้างอิงสำหรับผู้สอน
+
+- [Next.js Forms Guide](https://nextjs.org/docs/app/guides/forms)
+- [Next.js Mutating Data](https://nextjs.org/docs/app/getting-started/mutating-data)
+
+
+
+
+
+
+
+
+
+
+
+
+

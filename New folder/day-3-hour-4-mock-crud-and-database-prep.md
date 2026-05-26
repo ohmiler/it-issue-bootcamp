@@ -1,0 +1,660 @@
+﻿# Day 3 - ชั่วโมงที่ 4: Mock Update, Close Issue, Filter, and Database Preparation
+
+## เป้าหมายของชั่วโมงนี้
+
+หลังจบชั่วโมงที่สี่ของ Day 3 ผู้เรียนควรสามารถ:
+
+1. เข้าใจ CRUD flow จากมุม frontend ก่อนเชื่อม database
+2. update status ของ issue ใน mock state ได้
+3. close issue ด้วย status `DONE` ได้
+4. filter issue ตาม status ได้
+5. เข้าใจข้อจำกัดของ mock state
+6. เห็นภาพว่า Day 4 จะเปลี่ยน mock state เป็น database ได้อย่างไร
+
+## ไฟล์ที่ใช้ในชั่วโมงนี้
+
+Mock state และ handlers อยู่ใน:
+
+```text
+src/components/IssueBoard.tsx
+```
+
+Update/close/filter UI อยู่ใน:
+
+```text
+src/components/IssueList.tsx
+src/components/IssueBoard.tsx
+```
+
+---
+
+# โครงสร้างเวลา 60 นาที
+
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-5 นาที | Recap create issue | ถามตอบ |
+| 5-15 นาที | CRUD จากมุม frontend | Explain |
+| 15-25 นาที | Mock update status | Live coding |
+| 25-35 นาที | Close issue แทน hard delete | Live coding |
+| 35-45 นาที | Filter ตาม status | Live coding |
+| 45-55 นาที | จาก mock state ไป database | Explain |
+| 55-60 นาที | สรุปสิ่งที่ทำ | ทำทีละขั้นตอน |
+
+---
+
+# Slide 1: Recap ชั่วโมงที่ 3
+
+## ตอนนี้ระบบทำอะไรได้แล้ว
+
+- form อ่านข้อมูลด้วย `FormData`
+- validate input
+- สร้าง issue ใหม่จาก form
+- เพิ่ม issue เข้า list ด้วย `useState`
+
+## CRUD ที่ทำได้แล้ว
+
+| Action | ตอนนี้ |
+|---|---|
+| Create | ทำได้แบบ mock |
+| Read | ทำได้จาก mock state |
+| Update | ยังไม่ได้ |
+| Delete | จะอธิบายเป็น close/soft delete concept |
+
+## Key Message
+
+ชั่วโมงนี้เราจะเติม Update และ Close issue แบบ mock เพื่อให้เห็น flow ก่อนเข้า database
+
+---
+
+# Slide 2: CRUD จากมุม Frontend
+
+## Create
+
+ผู้ใช้กรอก form แล้ว issue ใหม่ปรากฏใน list
+
+## Read
+
+ผู้ใช้เห็นรายการ issue และดูรายละเอียดได้
+
+## Update
+
+Admin เปลี่ยน status เช่น:
+
+```text
+OPEN -> IN_PROGRESS -> DONE
+```
+
+## Delete ในระบบนี้
+
+ไม่ทำ hard delete เป็น core แต่ใช้แนวคิด:
+
+```text
+Close issue -> เปลี่ยน status เป็น DONE
+Soft delete -> ต่อเติมภายหลังถ้าต้องการ
+```
+
+## Key Message
+
+ก่อนเชื่อม database ควรเข้าใจว่า UI ต้องรองรับ action อะไรบ้าง แต่ไม่จำเป็นต้องทำ hard delete ในระบบแจ้งปัญหาขนาดเล็ก
+
+---
+
+# Slide 3: เพิ่ม Handler สำหรับ Update Status
+
+## File
+
+```text
+src/components/IssueBoard.tsx
+```
+
+## ตำแหน่งที่วาง
+
+วาง function `handleUpdateStatus` ภายใน `IssueBoard` ต่อจาก `useState` และก่อน `return`
+
+## Code
+
+```tsx
+function handleUpdateStatus(id: string, status: IssueStatus) {
+  setItems((currentItems) =>
+  currentItems.map((issue) =>
+    issue.id === id
+      ? {
+          ...issue,
+          status,
+        }
+      : issue
+  )
+  );
+}
+```
+
+## Key Message
+
+ใน React ควร update state แบบ immutable ไม่แก้ object เดิมตรง ๆ
+
+---
+
+# Slide 4: ส่ง Handler เข้า `IssueList`
+
+## File
+
+```text
+src/components/IssueList.tsx และ src/components/IssueBoard.tsx
+```
+
+## ตำแหน่งที่แก้
+
+เพิ่ม `onUpdateStatus` ใน `IssueListProps` ที่อยู่เหนือ function `IssueList` แล้วส่ง `handleUpdateStatus` เข้า `<IssueList />` ใน `IssueBoard`
+
+## Props
+
+```tsx
+type IssueListProps = {
+  issues: Issue[];
+  onUpdateStatus: (id: string, status: IssueStatus) => void;
+};
+```
+
+## ใช้งานใน `IssueBoard`
+
+```tsx
+<IssueList
+  issues={items}
+  onUpdateStatus={handleUpdateStatus}
+/>
+```
+
+---
+
+# Slide 5: UI สำหรับ Update Status
+
+## File
+
+```text
+src/components/IssueList.tsx
+```
+
+## ตำแหน่งที่วาง
+
+วาง `statuses` ไว้เหนือ component `IssueList` แล้ววาง button group นี้ใน `<td>` ของ column จัดการ ภายใน row ที่อยู่ใน `issues.map(...)`
+
+## Code
+
+```tsx
+const statuses: IssueStatus[] = ["OPEN", "IN_PROGRESS", "DONE"];
+
+<div className="flex flex-wrap gap-2">
+  {statuses.map((status) => (
+  <button
+    key={status}
+    type="button"
+    disabled={issue.status === status}
+    onClick={() => onUpdateStatus(issue.id, status)}
+    className="rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold disabled:bg-slate-100 disabled:text-slate-400"
+  >
+    {status}
+  </button>
+  ))}
+</div>
+```
+
+## หมายเหตุ
+
+ในระบบจริง ไม่ใช่ทุก user ที่ควรเปลี่ยน status ได้ สิทธิ์นี้ควรเป็น admin เท่านั้น และต้องตรวจซ้ำฝั่ง server
+
+---
+
+# Slide 6: Close Issue Handler
+
+## File
+
+```text
+src/components/IssueBoard.tsx
+```
+
+## ตำแหน่งที่วาง
+
+วาง function `handleCloseIssue` ต่อจาก `handleUpdateStatus` และก่อน `return`
+
+## Code
+
+```tsx
+function handleCloseIssue(id: string) {
+  handleUpdateStatus(id, "DONE");
+}
+```
+
+## Key Message
+
+สำหรับระบบแจ้งปัญหา การ close issue ด้วย status มักเหมาะกว่า hard delete เพราะยังเก็บประวัติไว้ได้
+
+---
+
+# Slide 7: ส่ง Close Handler เข้า `IssueList`
+
+## File
+
+```text
+src/components/IssueList.tsx และ src/components/IssueBoard.tsx
+```
+
+## ตำแหน่งที่แก้
+
+เพิ่ม `onCloseIssue` ใน `IssueListProps` และเพิ่ม prop `onCloseIssue={handleCloseIssue}` ใน `<IssueList />`
+
+## Props
+
+```tsx
+type IssueListProps = {
+  issues: Issue[];
+  onUpdateStatus: (id: string, status: IssueStatus) => void;
+  onCloseIssue: (id: string) => void;
+};
+```
+
+## ใช้งาน
+
+```tsx
+<IssueList
+  issues={items}
+  onUpdateStatus={handleUpdateStatus}
+  onCloseIssue={handleCloseIssue}
+/>
+```
+
+---
+
+# Slide 8: ปุ่ม Close ใน Table
+
+## File
+
+```text
+src/components/IssueList.tsx
+```
+
+## ตำแหน่งที่วาง
+
+วางปุ่มนี้ใน `<td>` column `จัดการ` ของ row ที่อยู่ใน `issues.map(...)`
+
+## Code
+
+```tsx
+<button
+  type="button"
+  onClick={() => onCloseIssue(issue.id)}
+  className="rounded-md border border-slate-300 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+>
+  ปิดงาน
+</button>
+```
+
+## คำถามชวนคิด
+
+ถ้า admin ปิดงานผิด ระบบควรทำอย่างไร
+
+## ตัวเลือกที่ควรพูดถึง
+
+- confirm dialog
+- audit log
+- reopen issue
+- จำกัดสิทธิ์เฉพาะ admin
+
+---
+
+# Slide 9: Filter ตาม Status
+
+## File
+
+```text
+src/components/IssueBoard.tsx
+```
+
+## ตำแหน่งที่วาง
+
+วาง `statusFilter` ต่อจาก state `items` แล้วสร้าง `visibleIssues` ต่อจาก handler functions ก่อน `return`; จากนั้นส่ง `visibleIssues` เข้า `IssueList` แทน `items`
+
+## State สำหรับ filter
+
+```tsx
+const [statusFilter, setStatusFilter] = useState<IssueStatus | "ALL">("ALL");
+```
+
+## Filtered issues
+
+```tsx
+const visibleIssues =
+  statusFilter === "ALL"
+  ? items
+  : items.filter((issue) => issue.status === statusFilter);
+```
+
+## ส่งเข้า list
+
+```tsx
+<IssueList
+  issues={visibleIssues}
+  onUpdateStatus={handleUpdateStatus}
+  onCloseIssue={handleCloseIssue}
+/>
+```
+
+---
+
+# Slide 10: UI สำหรับ Filter
+
+## File
+
+```text
+src/components/IssueBoard.tsx
+```
+
+## ตำแหน่งที่วาง
+
+วาง filter UI นี้ใน JSX ของ `IssueBoard` เหนือ `<IssueList ... />` เพื่อให้ผู้ใช้เลือกกรองก่อนดู table
+
+## Code
+
+```tsx
+<div className="flex flex-wrap items-center gap-2">
+  {(["ALL", "OPEN", "IN_PROGRESS", "DONE"] as const).map((status) => (
+  <button
+    key={status}
+    type="button"
+    onClick={() => setStatusFilter(status)}
+    className={`rounded-md px-3 py-2 text-sm font-semibold ${
+      statusFilter === status
+        ? "bg-teal-700 text-white"
+        : "border border-slate-300 text-slate-700 hover:bg-slate-50"
+    }`}
+  >
+    {status}
+  </button>
+  ))}
+</div>
+```
+
+## Key Message
+
+Filter เป็น Read behavior ที่ช่วยให้ admin scan งานได้เร็วขึ้น
+
+---
+
+# Slide 11: ปัญหาของ Mock State
+
+## ลองถามผู้เรียน
+
+ถ้า refresh หน้าเว็บแล้ว issue ที่สร้างใหม่ยังอยู่ไหม
+
+## คำตอบ
+
+ไม่อยู่
+
+## เพราะอะไร
+
+ข้อมูลอยู่ใน browser memory ผ่าน `useState`
+
+```text
+refresh page -> React state reset -> mock issue หาย
+```
+
+## Key Message
+
+ถ้าต้องการให้ข้อมูลอยู่ถาวร ต้องบันทึกลง database
+
+---
+
+# Slide 12: จาก Mock State ไป Database
+
+## ตอนนี้
+
+```text
+IssueForm -> useState -> IssueList
+```
+
+## Day 4
+
+```text
+IssueForm -> Server Action -> Validate -> Database -> Re-render IssueList
+```
+
+## สิ่งที่จะเปลี่ยน
+
+- `setItems` จะไม่ใช่ source of truth หลัก
+- database จะเป็น source of truth
+- server ต้อง validate ซ้ำ
+- server ต้องตรวจ permission
+
+---
+
+# Slide 13: Server Actions Concept
+
+## Form ใน Next.js สามารถเรียก Server Action ได้
+
+ตัวอย่าง concept:
+
+## ตำแหน่งของตัวอย่าง
+
+ยังไม่ต้องใส่ใน project ตอนนี้ ใช้เป็น preview ของ Day 4 ว่า `IssueForm` จะเปลี่ยนจาก `onSubmit` ฝั่ง client ไปเป็น `<form action={...}>`
+
+```tsx
+async function createIssue(formData: FormData) {
+  "use server";
+
+  const title = formData.get("title");
+  // validate
+  // save to database
+}
+
+export function IssueForm() {
+  return <form action={createIssue}>...</form>;
+}
+```
+
+## Key Message
+
+Server Action ทำให้ form เรียก logic ฝั่ง server ได้โดยไม่ต้องสร้าง API endpoint แยกในหลายกรณี
+
+---
+
+# Slide 14: แต่ Server Action ต้องปลอดภัย
+
+## ต้องตรวจเสมอ
+
+ใน Server Action ต้องเช็ก:
+
+- input validation
+- authentication
+- authorization
+- record ownership
+- allowed status transition
+- input shape และค่าที่อนุญาต
+
+## Key Message
+
+ซ่อนปุ่มใน UI ไม่พอ เพราะ server action หรือ endpoint อาจถูกเรียกตรงได้
+
+---
+
+# Slide 15: เตรียม Database Schema สำหรับ Day 4
+
+## Entity หลัก
+
+```text
+User
+Issue
+```
+
+## Issue fields
+
+```text
+id
+reporterName
+reporterEmail
+title
+description
+status
+adminComment
+createdAt
+updatedAt
+```
+
+---
+
+# Slide 16: Mapping จาก TypeScript ไป Database
+
+| TypeScript Field | Database Column | หมายเหตุ |
+|---|---|---|
+| `id` | `id` | primary key |
+| `reporterName` | `reporter_name` | required |
+| `reporterEmail` | `reporter_email` | required |
+| `title` | `title` | required |
+| `description` | `description` | required |
+| `status` | `status` | enum |
+| `adminComment` | `admin_comment` | optional |
+| `createdAt` | `created_at` | timestamp |
+| `updatedAt` | `updated_at` | timestamp |
+
+## Key Message
+
+TypeScript data model ที่เราสร้างไว้กำลังกลายเป็น database model ใน Day 4
+
+---
+
+# Slide 17: Mock Update/Close/Filter
+
+## ขั้นตอน
+
+1. เพิ่ม `handleUpdateStatus`
+2. เพิ่ม `handleCloseIssue`
+3. ส่ง handler เข้า `IssueList`
+4. เพิ่มปุ่มเปลี่ยน status
+5. เพิ่มปุ่มปิดงาน
+6. เพิ่ม status filter
+7. ทดสอบ create, read, update และ close ใน mock state
+
+## ผลลัพธ์
+
+ผู้เรียนสามารถทำ frontend CRUD prototype ได้ โดยยังไม่ใช้ database และเข้าใจว่า close/soft delete เป็นทางเลือกที่เหมาะกว่าการลบจริงในระบบนี้
+
+---
+
+# Slide 18: โค้ดสุดท้ายของ Mock Update/Close/Filter
+
+## `src/components/IssueBoard.tsx`
+
+หลังประกอบครบแล้ว `IssueBoard` จะถือ state, filter และ handler ทั้งหมด:
+
+```tsx
+const [items, setItems] = useState<Issue[]>(initialIssues);
+const [statusFilter, setStatusFilter] = useState<IssueStatus | "ALL">("ALL");
+
+function handleUpdateStatus(id: string, status: IssueStatus) {
+  setItems((currentItems) =>
+  currentItems.map((issue) =>
+    issue.id === id ? { ...issue, status } : issue
+  )
+  );
+}
+
+function handleCloseIssue(id: string) {
+  handleUpdateStatus(id, "DONE");
+}
+
+const visibleIssues =
+  statusFilter === "ALL"
+  ? items
+  : items.filter((issue) => issue.status === statusFilter);
+```
+
+## JSX ใน `IssueBoard`
+
+```tsx
+return (
+  <main className="mx-auto grid max-w-5xl gap-6 px-6 py-8">
+  <IssueForm onCreateIssue={handleCreateIssue} />
+
+  <div className="flex flex-wrap items-center gap-2">
+    {(["ALL", "OPEN", "IN_PROGRESS", "DONE"] as const).map((status) => (
+      <button key={status} type="button" onClick={() => setStatusFilter(status)}>
+        {status}
+      </button>
+    ))}
+  </div>
+
+  <IssueList
+    issues={visibleIssues}
+    onUpdateStatus={handleUpdateStatus}
+    onCloseIssue={handleCloseIssue}
+  />
+  </main>
+);
+```
+
+## `IssueList` ต้องรับ props เพิ่ม
+
+```tsx
+type IssueListProps = {
+  issues: Issue[];
+  onUpdateStatus: (id: string, status: IssueStatus) => void;
+  onCloseIssue: (id: string) => void;
+};
+```
+
+---
+
+# Slide 19: Common Mistakes
+
+## ข้อผิดพลาดที่พบบ่อย
+
+- แก้ state ตรง ๆ เช่น `issue.status = "DONE"`
+- ลืมใช้ `.map()` เพื่อสร้าง array ใหม่
+- ส่ง handler ลง component ไม่ครบ
+- type ของ status filter ไม่รองรับ `"ALL"`
+- คิดว่าข้อมูลใน `useState` คือข้อมูลถาวร
+- ลืมว่า update/close ต้องตรวจสิทธิ์ฝั่ง server ในระบบจริง
+
+---
+
+# Slide 20: Recap Day 3
+
+## วันนี้เราได้
+
+- ปรับ UI ด้วย Tailwind
+- สร้าง responsive component
+- สร้าง form state
+- validate input
+- create issue แบบ mock
+- update status และ close issue แบบ mock
+- filter issue แบบ mock
+
+## Key Message
+
+Day 3 ทำให้ app ของเราเป็น frontend CRUD prototype ที่พร้อมเชื่อม database
+
+---
+
+
+---
+
+# Glossary
+
+| คำ | ความหมาย |
+|---|---|
+| Mock state | ข้อมูลจำลองที่เก็บใน browser memory |
+| Immutable update | การสร้างข้อมูลใหม่แทนการแก้ object เดิมตรง ๆ |
+| Close issue | การปิดงานด้วย status เช่น `DONE` |
+| Soft delete | การซ่อนหรือ mark ว่าลบแล้ว โดยไม่ลบ record จริง |
+| Server Action | function ฝั่ง server ที่ form หรือ component เรียกได้ |
+
+
+
+
+
+
+
+
+
+
+
+
+

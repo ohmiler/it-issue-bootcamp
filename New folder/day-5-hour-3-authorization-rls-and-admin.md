@@ -1,0 +1,759 @@
+﻿# Day 5 - ชั่วโมงที่ 3: USER/ADMIN Roles, Admin Page, and RLS
+
+## เป้าหมายของชั่วโมงนี้
+
+หลังจบชั่วโมงที่สามของ Day 5 ผู้เรียนควรสามารถ:
+
+1. เข้าใจ role-based authorization เบื้องต้น
+2. เพิ่ม `created_by` ให้ issue เพื่อผูกข้อมูลกับ user ได้
+3. สร้าง table `profiles` เพื่อเก็บ role ได้
+4. ตั้ง role `USER` และ `ADMIN` ให้ account ตัวอย่างได้
+5. สร้างหน้า `/admin/issues` แบบง่ายได้
+6. จำกัดสิทธิ์ user/admin ด้วย server action และ RLS ได้
+7. เข้าใจว่า UI, server action และ RLS ต้องทำงานร่วมกัน
+
+## ไฟล์ที่ใช้ในชั่วโมงนี้
+
+SQL รันใน Supabase SQL Editor
+
+แก้ไฟล์:
+
+```text
+src/lib/auth.ts
+src/lib/issues.ts
+src/app/actions.ts
+src/types/issue.ts
+src/components/IssueList.tsx
+src/app/admin/issues/page.tsx
+```
+
+---
+
+# โครงสร้างเวลา 60 นาที
+
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-10 นาที | Recap login/protected page | ถามตอบ |
+| 10-20 นาที | USER/ADMIN roles | Explain |
+| 20-35 นาที | SQL: profiles, created_by, RLS policies | Live coding |
+| 35-50 นาที | Admin page และ server action role check | Live coding |
+| 50-60 นาที | สรุปสิ่งที่ทำ | ทำทีละขั้นตอน |
+
+---
+
+# Slide 1: Recap ชั่วโมงที่ 2
+
+## ตอนนี้เรามี
+
+- login
+- logout
+- session
+- protected page
+
+## แต่ยังขาด
+
+```text
+ใครมีสิทธิ์ทำอะไร
+```
+
+## Key Message
+
+Authentication ตอบว่า user คือใคร ส่วน authorization ตอบว่า user ทำอะไรได้
+
+---
+
+# Slide 2: Role ที่ใช้ในระบบนี้
+
+## Role พื้นฐาน
+
+```text
+USER
+ADMIN
+```
+
+## USER ทำอะไรได้
+
+- สร้าง issue
+- ดู issue ของตัวเอง
+- ดู status ของ issue ตัวเอง
+
+## ADMIN ทำอะไรได้
+
+- ดู issue ทั้งหมด
+- update status
+- ปิดงานด้วย status `DONE`
+
+## Key Message
+
+คอร์สนี้ไม่ทำ admin comment และ hard delete เป็น core เพื่อให้ระบบเล็กพอดีกับเวลา
+
+---
+
+# Slide 3: เพิ่ม `created_by` ใน Issues
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันหลังจากระบบ login ได้แล้ว และหลังจาก table `issues` จาก Day 4 มีอยู่แล้ว
+
+## SQL
+
+```sql
+alter table public.issues
+add column if not exists created_by uuid references auth.users(id);
+```
+
+## ทำไมต้องมี
+
+ถ้าไม่รู้ว่า issue นี้ใครสร้าง จะเขียน policy ว่า user ดูของตัวเองเท่านั้นไม่ได้
+
+---
+
+# Slide 4: สร้าง Table `profiles`
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันต่อจากการเพิ่ม column `created_by` ใน Slide 3
+
+## SQL
+
+```sql
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  role text not null default 'USER' check (role in ('USER', 'ADMIN')),
+  created_at timestamptz not null default now()
+);
+```
+
+## Key Message
+
+`auth.users` เก็บตัวตน ส่วน `profiles` เก็บข้อมูลของ app เช่น role
+
+---
+
+# Slide 5: Sync User ที่ผู้สอนสร้างไว้
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันหลังจากสร้าง table `profiles` แล้ว เพื่อสร้าง profile ให้ account ตัวอย่างที่ผู้สอนสร้างไว้
+
+## SQL
+
+```sql
+insert into public.profiles (id, email, role)
+select id, email, 'USER'
+from auth.users
+on conflict (id) do nothing;
+```
+
+## ตั้ง admin ให้ account ตัวอย่าง
+
+```sql
+update public.profiles
+set role = 'ADMIN'
+where email = 'admin@example.com';
+```
+
+## Key Message
+
+ในห้องเรียนให้ใช้ account ที่เตรียมไว้ เช่น `user@example.com` และ `admin@example.com` เพื่อไม่ต้องเสียเวลาทำ register flow
+
+---
+
+# Slide 6: เปิด RLS ให้ `profiles`
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันหลังจาก table `profiles` มีข้อมูลแล้ว และก่อนให้ app อ่าน role จาก `profiles`
+
+## เปิด RLS
+
+```sql
+alter table public.profiles enable row level security;
+```
+
+## ให้ user อ่าน profile ของตัวเอง
+
+```sql
+create policy "users_can_view_own_profile"
+on public.profiles
+for select
+to authenticated
+using (id = (select auth.uid()));
+```
+
+## Key Message
+
+`profiles` มี role ของผู้ใช้ จึงไม่ควรปล่อยให้ทุกคนอ่าน role ของทุกคนได้
+
+---
+
+# Slide 7: ลบ Demo Policies จาก Day 4
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันก่อนสร้าง policy จริงของ Day 5 เพื่อเอา demo-public policy จาก Day 4 ออก
+
+## SQL
+
+```sql
+drop policy if exists "demo_select_issues" on public.issues;
+drop policy if exists "demo_insert_issues" on public.issues;
+drop policy if exists "demo_update_issues" on public.issues;
+```
+
+## Key Message
+
+ถ้า demo policy ยังอยู่ policy ใหม่อาจไม่ได้ช่วยป้องกันอะไร
+
+---
+
+# Slide 8: Helper SQL สำหรับ Admin
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันหลังจากสร้าง `profiles` และตั้ง admin แล้ว เพราะ function นี้อ่าน role จาก `profiles`
+
+## SQL
+
+```sql
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select exists (
+  select 1
+  from public.profiles
+  where id = (select auth.uid())
+    and role = 'ADMIN'
+  );
+$$;
+```
+
+## Note
+
+security definer function ควรอยู่ใน schema ที่ควบคุมได้ และเขียนให้แคบที่สุด
+
+---
+
+# Slide 9: RLS Select Policy
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันหลังจากลบ demo policies และสร้าง function `public.is_admin()` แล้ว
+
+## SQL
+
+```sql
+create policy "authenticated_users_can_view_own_or_admin_all"
+on public.issues
+for select
+to authenticated
+using (
+  created_by = (select auth.uid())
+  or public.is_admin()
+);
+```
+
+## Key Message
+
+USER เห็นของตัวเอง ส่วน ADMIN เห็นทั้งหมด
+
+---
+
+# Slide 10: RLS Insert Policy
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันต่อจาก select policy ของ Slide 9
+
+```sql
+create policy "authenticated_users_can_insert_own_issues"
+on public.issues
+for insert
+to authenticated
+with check (
+  created_by = (select auth.uid())
+);
+```
+
+## Key Message
+
+เวลาสร้าง issue ต้องบังคับให้ `created_by` ตรงกับ user ที่ login
+
+---
+
+# Slide 11: RLS Update Policy สำหรับ Admin
+
+## File
+
+```text
+Supabase SQL Editor
+```
+
+## ตำแหน่งที่รัน
+
+รันต่อจาก insert policy เพื่อจำกัด update status ให้ admin เท่านั้น
+
+## SQL
+
+```sql
+create policy "admins_can_update_issues"
+on public.issues
+for update
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+```
+
+## Key Message
+
+คอร์สนี้ให้ admin update status เป็น core ส่วน delete จริงเป็น production discussion
+
+---
+
+# Slide 12: Update TypeScript Type
+
+## File
+
+```text
+src/types/issue.ts
+```
+
+## ตำแหน่งที่แก้
+
+เพิ่ม `UserRole` ใต้ type อื่น ๆ และเพิ่ม field `createdBy?: string` เข้าไปใน type `Issue` เดิม ไม่ต้องสร้าง type `Issue` ซ้ำทั้งก้อน
+
+## เพิ่ม field
+
+```ts
+export type UserRole = "USER" | "ADMIN";
+
+export type Issue = {
+  // existing fields
+  createdBy?: string;
+};
+```
+
+## หมายเหตุ
+
+ถ้าต้องการ strict ให้ `createdBy` เป็น required หลังจาก migrate ข้อมูลเก่าแล้ว
+
+---
+
+# Slide 13: `getCurrentUserRole()` และ `requireAdmin()`
+
+## File
+
+```text
+src/lib/auth.ts
+```
+
+## ตำแหน่งที่วาง
+
+เพิ่ม import `UserRole` ด้านบนของไฟล์ แล้ววาง functions เหล่านี้ต่อจาก `requireUser`
+
+## Code
+
+```ts
+import type { UserRole } from "@/types/issue";
+
+export async function getCurrentUserRole(): Promise<UserRole | null> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+  return null;
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+  .from("profiles")
+  .select("role")
+  .eq("id", user.id)
+  .maybeSingle();
+
+  if (error || !data) {
+  return null;
+  }
+
+  return data.role as UserRole;
+}
+
+export async function requireAdmin() {
+  const user = await requireUser();
+  const role = await getCurrentUserRole();
+
+  if (role !== "ADMIN") {
+  redirect("/issues");
+  }
+
+  return user;
+}
+```
+
+---
+
+# Slide 14: ปรับ Create Action ให้ใส่ `created_by`
+
+## File
+
+```text
+src/app/actions.ts
+```
+
+## ตำแหน่งที่แก้
+
+เพิ่ม `const user = await requireUser();` เป็นบรรทัดแรกใน `createIssueAction` ก่อน parse/validate input แล้วเปลี่ยนการเรียก `createIssue(input)` เป็น `createIssue(input, user.id)`
+
+## Code
+
+```ts
+import { requireUser } from "@/lib/auth";
+
+export async function createIssueAction(formData: FormData) {
+  const user = await requireUser();
+  const input = parseIssueInput(formData);
+  validateIssueInput(input);
+
+  await createIssue(input, user.id);
+
+  revalidatePath("/issues");
+  redirect("/issues");
+}
+```
+
+---
+
+# Slide 15: ปรับ `createIssue()`
+
+## File
+
+```text
+src/lib/issues.ts
+```
+
+## ตำแหน่งที่แก้
+
+ใช้ code นี้แทน function `createIssue` เดิม เพื่อรับ `userId` เพิ่มและ insert ค่า `created_by`
+
+## Code
+
+```ts
+export async function createIssue(input: NewIssueInput, userId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("issues").insert({
+  reporter_name: input.reporterName,
+  reporter_email: input.reporterEmail,
+  title: input.title,
+  description: input.description,
+  status: "OPEN",
+  created_by: userId,
+  });
+
+  if (error) {
+  throw new Error(`Failed to create issue: ${error.message}`);
+  }
+}
+```
+
+---
+
+# Slide 16: ตรวจ Admin ก่อน Update Status
+
+## File
+
+```text
+src/app/actions.ts
+```
+
+## ตำแหน่งที่แก้
+
+เพิ่ม import `requireAdmin` ด้านบนของไฟล์ แล้วเพิ่ม `await requireAdmin();` เป็นบรรทัดแรกใน `updateIssueStatusAction`
+
+## Code
+
+```ts
+import { requireAdmin } from "@/lib/auth";
+
+export async function updateIssueStatusAction(formData: FormData) {
+  await requireAdmin();
+  // validate id/status and update
+}
+```
+
+## Key Message
+
+Admin action ต้องตรวจทั้งใน server action และ RLS เพื่อ defense in depth
+
+---
+
+# Slide 17: สร้างหน้า Admin Issues
+
+## File
+
+```text
+src/app/admin/issues/page.tsx
+```
+
+## ตำแหน่งที่วาง
+
+สร้าง folder `src/app/admin/issues/` แล้วสร้างไฟล์ `page.tsx` ข้างใน จากนั้นใส่ code นี้เป็นเนื้อหาทั้งไฟล์
+
+## Code
+
+```tsx
+import { IssueList } from "@/components/IssueList";
+import { requireAdmin } from "@/lib/auth";
+import { getIssues } from "@/lib/issues";
+
+export default async function AdminIssuesPage() {
+  await requireAdmin();
+  const issues = await getIssues();
+
+  return (
+  <main className="mx-auto max-w-5xl px-6 py-8">
+    <h1 className="text-2xl font-bold text-slate-950">Admin Issues</h1>
+    <p className="mt-2 text-sm text-slate-600">
+      หน้านี้สำหรับ admin เพื่อดู issue ทั้งหมดและ update status
+    </p>
+    <div className="mt-6">
+      <IssueList issues={issues} role="ADMIN" />
+    </div>
+  </main>
+  );
+}
+```
+
+## Key Message
+
+หน้า admin แยกออกมาช่วยให้ผู้เรียนเห็นชัดว่า user page กับ admin page ต่างกันอย่างไร
+
+---
+
+# Slide 18: UI ตาม Role
+
+## File
+
+```text
+src/components/IssueList.tsx
+```
+
+## ตำแหน่งที่แก้
+
+เพิ่ม `role` ใน props ของ `IssueList` แล้วแสดง update status form เฉพาะเมื่อ `role === "ADMIN"`
+
+## Concept
+
+```tsx
+type IssueListProps = {
+  issues: Issue[];
+  role?: UserRole;
+};
+```
+
+ใน row ของ table:
+
+```tsx
+{role === "ADMIN" && (
+  <td>{/* update status form */}</td>
+)}
+```
+
+## Warning
+
+ซ่อน UI เพื่อ UX เท่านั้น security จริงต้องอยู่ที่ server action และ RLS
+
+---
+
+# Slide 19: Roles and Admin Page
+
+## ขั้นตอน
+
+1. เพิ่ม `created_by`
+2. สร้าง `profiles`
+3. sync user ที่มีอยู่
+4. ตั้ง `admin@example.com` เป็น `ADMIN`
+5. เปิด RLS และสร้าง select policy ให้ `profiles`
+6. ลบ demo policies
+7. สร้าง authenticated RLS policies ให้ `issues`
+8. ปรับ create action ให้ใส่ `created_by`
+9. ปรับ update status ให้ require admin
+10. สร้างหน้า `/admin/issues`
+
+---
+
+# Slide 20: โค้ดสุดท้ายของ Roles และ Admin Page
+
+## `src/lib/auth.ts`
+
+```ts
+export async function requireAdmin() {
+  const user = await requireUser();
+  const role = await getCurrentUserRole();
+
+  if (role !== "ADMIN") {
+  redirect("/issues");
+  }
+
+  return user;
+}
+```
+
+## `src/app/actions.ts`
+
+```ts
+export async function createIssueAction(formData: FormData) {
+  const user = await requireUser();
+  const input = parseIssueInput(formData);
+
+  await createIssue(input, user.id);
+  revalidatePath("/issues");
+  redirect("/issues");
+}
+
+export async function updateIssueStatusAction(formData: FormData) {
+  await requireAdmin();
+  // validate id/status and update
+}
+```
+
+## `src/app/admin/issues/page.tsx`
+
+```tsx
+export default async function AdminIssuesPage() {
+  await requireAdmin();
+  const issues = await getIssues();
+
+  return (
+  <main className="mx-auto max-w-5xl px-6 py-8">
+    <h1 className="text-2xl font-bold text-slate-950">Admin Issues</h1>
+    <IssueList issues={issues} role="ADMIN" />
+  </main>
+  );
+}
+```
+
+---
+
+# Slide 21: Test USER vs ADMIN
+
+## Test ด้วย USER
+
+- login ด้วย `user@example.com`
+- สร้าง issue ได้
+- เห็น issue ของตัวเอง
+- เปิด `/admin/issues` แล้วถูก redirect กลับ `/issues`
+
+## Test ด้วย ADMIN
+
+- login ด้วย `admin@example.com`
+- เปิด `/admin/issues` ได้
+- เห็น issue ทั้งหมด
+- update status ได้
+
+## Key Message
+
+การ test auth ต้อง test มากกว่าหนึ่ง role เสมอ
+
+---
+
+# Slide 22: Common Mistakes
+
+## ข้อผิดพลาดที่พบบ่อย
+
+- ลืมลบ demo policy
+- ลืมเปิด RLS ให้ `profiles`
+- policy ไม่มี `to authenticated`
+- ลืมใส่ `created_by` ตอน insert
+- ตั้ง admin email ผิด
+- ซ่อนปุ่มแล้วคิดว่าปลอดภัย
+- server action ไม่ตรวจ role
+- RLS กับ server logic ไม่ตรงกัน
+
+---
+
+# Slide 23: Recap ชั่วโมงที่สามของ Day 5
+
+## สิ่งที่ได้เรียน
+
+- Authorization ต้องตามหลัง authentication
+- Role ช่วยแบ่งสิทธิ์ USER/ADMIN
+- `profiles` เก็บ role ของผู้ใช้
+- หน้า `/admin/issues` เป็น admin page แบบเล็ก
+- RLS policy ปกป้อง database
+- server action ต้องตรวจ user/role
+- UI ซ่อนปุ่มเพื่อ UX แต่ไม่ใช่ security boundary
+
+## ต่อไป
+
+เราจะปิดหลักสูตรด้วย OWASP, LLM-safe coding, จุดตรวจ deploy และ final demo
+
+---
+
+# อ้างอิงสำหรับผู้สอน
+
+- [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
+
+
+
+
+
+
+
+
+
+
+
+
+

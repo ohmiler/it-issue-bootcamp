@@ -1,0 +1,435 @@
+﻿# Day 5 - ชั่วโมงที่ 4: Security, LLM-safe Coding, จุดตรวจ Deploy, and Final Demo
+
+## เป้าหมายของชั่วโมงนี้
+
+หลังจบชั่วโมงสุดท้าย ผู้เรียนควรสามารถ:
+
+1. เข้าใจ OWASP Top 10 ที่เกี่ยวข้องกับโปรเจกต์นี้
+2. ตรวจรายการ security ของ Next.js + Supabase app ได้
+3. ใช้ LLM ช่วยเขียน code อย่างมีวิจารณญาณ
+4. ตรวจ deploy settings ก่อนส่งงานได้
+5. นำเสนอ final demo แบบอธิบาย flow ได้
+6. เห็นเส้นทางต่อยอดหลัง bootcamp
+
+## ไฟล์ที่ใช้ในชั่วโมงนี้
+
+แก้หรือเพิ่มเอกสาร:
+
+```text
+README.md
+.env.example
+SECURITY_CHECKLIST.md
+```
+
+ตรวจ config:
+
+```text
+Supabase Dashboard
+Vercel Dashboard
+GitHub Repository
+```
+
+---
+
+# โครงสร้างเวลา 60 นาที
+
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-10 นาที | Recap ระบบที่สร้างมา | Explain |
+| 10-25 นาที | OWASP ที่เกี่ยวข้อง | Explain |
+| 25-35 นาที | LLM-safe coding workflow | Discussion |
+| 35-45 นาที | จุดตรวจ deploy/security | ทำทีละขั้นตอน |
+| 45-60 นาที | Final demo และ wrap-up | Demo |
+
+---
+
+# Slide 1: เราสร้างอะไรมาตลอด 5 วัน
+
+## จาก Day 1 ถึง Day 5
+
+```text
+Day 1: Static prototype
+Day 2: Next.js app
+Day 3: Tailwind + frontend CRUD prototype
+Day 4: Supabase database + deploy
+Day 5: Auth + RLS + security
+```
+
+## ระบบตอนนี้มี
+
+- Issue form
+- Issue list
+- Issue detail
+- Create/read/update status
+- Supabase database
+- Server Actions
+- Login/logout
+- Role USER/ADMIN
+- RLS policies
+- Vercel deployment
+
+---
+
+# Slide 2: Security Mindset
+
+## คำถามสำคัญ
+
+1. ใครกำลังใช้งานระบบ
+2. เขามีสิทธิ์ทำ action นี้ไหม
+3. ข้อมูลที่ส่งเข้ามาถูกต้องไหม
+4. database ป้องกันซ้ำหรือไม่
+5. secret รั่วหรือเปล่า
+6. ถ้า LLM สร้าง code นี้มา เราเข้าใจมันไหม
+
+## Key Message
+
+ระบบที่ run ได้ยังไม่เท่ากับระบบที่ปลอดภัย
+
+---
+
+# Slide 3: OWASP Top 10 ที่เกี่ยวข้อง
+
+## หัวข้อที่ควรเน้น
+
+- Broken Access Control
+- Injection
+- Identification and Authentication Failures
+- Security Misconfiguration
+- Cryptographic Failures
+- Vulnerable and Outdated Components
+
+## Key Message
+
+ไม่ต้องจำ OWASP ทั้งหมด แต่ต้องรู้ว่าจุดเสี่ยงของระบบตัวเองอยู่ตรงไหน
+
+---
+
+# Slide 4: Broken Access Control
+
+## ตัวอย่างในโปรเจกต์นี้
+
+- user ธรรมดา update status ได้
+- หน้า admin ซ่อนปุ่มแต่ server action ยังเรียกได้
+- RLS policy เปิดกว้างเกินไป
+
+## วิธีป้องกัน
+
+- ตรวจ role ใน server action
+- ใช้ RLS policy
+- แยก USER/ADMIN
+- test ด้วย user หลาย role
+
+---
+
+# Slide 5: Injection
+
+## ตัวอย่าง
+
+ผู้ใช้ส่ง input แปลก ๆ เข้ามา เช่น:
+
+```text
+<script>alert("xss")</script>
+```
+
+หรือพยายามส่ง query ที่ไม่ควรส่ง
+
+## วิธีป้องกัน
+
+- ใช้ Supabase client/parameterized query
+- validate input
+- จำกัด enum
+- ไม่สร้าง SQL จาก string user input เอง
+- escape/encode output ตาม context
+
+---
+
+# Slide 6: Auth Failures
+
+## ตัวอย่าง
+
+- เชื่อว่า login แล้วเป็น admin ทุกคน
+- session หมดอายุแต่ยังทำ action ได้
+- redirect URL ตั้งผิด
+- prepared account ตั้ง role ผิด
+
+## วิธีป้องกัน
+
+- ตรวจ user ใน server action
+- ตรวจ role
+- ตั้ง redirect URL เฉพาะ domain ที่ใช้จริงถ้ามี auth redirect flow
+- logout ให้ clear session
+- RLS policy ต้องทำงานแม้ UI พลาด
+
+---
+
+# Slide 7: Security Misconfiguration
+
+## ตัวอย่าง
+
+- `.env.local` ถูก commit
+- Vercel env vars ขาด
+- demo RLS policy ยังอยู่
+- Supabase project เปิด public กว้างเกินไป
+- error message เปิดเผยข้อมูลมากเกินไป
+
+## จุดที่ต้องตรวจ
+
+- ลบ demo policy
+- ตรวจ `.gitignore`
+- ตรวจ env vars
+- ตรวจ Supabase Auth URL config
+- ตรวจ Vercel deploy settings
+
+---
+
+# Slide 8: LLM-safe Coding
+
+## ใช้ LLM อย่างไรให้ปลอดภัยขึ้น
+
+ให้ LLM ช่วย:
+
+- อธิบาย flow
+- ช่วยเขียน boilerplate
+- review code
+- หา edge cases
+- สรุป docs
+
+อย่าให้ LLM:
+
+- รับ API key หรือ secret
+- ตัดสิน security policy แทนเราโดยไม่ review
+- generate auth code แล้วเอาไปใช้ทันทีโดยไม่เข้าใจ
+
+---
+
+# Slide 9: Prompt ที่ดีสำหรับ Security Review
+
+```text
+ช่วย review server action นี้ในมุม broken access control:
+- action นี้ตรวจ user หรือยัง
+- ตรวจ role หรือยัง
+- RLS policy ที่ควรมีคืออะไร
+- มี field ไหนที่ user ไม่ควรแก้เอง
+```
+
+```text
+ช่วยอธิบาย auth flow ของ Supabase + Next.js code นี้ทีละขั้น
+และบอกว่าจุดไหนเกี่ยวกับ cookie, session และ RLS
+```
+
+---
+
+# Slide 10: จุดตรวจ Deploy
+
+## Vercel
+
+- build ผ่าน
+- env vars ครบ
+- production URL ถูกต้อง
+- redeploy หลังแก้ env
+
+## Supabase
+
+- Site URL ถูกต้อง
+- Auth settings ถูกต้อง
+- RLS enabled
+- ไม่มี demo policy เหลืออยู่
+- admin role ตั้งถูกคน
+
+## GitHub
+
+- ไม่มี `.env.local`
+- README อัปเดต
+- commit message อ่านรู้เรื่อง
+
+---
+
+# Slide 11: สร้าง `SECURITY_CHECKLIST.md`
+
+## File
+
+```text
+SECURITY_CHECKLIST.md
+```
+
+## ตำแหน่งที่วาง
+
+สร้างไฟล์ `SECURITY_CHECKLIST.md` ที่ project root ระดับเดียวกับ `README.md` และ `package.json`
+
+## ตัวอย่าง
+
+```md
+# Security Checklist
+
+- [ ] `.env.local` ไม่ถูก commit
+- [ ] Server Actions ตรวจ user
+- [ ] Admin actions ตรวจ role
+- [ ] RLS enabled
+- [ ] Demo policies ถูกลบแล้ว
+- [ ] Supabase Auth settings ถูกต้อง
+- [ ] Validation มีทั้ง frontend และ server
+- [ ] ไม่มี service role key ใน frontend
+```
+
+---
+
+# Slide 12: README Final
+
+## File
+
+```text
+README.md
+```
+
+## ตำแหน่งที่แก้
+
+เพิ่มหัวข้อเหล่านี้ต่อท้าย `README.md` หรือจัดรวมกับหัวข้อเดิมที่มีอยู่แล้ว โดยไม่ต้องลบเนื้อหาที่ผู้เรียนเขียนไว้ก่อนหน้า
+
+## ควรมีหัวข้อ
+
+- Project overview
+- Tech stack
+- Features
+- Routes
+- Database schema
+- Environment variables
+- Auth flow
+- Role/permission
+- Deploy steps
+- Security notes
+
+## Key Message
+
+README ที่ดีทำให้คนอื่นรับช่วงดูแลระบบต่อได้ง่ายขึ้น
+
+---
+
+# Slide 13: Final Demo Format
+
+## ผู้สอนพาไล่ final demo 5-10 นาที
+
+ควรอธิบาย:
+
+1. ระบบทำอะไร
+2. User flow เป็นอย่างไร
+3. CRUD อยู่ตรงไหน
+4. Auth flow เป็นอย่างไร
+5. USER/ADMIN ต่างกันอย่างไร
+6. RLS ป้องกันอะไร
+7. Deploy URL คืออะไร
+8. สิ่งที่อยากต่อยอด
+
+---
+
+# Slide 14: จุดตรวจ Demo
+
+## ระหว่าง demo ต้องโชว์
+
+- login
+- create issue
+- view issue list
+- view issue detail
+- admin update status
+- admin close issue ด้วย status `DONE`
+- logout
+- production URL
+
+## ถ้ามีปัญหา
+
+อธิบาย debugging path ให้เห็นเป็นลำดับ:
+
+- ดู browser console
+- ดู terminal
+- ดู Vercel logs
+- ดู Supabase logs/Table Editor
+
+---
+
+# Slide 15: สิ่งที่ควรต่อยอดหลัง Bootcamp
+
+## Technical
+
+- Supabase Storage สำหรับ image upload จริง
+- Email/Line notification
+- Pagination
+- Search
+- Audit log
+- Soft delete
+- Better error handling
+- `useActionState`
+- Testing
+
+## Security
+
+- Rate limiting
+- Admin invitation flow
+- Fine-grained RLS
+- Monitoring/logging
+- Backup policy
+
+---
+
+# Slide 16: Final Cleanup
+
+## ขั้นตอน
+
+1. ตรวจ README
+2. สร้าง `SECURITY_CHECKLIST.md`
+3. ตรวจ Supabase RLS
+4. ตรวจ Vercel env vars
+5. ทดสอบ production URL
+6. commit final changes
+7. เตรียม demo 5 นาที
+
+---
+
+# Slide 17: Common Mistakes
+
+## ข้อผิดพลาดที่พบบ่อย
+
+- demo ด้วย local URL แทน production URL
+- ลืม logout แล้ว test role ผิด
+- admin policy ใช้ไม่ได้เพราะยังไม่ได้ตั้ง role
+- Vercel env ไม่ตรงกับ local
+- redirect URL ใช้ localhost ใน production
+- README ไม่มีขั้นตอน deploy
+- LLM สร้าง policy แล้วไม่ได้อ่านเอง
+
+---
+
+# Slide 18: Wrap-up
+
+## ผู้เรียนควรกลับไปทำอะไรต่อได้
+
+- อ่าน codebase Next.js ได้
+- แก้ UI และ form ได้
+- เข้าใจ CRUD flow
+- เชื่อม Supabase database ได้
+- deploy ขึ้น Vercel ได้
+- เข้าใจ auth/session/RLS concept
+- ใช้ LLM ช่วย coding ได้อย่างระวังขึ้น
+
+## Key Message
+
+เป้าหมายของ bootcamp ไม่ใช่จำทุก syntax แต่คือเห็นภาพระบบเว็บจริงและรู้ว่าจะตรวจอะไรเมื่อระบบต้องใช้งานจริง
+
+---
+
+# อ้างอิงสำหรับผู้สอน
+
+- [OWASP Top 10](https://owasp.org/Top10/2021/)
+- [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Supabase Auth with Next.js](https://supabase.com/docs/guides/auth/quickstarts/nextjs)
+
+
+
+
+
+
+
+
+
+
+
+
+

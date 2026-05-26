@@ -1,0 +1,763 @@
+---
+title: "TypeScript Data Model"
+day: 2
+hour: 3
+duration: 60
+source: "day-2-hour-3-typescript-data-model.md"
+---
+
+# TypeScript Data Model
+
+## Day 2 - ชั่วโมงที่ 3: TypeScript Data Model and Mock Issues
+
+### เป้าหมายของชั่วโมงนี้
+
+หลังจบชั่วโมงที่สามของ Day 2 ผู้เรียนควรสามารถ:
+
+1. เข้าใจว่า TypeScript ช่วยจัดการข้อมูลใน Next.js project อย่างไร
+2. สร้าง type สำหรับข้อมูล issue ได้
+3. ใช้ union type เพื่อจำกัดค่าที่เป็นไปได้ เช่น status
+4. สร้าง mock data เป็น `Issue[]` ได้
+5. ใช้ `.map()` เพื่อแสดง issue list จาก array ได้
+6. เขียน function ช่วยแปลง status เป็น CSS class ได้
+7. เห็นความเชื่อมโยงระหว่าง data model กับ UI ที่แสดงผลจริง
+
+### ไฟล์ที่ใช้ในชั่วโมงนี้
+
+แบบง่ายสำหรับห้องเรียน ให้เริ่มวาง type และ mock data ใน:
+
+```text
+src/app/page.tsx
+```
+
+เมื่อพร้อมแยกไฟล์ ให้ย้ายไป:
+
+```text
+src/types/issue.ts
+src/data/issues.ts
+```
+
+---
+
+## โครงสร้างเวลา 60 นาที
+
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-5 นาที | Recap การย้าย static prototype เข้า Next.js | ถามตอบ |
+| 5-15 นาที | ทำไมต้องมี TypeScript data model | Explain |
+| 15-25 นาที | สร้าง `IssueStatus` และ `Issue` | Live coding |
+| 25-35 นาที | สร้าง mock data `issues: Issue[]` | Live coding |
+| 35-45 นาที | Render issue list ด้วย `.map()` | Live coding |
+| 45-55 นาที | ประกอบโค้ดสุดท้ายใน `page.tsx` | Live coding |
+| 55-60 นาที | ตรวจผลลัพธ์และสรุป | สรุป |
+
+---
+
+## Slide 1: Recap ก่อนเข้า TypeScript
+
+### ตอนนี้เรามีอะไรแล้วจากชั่วโมงที่ 2
+
+- Next.js project
+- หน้าแรกใน `src/app/page.tsx`
+- HTML structure จาก Day 1 ถูกย้ายเป็น TSX แล้ว
+- CSS บางส่วนถูกย้ายเข้า `globals.css`
+- ตาราง issue list ยังเป็นข้อมูล static ใน JSX
+
+### ปัญหาที่เหลือ
+
+ข้อมูล issue ยังเขียนซ้ำอยู่ใน UI:
+
+```tsx
+<td>#001</td>
+<td>Login เข้าระบบไม่ได้</td>
+<td>Anan</td>
+<td><span className="status status-open">OPEN</span></td>
+```
+
+### Key Message
+
+ชั่วโมงนี้เราจะต่อจาก table ที่ย้ายเข้า Next.js แล้ว โดยย้ายข้อมูลออกจาก JSX และสร้าง data model ด้วย TypeScript
+
+---
+
+## Slide 2: จาก Static Table ไปเป็น Data-driven UI
+
+### ก่อนปรับ
+
+ข้อมูลอยู่ใน table โดยตรง
+
+```tsx
+<tr>
+  <td>#001</td>
+  <td>Login เข้าระบบไม่ได้</td>
+  <td>Anan</td>
+  <td><span className="status status-open">OPEN</span></td>
+</tr>
+```
+
+### หลังปรับ
+
+ข้อมูลอยู่ใน array
+
+```ts
+const issues = [
+  {
+  id: "001",
+  reporterName: "Anan",
+  reporterEmail: "anan@example.com",
+  title: "Login เข้าระบบไม่ได้",
+  status: "OPEN",
+  },
+];
+```
+
+แล้ว UI ใช้ `.map()` แสดงผล
+
+### Key Message
+
+นี่คือก้าวแรกจาก static page ไปสู่ web application ที่ขับเคลื่อนด้วยข้อมูล
+
+---
+
+## Slide 3: TypeScript คืออะไร
+
+### TypeScript คือ
+
+ภาษา JavaScript ที่เพิ่มระบบ type เข้าไป
+
+```text
+JavaScript + Types = TypeScript
+```
+
+### JavaScript
+
+```js
+let status = "OPEN";
+status = 123;
+```
+
+### TypeScript
+
+```ts
+let status: string = "OPEN";
+status = 123;
+```
+
+TypeScript จะเตือนว่า number ไม่สามารถใส่ในตัวแปร string ได้
+
+---
+
+## Slide 4: ทำไมต้องใช้ Type กับ Issue
+
+### ปัญหาถ้าไม่มี Type
+
+- พิมพ์ชื่อ field ผิด เช่น `titel` แทน `title`
+- ลืม field สำคัญ
+- status มีค่าหลุด เช่น `FINISHED`
+- function รับข้อมูลผิดรูปแบบ
+
+### TypeScript ช่วยอะไร
+
+- กำหนดโครงสร้างข้อมูลให้ชัด
+- editor autocomplete ได้ดีขึ้น
+- error ถูกจับตั้งแต่ตอนเขียน
+- ทีมเข้าใจ data shape ตรงกัน
+
+---
+
+## Slide 5: สร้าง Union Type สำหรับ Status
+
+### Status ที่ระบบรองรับ
+
+```text
+OPEN
+IN_PROGRESS
+DONE
+```
+
+### TypeScript
+
+```ts
+type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
+```
+
+### ถ้าใส่ค่าผิด
+
+```ts
+const status: IssueStatus = "FINISHED";
+```
+
+TypeScript จะเตือนทันที
+
+### Key Message
+
+ค่าที่มีตัวเลือกจำกัดเหมาะกับ union type มาก
+
+---
+
+## Slide 6: Field หลักของ Issue
+
+### Field ที่มาจาก form
+
+```text
+reporterName
+reporterEmail
+title
+description
+```
+
+### Field ที่ระบบเติมเอง
+
+```text
+id
+status
+createdAt
+adminComment
+```
+
+### Key Message
+
+แยกให้ชัดว่า field ไหน user กรอก และ field ไหนระบบเป็นคนสร้างหรือ admin เป็นคนอัปเดต
+
+---
+
+## Slide 7: สร้าง Type `Issue`
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่วาง
+
+วาง type ทั้งหมดไว้ด้านบนของไฟล์ ก่อนบรรทัด `export default function HomePage()` เพื่อให้ component ด้านล่างเรียกใช้ได้
+
+```ts
+type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
+
+type Issue = {
+  id: string;
+  reporterName: string;
+  reporterEmail: string;
+  title: string;
+  description: string;
+  adminComment?: string;
+  status: IssueStatus;
+  createdAt: string;
+};
+```
+
+### อธิบาย
+
+- `id` ใช้อ้างอิง issue
+- `reporterName` คือชื่อผู้แจ้ง
+- `reporterEmail` คืออีเมลผู้แจ้ง
+- `title` คือหัวข้อปัญหา
+- `description` คือรายละเอียด
+- `status` คือสถานะ
+- `createdAt` คือวันที่แจ้ง
+
+---
+
+## Slide 8: Optional Property
+
+### บาง field อาจยังไม่มีค่า
+
+เช่น issue อาจยังไม่มี comment จาก admin
+
+```ts
+type Issue = {
+  id: string;
+  reporterName: string;
+  reporterEmail: string;
+  title: string;
+  description: string;
+  status: IssueStatus;
+  adminComment?: string;
+  createdAt: string;
+};
+```
+
+### `?` หมายถึง
+
+field นี้อาจมีหรือไม่มีก็ได้
+
+```ts
+adminComment?: string;
+```
+
+---
+
+## Slide 9: สร้าง Mock Data
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่วาง
+
+วาง `const issues` ต่อจาก type `Issue` จาก Slide 7 และยังอยู่ก่อน `export default function HomePage()`
+
+```ts
+const issues: Issue[] = [
+  {
+  id: "001",
+  reporterName: "Anan",
+  reporterEmail: "anan@example.com",
+  title: "Login เข้าระบบไม่ได้",
+  description: "ไม่สามารถเข้าสู่ระบบด้วยบัญชีเดิมได้",
+  status: "OPEN",
+  createdAt: "2026-05-08",
+  },
+  {
+  id: "002",
+  title: "ส่งแบบฟอร์มสมัครไม่ได้",
+  reporterName: "Mali",
+  reporterEmail: "mali@example.com",
+  description: "กดส่งข้อมูลแล้วระบบขึ้น error",
+  status: "IN_PROGRESS",
+  createdAt: "2026-05-08",
+  },
+  {
+  id: "003",
+  reporterName: "Kanda",
+  reporterEmail: "kanda@example.com",
+  title: "ขอสิทธิ์เข้าใช้งาน dashboard",
+  description: "ต้องการสิทธิ์สำหรับตรวจสอบข้อมูลหลังบ้าน",
+  status: "DONE",
+  adminComment: "อนุมัติสิทธิ์และแจ้งผู้ใช้เรียบร้อยแล้ว",
+  createdAt: "2026-05-08",
+  },
+];
+```
+
+### Key Message
+
+`Issue[]` หมายถึง array ที่ทุก item ต้องมีโครงสร้างแบบ Issue
+
+---
+
+## Slide 10: วาง Type และ Mock Data ไว้ตรงไหน
+
+### สำหรับเริ่มต้น
+
+วางไว้บนสุดของ `src/app/page.tsx` ก่อน
+
+```tsx
+type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
+
+type Issue = {
+  id: string;
+  reporterName: string;
+  reporterEmail: string;
+  title: string;
+  description: string;
+  adminComment?: string;
+  status: IssueStatus;
+  createdAt: string;
+};
+
+const issues: Issue[] = [
+  // mock issues
+];
+```
+
+### ต่อไปค่อยแยกไฟล์
+
+เมื่อ project เริ่มใหญ่ขึ้น อาจแยกเป็น:
+
+```text
+src/
+  data/
+  issues.ts
+  types/
+  issue.ts
+```
+
+---
+
+## Slide 11: Render Issue List ด้วย `.map()`
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่แก้
+
+ใน table จาก Day 2 Hour 2 ให้แทนที่ `<tbody>` เดิมที่มี static `<tr>` หรือ comment `static rows` ด้วย `<tbody>` ใหม่ที่ใช้ `issues.map(...)`
+
+### จาก static row
+
+```tsx
+<tr>
+  <td>#001</td>
+  <td>Login เข้าระบบไม่ได้</td>
+  <td>Anan</td>
+  <td>OPEN</td>
+</tr>
+```
+
+### เป็น dynamic rows
+
+```tsx
+<tbody>
+  {issues.map((issue) => (
+  <tr key={issue.id}>
+    <td>#{issue.id}</td>
+    <td>{issue.title}</td>
+    <td>{issue.reporterName}</td>
+    <td>{issue.status}</td>
+  </tr>
+  ))}
+</tbody>
+```
+
+### Key Message
+
+`.map()` คือวิธีพื้นฐานในการแปลง array ของข้อมูลให้เป็น UI หลายรายการ
+
+ตาราง list ไม่จำเป็นต้องแสดงทุก field ของ `Issue` เช่น `description` หรือ `adminComment` อาจเก็บไว้ใช้ในหน้า detail `/issues/[id]` ภายหลัง
+
+---
+
+## Slide 12: ทำไมต้องมี `key`
+
+### ตัวอย่าง
+
+```tsx
+{issues.map((issue) => (
+  <tr key={issue.id}>
+  <td>{issue.title}</td>
+  </tr>
+))}
+```
+
+### `key` ใช้ทำอะไร
+
+React ใช้ `key` เพื่อรู้ว่า item ไหนถูกเพิ่ม ลบ หรือเปลี่ยน
+
+### Key Message
+
+เวลา render list ใน React/Next.js ต้องใส่ `key` ที่ stable เช่น `id`
+
+---
+
+## Slide 13: Function สำหรับ Status Class
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่วาง
+
+วาง function นี้ใต้ `const issues` และก่อน `export default function HomePage()` เพื่อให้ JSX ใน table เรียกใช้ได้
+
+### จาก Day 1
+
+```tsx
+<span className="status status-open">OPEN</span>
+```
+
+### ตอนนี้ status มาจาก data
+
+เราต้องแปลง:
+
+```text
+OPEN        -> status-open
+IN_PROGRESS -> status-progress
+DONE        -> status-done
+```
+
+### Function
+
+```ts
+function getStatusClass(status: IssueStatus): string {
+  if (status === "OPEN") {
+  return "status-open";
+  }
+
+  if (status === "IN_PROGRESS") {
+  return "status-progress";
+  }
+
+  return "status-done";
+}
+```
+
+---
+
+## Slide 14: ใช้ Status Badge กับ `.map()`
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่แก้
+
+ใน `<tbody>` ที่ใช้ `issues.map(...)` ให้แทนที่ `<td>{issue.status}</td>` ด้วย `<td>` ชุดนี้
+
+```tsx
+<td>
+  <span className={`status ${getStatusClass(issue.status)}`}>
+  {issue.status}
+  </span>
+</td>
+```
+
+### อธิบาย
+
+- `status` คือ class กลางของ badge
+- `getStatusClass(issue.status)` คืน class ตาม status
+- `{issue.status}` แสดงข้อความสถานะ
+
+### Key Message
+
+ตอนนี้ badge ไม่ได้เขียนซ้ำทีละแถวแล้ว แต่ผูกกับข้อมูลจริง
+
+---
+
+## Slide 15: อ่าน TypeScript Error อย่างไร
+
+### ตัวอย่าง error
+
+```text
+Type '"FINISHED"' is not assignable to type 'IssueStatus'.
+```
+
+แปลว่า:
+
+```text
+ค่า "FINISHED" ใส่ให้ field ที่รับ IssueStatus ไม่ได้
+```
+
+เพราะ IssueStatus รับได้แค่:
+
+```ts
+"OPEN" | "IN_PROGRESS" | "DONE"
+```
+
+### Key Message
+
+TypeScript error คือ feedback ที่ช่วยบอกว่า code ไม่ตรงกับข้อตกลงของข้อมูล
+
+---
+
+## Slide 16: โค้ดสุดท้ายส่วน Type, Mock Data และ Helper
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่วาง
+
+วางโค้ดชุดนี้ด้านบนของไฟล์ ก่อน `export default function HomePage()`
+
+```tsx
+type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
+
+type Issue = {
+  id: string;
+  reporterName: string;
+  reporterEmail: string;
+  title: string;
+  description: string;
+  adminComment?: string;
+  status: IssueStatus;
+  createdAt: string;
+};
+
+const issues: Issue[] = [
+  {
+  id: "001",
+  reporterName: "Anan",
+  reporterEmail: "anan@example.com",
+  title: "Login เข้าระบบไม่ได้",
+  description: "ไม่สามารถเข้าสู่ระบบด้วยบัญชีเดิมได้",
+  status: "OPEN",
+  createdAt: "2026-05-08",
+  },
+  {
+  id: "002",
+  reporterName: "Mali",
+  reporterEmail: "mali@example.com",
+  title: "ส่งแบบฟอร์มสมัครไม่ได้",
+  description: "กดส่งข้อมูลแล้วระบบขึ้น error",
+  status: "IN_PROGRESS",
+  createdAt: "2026-05-08",
+  },
+  {
+  id: "003",
+  reporterName: "Kanda",
+  reporterEmail: "kanda@example.com",
+  title: "ขอสิทธิ์เข้าใช้งาน dashboard",
+  description: "ต้องการสิทธิ์สำหรับตรวจสอบข้อมูลหลังบ้าน",
+  status: "DONE",
+  adminComment: "อนุมัติสิทธิ์และแจ้งผู้ใช้เรียบร้อยแล้ว",
+  createdAt: "2026-05-08",
+  },
+];
+
+function getStatusClass(status: IssueStatus): string {
+  if (status === "OPEN") {
+  return "status-open";
+  }
+
+  if (status === "IN_PROGRESS") {
+  return "status-progress";
+  }
+
+  return "status-done";
+}
+```
+
+### ภาพรวม
+
+ส่วนนี้คือ data layer แบบง่ายของชั่วโมงนี้:
+
+- `IssueStatus` จำกัดค่าสถานะที่ใช้ได้
+- `Issue` กำหนดหน้าตาข้อมูล 1 รายการ
+- `issues` คือข้อมูล mock หลายรายการ
+- `getStatusClass()` แปลง status จากข้อมูลให้เป็น CSS class
+
+---
+
+## Slide 17: โค้ดสุดท้ายส่วน Table ใน `HomePage`
+
+### File
+
+```text
+src/app/page.tsx
+```
+
+### ตำแหน่งที่แก้
+
+ใน `return` ของ `HomePage()` ให้คง form จากชั่วโมงที่ 2 ไว้เหมือนเดิม แล้วเปลี่ยนเฉพาะ section ของ issue list ให้เป็นแบบนี้
+
+```tsx
+<section aria-labelledby="issue-list-title">
+  <h2 id="issue-list-title">รายการปัญหาล่าสุด</h2>
+  <p>ตัวอย่างรายการปัญหาที่ถูกแจ้งเข้ามาในระบบ</p>
+
+  <div className="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>รหัส</th>
+        <th>หัวข้อ</th>
+        <th>ผู้แจ้ง</th>
+        <th>สถานะ</th>
+      </tr>
+    </thead>
+    <tbody>
+      {issues.map((issue) => (
+        <tr key={issue.id}>
+          <td>#{issue.id}</td>
+          <td>{issue.title}</td>
+          <td>{issue.reporterName}</td>
+          <td>
+            <span className={`status ${getStatusClass(issue.status)}`}>
+              {issue.status}
+            </span>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  </div>
+</section>
+```
+
+### ภาพที่ควรเข้าใจ
+
+ชั่วโมงที่แล้ว table มี `<tr>` เขียนค้างไว้ใน JSX โดยตรง
+
+ชั่วโมงนี้ table ใช้ข้อมูลจาก:
+
+```tsx
+const issues: Issue[] = [...]
+```
+
+แล้ว JSX แสดงผลด้วย:
+
+```tsx
+issues.map((issue) => ...)
+```
+
+---
+
+## Slide 18: ตรวจผลลัพธ์ของชั่วโมงนี้
+
+### สิ่งที่ควรเห็นใน Browser
+
+- หน้าเว็บยังมี form จากชั่วโมงที่ 2
+- ตาราง issue list ยังแสดง 3 รายการ
+- status badge ยังมีสีตามสถานะ
+- ข้อมูลใน table มาจาก `issues` array ไม่ใช่ static `<tr>` แล้ว
+
+### เช็กใน Code
+
+- type ทั้งหมดอยู่ก่อน `HomePage`
+- `const issues: Issue[]` อยู่ก่อน `HomePage`
+- `getStatusClass()` อยู่ก่อน `HomePage`
+- `<tbody>` ใช้ `issues.map(...)`
+- `<tr>` มี `key={issue.id}`
+
+---
+
+## Slide 19: Common Mistakes
+
+### ข้อผิดพลาดที่พบบ่อย
+
+- ใช้ `class` แทน `className`
+- ลืมใส่ `key` ตอน `.map()`
+- ใช้ `string` ทุกอย่าง ทั้งที่บาง field ควรจำกัดค่า
+- พิมพ์ค่าของ union type ไม่ตรง เช่น `"open"` แทน `"OPEN"`
+- สับสนระหว่าง `Issue` กับ `Issue[]`
+- function รับ parameter เป็น type ผิด
+- return type ไม่ตรงกับค่าที่ return จริง
+- วาง type ไว้ใน function component จนอ่านยาก
+
+---
+
+## Slide 20: Recap ชั่วโมงที่สามของ Day 2
+
+### สิ่งที่ได้เรียน
+
+- TypeScript ช่วยกำหนดโครงสร้างข้อมูลใน Next.js
+- `Issue` คือ data model ของระบบแจ้งปัญหา
+- Union type เหมาะกับ status ที่มีค่าจำกัด
+- `Issue[]` คือ array ของ issue หลายรายการ
+- `.map()` ใช้ render list จากข้อมูล
+- `key` สำคัญในการ render list
+- Function ช่วยแปลงข้อมูลเป็น UI class ได้
+
+### ต่อไป
+
+เราจะเริ่มแยก UI ที่ซ้ำกันออกเป็น component เช่น `IssueList`, `IssueForm` และ `StatusBadge`
+
+---
+
+## คำศัพท์สำคัญ
+
+| คำศัพท์ | ความหมาย |
+|---|---|
+| TypeScript | JavaScript ที่เพิ่มระบบ type |
+| Type | ชนิดของข้อมูล |
+| Type alias | การตั้งชื่อให้ type |
+| Union type | type ที่เลือกได้จากค่าหลายค่าที่กำหนดไว้ |
+| Optional property | field ที่อาจมีหรือไม่มีก็ได้ |
+| Array | ชุดข้อมูลหลายรายการ |
+| `.map()` | method สำหรับแปลง array เป็น array ใหม่ เช่น array ของ UI |
+| `key` | id ที่ React ใช้ติดตาม item ใน list |
+| Helper function | function เล็ก ๆ ที่ช่วยแปลงข้อมูล เช่น status เป็น CSS class |

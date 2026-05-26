@@ -1,0 +1,662 @@
+---
+title: "Read from Supabase"
+day: 4
+hour: 2
+duration: 60
+source: "day-4-hour-2-read-from-supabase.md"
+---
+
+# Read from Supabase
+
+## Day 4 - ชั่วโมงที่ 2: Read Issues from Supabase in Next.js
+
+### เป้าหมายของชั่วโมงนี้
+
+หลังจบชั่วโมงที่สองของ Day 4 ผู้เรียนควรสามารถ:
+
+1. ติดตั้ง Supabase JavaScript client ได้
+2. สร้าง Supabase server client สำหรับใช้ใน Next.js ได้
+3. query ข้อมูลจาก table `issues` ได้
+4. map database row แบบ snake_case เป็น TypeScript object แบบ camelCase ได้
+5. render issue list จาก Supabase แทน mock data ได้
+6. เข้าใจ error handling เบื้องต้นเมื่อ query database ล้มเหลว
+7. สร้างหน้า detail `/issues/[id]` ที่อ่านข้อมูลจาก Supabase ได้
+
+### ไฟล์ที่ใช้ในชั่วโมงนี้
+
+ติดตั้ง package ที่ project root
+
+สร้างหรือแก้ไฟล์:
+
+```text
+src/lib/supabase/server.ts
+src/lib/issues.ts
+src/app/issues/page.tsx
+src/app/issues/[id]/page.tsx
+src/components/IssueList.tsx
+src/types/issue.ts
+```
+
+---
+
+## โครงสร้างเวลา 60 นาที
+
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-5 นาที | Recap Supabase setup | ถามตอบ |
+| 5-15 นาที | ติดตั้ง Supabase client | Demo |
+| 15-25 นาที | สร้าง server client | Live coding |
+| 25-40 นาที | สร้าง `getIssues()` และ map data | Live coding |
+| 40-50 นาที | render หน้า `/issues` จาก database | ทำทีละขั้นตอน |
+| 50-60 นาที | query issue detail และ recap | Live coding |
+
+---
+
+## Slide 1: Recap ชั่วโมงที่ 1
+
+### ตอนนี้เรามีอะไรแล้ว
+
+- Supabase project
+- table `issues`
+- seed data 3 rows
+- demo RLS policies
+- `.env.local`
+- `Issue` type ที่ตรงกับ database
+
+### เป้าหมายชั่วโมงนี้
+
+เปลี่ยนจาก:
+
+```text
+const issues = [...]
+```
+
+เป็น:
+
+```text
+select * from public.issues
+```
+
+---
+
+## Slide 2: ติดตั้ง Supabase Client
+
+### Run in terminal at project root
+
+```bash
+npm install @supabase/supabase-js
+```
+
+### ใช้ทำอะไร
+
+`@supabase/supabase-js` ใช้ให้ Next.js query Supabase ได้ เช่น:
+
+- select
+- insert
+- update
+- delete
+
+### หลังติดตั้ง
+
+restart dev server ถ้าจำเป็น
+
+---
+
+## Slide 3: สร้าง Supabase Server Client
+
+### File
+
+```text
+src/lib/supabase/server.ts
+```
+
+### ตำแหน่งที่วาง
+
+สร้าง folder `src/lib/supabase/` ถ้ายังไม่มี แล้วสร้างไฟล์ `server.ts` ใส่ code นี้เป็นเนื้อหาทั้งไฟล์
+
+### Code
+
+```ts
+import { createClient } from "@supabase/supabase-js";
+
+export function createSupabaseServerClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Supabase environment variables are missing");
+  }
+
+  return createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: false,
+  },
+  });
+}
+```
+
+### Key Message
+
+เราเรียกไฟล์นี้ว่า server client เพราะตั้งใจใช้จาก Server Component หรือ Server Action
+
+---
+
+## Slide 4: ทำไมไม่ใช้ Service Role Key ตอนนี้
+
+### Service role key คืออะไร
+
+key ที่มีสิทธิ์สูงและ bypass RLS ได้
+
+### สำหรับ bootcamp นี้
+
+ยังไม่ใช้ service role key ใน Day 4 เพราะ:
+
+- เสี่ยงรั่วถ้านำไปใส่ผิดไฟล์
+- ผู้เรียนยังไม่ต้องใช้สิทธิ์สูง
+- demo policies อนุญาตให้ anon role ทำ CRUD ได้ชั่วคราว
+
+### Key Message
+
+ใช้ publishable/anon key สำหรับช่วงสอนนี้ และย้ำว่า policy วันนี้เป็น demo-only
+
+---
+
+## Slide 5: Database Row Type
+
+### File
+
+```text
+src/lib/issues.ts
+```
+
+### ตำแหน่งที่วาง
+
+สร้างไฟล์ `src/lib/issues.ts` แล้ววาง `DbIssue` ไว้ด้านบนไฟล์ ใต้ import type จาก `src/types/issue.ts`
+
+### Code
+
+```ts
+import type { Issue, IssueStatus } from "@/types/issue";
+
+type DbIssue = {
+  id: string;
+  reporter_name: string;
+  reporter_email: string;
+  title: string;
+  description: string;
+  status: IssueStatus;
+  admin_comment: string | null;
+  created_at: string;
+  updated_at: string;
+};
+```
+
+### Key Message
+
+`DbIssue` คือรูปแบบข้อมูลจาก database ส่วน `Issue` คือรูปแบบที่ UI ใช้
+
+---
+
+## Slide 6: Map `DbIssue` เป็น `Issue`
+
+### File
+
+```text
+src/lib/issues.ts
+```
+
+### ตำแหน่งที่วาง
+
+วาง function `mapIssue` ต่อจาก type `DbIssue` และก่อน function query ต่าง ๆ เช่น `getIssues`
+
+### Code
+
+```ts
+function mapIssue(row: DbIssue): Issue {
+  return {
+  id: row.id,
+  reporterName: row.reporter_name,
+  reporterEmail: row.reporter_email,
+  title: row.title,
+  description: row.description,
+  status: row.status,
+  adminComment: row.admin_comment ?? undefined,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  };
+}
+```
+
+### Key Message
+
+Mapping ทำให้ UI ไม่ต้องรู้ว่า database ใช้ snake_case
+
+---
+
+## Slide 7: สร้าง `getIssues()`
+
+### File
+
+```text
+src/lib/issues.ts
+```
+
+### ตำแหน่งที่วาง
+
+วาง import `createSupabaseServerClient` ไว้บนสุดของไฟล์ แล้ววาง function `getIssues` ต่อจาก `mapIssue`
+
+### Code
+
+```ts
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export async function getIssues(): Promise<Issue[]> {
+  const supabase = createSupabaseServerClient();
+
+  const { data, error } = await supabase
+  .from("issues")
+  .select("*")
+  .order("created_at", { ascending: false });
+
+  if (error) {
+  throw new Error(`Failed to fetch issues: ${error.message}`);
+  }
+
+  return (data ?? []).map((row) => mapIssue(row as DbIssue));
+}
+```
+
+### Key Message
+
+ตอนนี้ source of truth คือ Supabase ไม่ใช่ mock array แล้ว
+
+---
+
+## Slide 8: หน้า `/issues` อ่านจาก Supabase
+
+### File
+
+```text
+src/app/issues/page.tsx
+```
+
+### ตำแหน่งที่แก้
+
+ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `src/app/issues/page.tsx` จาก placeholder ของ Day 2
+
+### Code
+
+```tsx
+import { IssueList } from "@/components/IssueList";
+import { getIssues } from "@/lib/issues";
+
+export default async function IssuesPage() {
+  const issues = await getIssues();
+
+  return (
+  <main className="mx-auto max-w-5xl px-6 py-8">
+    <IssueList issues={issues} />
+  </main>
+  );
+}
+```
+
+### Key Message
+
+Server Component สามารถ `await getIssues()` ได้โดยตรง
+
+---
+
+## Slide 9: ปรับ `IssueList` ให้เป็น Server-friendly
+
+### File
+
+```text
+src/components/IssueList.tsx
+```
+
+### ตำแหน่งที่แก้
+
+แก้ props ของ `IssueList` ให้เหลือเฉพาะ `issues` ชั่วคราว ถ้ายังมี props จาก Day 3 เช่น `onUpdateStatus` หรือ `onCloseIssue` ให้ถอดออกก่อนสำหรับ server-rendered list ในชั่วโมงนี้
+
+### Props สำหรับตอนนี้
+
+```ts
+type IssueListProps = {
+  issues: Issue[];
+};
+```
+
+### สำคัญ
+
+ถ้า `IssueList` ไม่มี `useState`, `useEffect`, `onClick` หรือ `onChange` ไม่ต้องใส่ `"use client"`
+
+### Key Message
+
+Day 4 เราเริ่มย้ายจาก client state กลับมาใช้ server-rendered data จาก database
+
+---
+
+## Slide 10: เพิ่ม Link ไป Detail
+
+### File
+
+```text
+src/components/IssueList.tsx
+```
+
+### ตำแหน่งที่วาง
+
+วาง `import Link from "next/link";` บนสุดของไฟล์ แล้วใช้ `<Link>` นี้แทน `<a>` หรือข้อความ `ดูรายละเอียด` ภายใน `<td>` ของแต่ละ row
+
+### Code
+
+```tsx
+import Link from "next/link";
+
+<Link
+  href={`/issues/${issue.id}`}
+  className="font-semibold text-teal-700 hover:text-teal-900"
+>
+  ดูรายละเอียด
+</Link>
+```
+
+### Key Message
+
+ข้อมูล `id` จาก database ใช้สร้าง dynamic route ได้ทันที
+
+---
+
+## Slide 11: Query Issue by ID
+
+### File
+
+```text
+src/lib/issues.ts
+```
+
+### ตำแหน่งที่วาง
+
+วาง function `getIssueById` ต่อจาก `getIssues` ในไฟล์เดียวกัน เพราะใช้ `createSupabaseServerClient` และ `mapIssue` ร่วมกัน
+
+### Code
+
+```ts
+export async function getIssueById(id: string): Promise<Issue | null> {
+  const supabase = createSupabaseServerClient();
+
+  const { data, error } = await supabase
+  .from("issues")
+  .select("*")
+  .eq("id", id)
+  .maybeSingle();
+
+  if (error) {
+  throw new Error(`Failed to fetch issue: ${error.message}`);
+  }
+
+  return data ? mapIssue(data as DbIssue) : null;
+}
+```
+
+---
+
+## Slide 12: หน้า `/issues/[id]`
+
+### File
+
+```text
+src/app/issues/[id]/page.tsx
+```
+
+### ตำแหน่งที่แก้
+
+ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `src/app/issues/[id]/page.tsx` จาก placeholder ของ Day 2
+
+### Code
+
+```tsx
+import { notFound } from "next/navigation";
+import { getIssueById } from "@/lib/issues";
+
+type IssueDetailPageProps = {
+  params: Promise<{
+  id: string;
+  }>;
+};
+
+export default async function IssueDetailPage({ params }: IssueDetailPageProps) {
+  const { id } = await params;
+  const issue = await getIssueById(id);
+
+  if (!issue) {
+  notFound();
+  }
+
+  return (
+  <main className="mx-auto max-w-3xl px-6 py-8">
+    <h1 className="text-2xl font-bold text-slate-950">{issue.title}</h1>
+    <p className="mt-2 text-slate-600">{issue.description}</p>
+  </main>
+  );
+}
+```
+
+---
+
+## Slide 13: แสดง Detail เพิ่มเติม
+
+### File
+
+```text
+src/app/issues/[id]/page.tsx
+```
+
+### ตำแหน่งที่วาง
+
+วาง `<dl>...</dl>` นี้ต่อจาก paragraph ที่แสดง `{issue.description}` ภายใน `return`
+
+### Code
+
+```tsx
+<dl className="mt-6 grid gap-4 rounded-lg border border-slate-200 bg-white p-6">
+  <div>
+  <dt className="text-sm font-semibold text-slate-500">ผู้แจ้ง</dt>
+  <dd className="mt-1 text-slate-950">{issue.reporterName}</dd>
+  </div>
+  <div>
+  <dt className="text-sm font-semibold text-slate-500">อีเมล</dt>
+  <dd className="mt-1 text-slate-950">{issue.reporterEmail}</dd>
+  </div>
+</dl>
+```
+
+---
+
+## Slide 14: Error Handling เบื้องต้น
+
+### ถ้า query error
+
+```ts
+if (error) {
+  throw new Error(`Failed to fetch issues: ${error.message}`);
+}
+```
+
+### ใน development
+
+Next.js จะแสดง error overlay หรือ error page
+
+### ใน production
+
+ควรมี:
+
+- error boundary
+- logging
+- user-friendly error message
+
+### Key Message
+
+อย่า ignore database error เงียบ ๆ เพราะจะ debug ยากมาก
+
+---
+
+## Slide 15: Restart Dev Server หลังแก้ Env
+
+### ถ้าเจอ error env missing
+
+ตรวจ:
+
+```text
+.env.local
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+```
+
+จากนั้น restart:
+
+```bash
+npm run dev
+```
+
+### Key Message
+
+Next.js มักต้อง restart dev server เมื่อเพิ่ม env var ใหม่
+
+---
+
+## Slide 16: Read from Supabase
+
+### ขั้นตอน
+
+1. ติดตั้ง `@supabase/supabase-js`
+2. สร้าง `src/lib/supabase/server.ts`
+3. สร้าง `src/lib/issues.ts`
+4. เขียน `getIssues()`
+5. ปรับ `/issues` ให้ใช้ข้อมูลจาก Supabase
+6. เพิ่ม link ไป `/issues/[id]`
+7. เขียน `getIssueById()`
+8. แสดง issue detail จาก database
+
+### ผลลัพธ์
+
+หน้า `/issues` แสดงข้อมูลจาก Supabase จริง และเปิด detail ได้
+
+---
+
+## Slide 17: โค้ดสุดท้ายของ Read Flow จาก Supabase
+
+### `src/lib/issues.ts`
+
+ไฟล์นี้เป็นจุดรวมการอ่านข้อมูล issue จาก Supabase:
+
+```ts
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Issue } from "@/types/issue";
+
+export async function getIssues(): Promise<Issue[]> {
+  const supabase = createSupabaseServerClient();
+
+  const { data, error } = await supabase
+  .from("issues")
+  .select("*")
+  .order("created_at", { ascending: false });
+
+  if (error) {
+  throw new Error(`Failed to fetch issues: ${error.message}`);
+  }
+
+  return (data ?? []).map((row) => mapIssue(row as DbIssue));
+}
+
+export async function getIssueById(id: string): Promise<Issue | null> {
+  const supabase = createSupabaseServerClient();
+
+  const { data, error } = await supabase
+  .from("issues")
+  .select("*")
+  .eq("id", id)
+  .maybeSingle();
+
+  if (error) {
+  throw new Error(`Failed to fetch issue: ${error.message}`);
+  }
+
+  return data ? mapIssue(data as DbIssue) : null;
+}
+```
+
+### หน้า list และ detail ใช้ function คนละตัว
+
+```text
+src/app/issues/page.tsx      -> await getIssues()
+src/app/issues/[id]/page.tsx -> await getIssueById(id)
+```
+
+### ภาพรวม
+
+```text
+Supabase rows
+-> mapIssue()
+-> Issue[]
+-> IssueList
+```
+
+---
+
+## Slide 18: Common Mistakes
+
+### ข้อผิดพลาดที่พบบ่อย
+
+- ลืมติดตั้ง `@supabase/supabase-js`
+- env var ชื่อไม่ตรง
+- ลืม restart dev server
+- query table ผิดชื่อ เช่น `issue` แทน `issues`
+- ลืม map snake_case เป็น camelCase
+- `IssueList` ยังเป็น Client Component ที่ต้องการ handler จาก Day 3
+- RLS policy ไม่อนุญาต select
+- ใช้ `single()` แล้ว data ไม่เจอจน error แทนที่จะใช้ `maybeSingle()`
+
+---
+
+## Slide 19: Recap ชั่วโมงที่สองของ Day 4
+
+### สิ่งที่ได้เรียน
+
+- ติดตั้ง Supabase client
+- สร้าง server client
+- query table `issues`
+- map `DbIssue` เป็น `Issue`
+- render `/issues` จาก database
+- query issue detail ด้วย id
+- error handling เบื้องต้น
+
+### ต่อไป
+
+เราจะเปลี่ยน `IssueForm` ให้สร้างข้อมูลลง Supabase ด้วย Server Action
+
+---
+
+
+---
+
+## คำศัพท์สำคัญ
+
+| คำศัพท์ | ความหมาย |
+|---|---|
+| Supabase client | library สำหรับ query Supabase |
+| Server Component | component ที่อ่านข้อมูลฝั่ง server ได้ |
+| snake_case | naming style ใน database เช่น `created_at` |
+| camelCase | naming style ใน TypeScript เช่น `createdAt` |
+| Mapping | การแปลงข้อมูลจากรูปแบบหนึ่งเป็นอีกรูปแบบ |
+| Query | การขอข้อมูลจาก database |
+| `maybeSingle()` | method ที่คืน row เดียว หรือ null ถ้าไม่เจอ |
+
+---
+
+## อ้างอิงสำหรับผู้สอน
+
+- [Use Supabase with Next.js](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)

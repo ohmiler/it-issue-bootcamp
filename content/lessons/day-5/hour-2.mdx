@@ -1,0 +1,595 @@
+---
+title: "Login, Logout, and Protected Pages"
+day: 5
+hour: 2
+duration: 60
+source: "day-5-hour-2-login-logout-and-protected-pages.md"
+---
+
+# Login, Logout, and Protected Pages
+
+## Day 5 - ชั่วโมงที่ 2: Email/Password Login, Logout, and Protected Pages
+
+### เป้าหมายของชั่วโมงนี้
+
+หลังจบชั่วโมงที่สองของ Day 5 ผู้เรียนควรสามารถ:
+
+1. เข้าใจวิธีใช้ account ที่เตรียมไว้สำหรับห้องเรียน
+2. สร้างหน้า login แบบ email/password ได้
+3. ใช้ Supabase Auth เพื่อ sign in ด้วย password ได้
+4. สร้างปุ่ม logout ได้
+5. อ่านข้อมูล user ฝั่ง server ได้
+6. protect page เช่น `/issues/new` ได้
+7. เข้าใจว่าการซ่อนปุ่มใน UI ไม่เท่ากับการป้องกันระบบ
+
+### ไฟล์ที่ใช้ในชั่วโมงนี้
+
+สร้างหรือแก้ไฟล์:
+
+```text
+src/app/login/page.tsx
+src/components/LoginForm.tsx
+src/app/actions.ts
+src/lib/auth.ts
+src/app/issues/new/page.tsx
+src/components/AppNav.tsx
+src/app/layout.tsx
+```
+
+### สิ่งที่ผู้สอนเตรียมก่อนสอน
+
+สร้าง account ตัวอย่างใน Supabase Dashboard:
+
+```text
+user@example.com   role USER
+admin@example.com  role ADMIN
+```
+
+สำหรับชั่วโมงนี้ยังไม่ต้องให้ผู้เรียนทำ register flow เอง เพราะจะกินเวลาและทำให้หลุดจากเป้าหมายหลักคือ login, session และ protected page
+
+---
+
+## โครงสร้างเวลา 60 นาที
+
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-5 นาที | Recap SSR auth setup | ถามตอบ |
+| 5-15 นาที | Prepared accounts และ login page | Explain |
+| 15-30 นาที | Email/password login action | Live coding |
+| 30-40 นาที | Logout และ user display | Live coding |
+| 40-50 นาที | Protect `/issues/new` | Live coding |
+| 50-60 นาที | ทดสอบ login/logout และสรุป | ทำทีละขั้นตอน |
+
+---
+
+## Slide 1: Recap ชั่วโมงที่ 1
+
+### ตอนนี้เรามี
+
+- Supabase SSR client
+- proxy สำหรับ session refresh
+- database query ที่รู้จัก session
+
+### ชั่วโมงนี้จะเพิ่ม
+
+- login ด้วย email/password
+- logout
+- อ่าน user ฝั่ง server
+- protected page
+
+### Key Message
+
+วันนี้เราไม่ทำ Google OAuth และไม่ทำ register flow เป็น core เพื่อให้เวลาอยู่กับ auth flow ที่จำเป็นจริง ๆ
+
+---
+
+## Slide 2: Account Strategy สำหรับ Bootcamp
+
+### วิธีที่แนะนำ
+
+ผู้สอนสร้าง account ไว้ล่วงหน้าใน Supabase Dashboard:
+
+```text
+user@example.com
+admin@example.com
+```
+
+### ทำไมไม่สอน register เป็น core
+
+- ใช้เวลาเพิ่ม
+- ต้องจัดการ email confirmation
+- ผู้เรียนอาจติดปัญหา inbox/spam
+- เป้าหมายวันนี้คือ login, session, role และ protected page
+
+### Key Message
+
+ระบบจริงควรมี register/invite flow ที่เหมาะสม แต่สำหรับ bootcamp ให้ใช้ prepared accounts เพื่อควบคุมเวลา
+
+---
+
+## Slide 3: Login Page
+
+### File
+
+```text
+src/app/login/page.tsx
+```
+
+### ตำแหน่งที่วาง
+
+สร้าง folder `src/app/login/` แล้วสร้างไฟล์ `page.tsx` ข้างใน จากนั้นใส่ code นี้เป็นเนื้อหาทั้งไฟล์
+
+### Code
+
+```tsx
+import { LoginForm } from "@/components/LoginForm";
+
+export default function LoginPage() {
+  return (
+  <main className="mx-auto max-w-md px-6 py-12">
+    <section className="rounded-lg border border-slate-200 bg-white p-6">
+      <h1 className="text-2xl font-bold text-slate-950">เข้าสู่ระบบ</h1>
+      <p className="mt-2 text-sm text-slate-600">
+        ใช้ account ที่ผู้สอนเตรียมไว้เพื่อแจ้งและติดตามปัญหา
+      </p>
+
+      <LoginForm />
+    </section>
+  </main>
+  );
+}
+```
+
+---
+
+## Slide 4: Email/Password Login Form
+
+### File
+
+```text
+src/components/LoginForm.tsx
+```
+
+### ตำแหน่งที่วาง
+
+สร้างไฟล์ใหม่ `src/components/LoginForm.tsx` แล้วใส่ code นี้เป็นเนื้อหาทั้งไฟล์
+
+### Code
+
+```tsx
+import { signInAction } from "@/app/actions";
+
+export function LoginForm() {
+  return (
+  <form action={signInAction} className="mt-6 grid gap-4">
+    <div className="grid gap-2">
+      <label htmlFor="email" className="text-sm font-semibold text-slate-800">
+        Email
+      </label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        required
+        className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+      />
+    </div>
+
+    <div className="grid gap-2">
+      <label
+        htmlFor="password"
+        className="text-sm font-semibold text-slate-800"
+      >
+        Password
+      </label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        required
+        className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+      />
+    </div>
+
+    <button className="rounded-md bg-teal-700 px-4 py-3 text-sm font-bold text-white">
+      เข้าสู่ระบบ
+    </button>
+  </form>
+  );
+}
+```
+
+---
+
+## Slide 5: Login Action
+
+### File
+
+```text
+src/app/actions.ts
+```
+
+### ตำแหน่งที่วาง
+
+เพิ่ม import ที่จำเป็นด้านบนของ `src/app/actions.ts` แล้ววาง `signInAction` ต่อจาก server actions เดิม เช่น `createIssueAction`
+
+### Code
+
+```ts
+"use server";
+
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export async function signInAction(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+
+  if (!email || !password) {
+  throw new Error("Email and password are required");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({
+  email,
+  password,
+  });
+
+  if (error) {
+  throw new Error("Invalid email or password");
+  }
+
+  redirect("/issues");
+}
+```
+
+### Key Message
+
+Login action อยู่ฝั่ง server และ Supabase จะ set session cookie ผ่าน SSR client ที่ตั้งไว้ในชั่วโมงแรก
+
+---
+
+## Slide 6: Logout Action
+
+### File
+
+```text
+src/app/actions.ts
+```
+
+### ตำแหน่งที่วาง
+
+วาง `signOutAction` ต่อจาก `signInAction` ในไฟล์ `src/app/actions.ts`
+
+### Code
+
+```ts
+export async function signOutAction() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}
+```
+
+### ใช้ใน UI
+
+วาง form logout ใน navigation เช่น `src/components/AppNav.tsx`
+
+```tsx
+<form action={signOutAction}>
+  <button type="submit">ออกจากระบบ</button>
+</form>
+```
+
+---
+
+## Slide 7: อ่าน User ฝั่ง Server
+
+### File
+
+```text
+src/lib/auth.ts
+```
+
+### ตำแหน่งที่วาง
+
+สร้างไฟล์ใหม่ `src/lib/auth.ts` แล้วใส่ code นี้เป็นเนื้อหาทั้งไฟล์
+
+### Code
+
+```ts
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export async function getCurrentUser() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+  return null;
+  }
+
+  return data.user;
+}
+
+export async function requireUser() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+  redirect("/login");
+  }
+
+  return user;
+}
+```
+
+### Key Message
+
+ทุกหน้าหรือ action ที่ต้อง login ต้องตรวจฝั่ง server ไม่ใช่ตรวจแค่ใน UI
+
+---
+
+## Slide 8: Protect `/issues/new`
+
+### File
+
+```text
+src/app/issues/new/page.tsx
+```
+
+### ตำแหน่งที่แก้
+
+เพิ่ม import `requireUser` ด้านบนของไฟล์ แล้วเรียก `await requireUser();` เป็นบรรทัดแรกใน function `NewIssuePage` ก่อน `return`
+
+### Code
+
+```tsx
+import { IssueForm } from "@/components/IssueForm";
+import { requireUser } from "@/lib/auth";
+
+export default async function NewIssuePage() {
+  await requireUser();
+
+  return (
+  <main className="mx-auto max-w-3xl px-6 py-8">
+    <IssueForm />
+  </main>
+  );
+}
+```
+
+### Key Message
+
+Protected page ต้องตรวจฝั่ง server ไม่ใช่ซ่อน link อย่างเดียว
+
+---
+
+## Slide 9: Navigation แบบง่าย
+
+### File
+
+```text
+src/components/AppNav.tsx
+```
+
+### ตำแหน่งที่วาง
+
+สร้างไฟล์ `src/components/AppNav.tsx` แล้วใส่ code นี้เป็นเนื้อหาทั้งไฟล์
+
+### Code
+
+```tsx
+import Link from "next/link";
+import { signOutAction } from "@/app/actions";
+import { getCurrentUser } from "@/lib/auth";
+
+export async function AppNav() {
+  const user = await getCurrentUser();
+
+  return (
+  <nav className="flex items-center justify-between border-b border-slate-200 px-6 py-3">
+    <div className="flex gap-4 text-sm font-semibold">
+      <Link href="/issues">Issues</Link>
+      <Link href="/issues/new">New Issue</Link>
+    </div>
+
+    {user ? (
+      <form action={signOutAction} className="flex items-center gap-3">
+        <span className="text-sm text-slate-600">{user.email}</span>
+        <button type="submit" className="text-sm font-semibold text-teal-700">
+          Logout
+        </button>
+      </form>
+    ) : (
+      <Link href="/login" className="text-sm font-semibold text-teal-700">
+        Login
+      </Link>
+    )}
+  </nav>
+  );
+}
+```
+
+---
+
+## Slide 10: ใส่ Navigation ใน Layout
+
+### File
+
+```text
+src/app/layout.tsx
+```
+
+### ตำแหน่งที่แก้
+
+{'import'} `AppNav` ด้านบนของไฟล์ แล้ววาง `<AppNav />` ใน `<body>` ก่อน `{children}`
+
+### Code
+
+```tsx
+import { AppNav } from "@/components/AppNav";
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+  <html lang="th">
+    <body>
+      <AppNav />
+      {children}
+    </body>
+  </html>
+  );
+}
+```
+
+---
+
+## Slide 11: Test Login/Logout
+
+### ขั้นตอนทดสอบ
+
+1. เปิด `/login`
+2. login ด้วย `user@example.com`
+3. ระบบ redirect ไป `/issues`
+4. เปิด `/issues/new` ได้
+5. กด logout
+6. เปิด `/issues/new` อีกครั้ง ต้องถูก redirect ไป `/login`
+
+### ถ้า login ไม่ได้
+
+ตรวจ:
+
+- account ใน Supabase Auth Users มีจริงไหม
+- password ถูกไหม
+- proxy จากชั่วโมงแรกทำงานไหม
+- env vars ถูกไหม
+- Supabase Auth email confirmation setting ทำให้ user ยังไม่ confirmed หรือไม่
+
+---
+
+## Slide 12: Login/Logout
+
+### ขั้นตอน
+
+1. สร้าง login page
+2. สร้าง `LoginForm`
+3. สร้าง `signInAction`
+4. สร้าง `signOutAction`
+5. สร้าง `getCurrentUser()` และ `requireUser()`
+6. protect `/issues/new`
+7. เพิ่ม `AppNav`
+8. ทดสอบ login/logout ด้วย account ที่ผู้สอนเตรียมไว้
+
+---
+
+## Slide 13: โค้ดสุดท้ายของ Login/Logout Flow
+
+### ไฟล์ที่ควรมี
+
+```text
+src/app/login/page.tsx
+src/components/LoginForm.tsx
+src/app/auth/actions.ts
+src/lib/auth.ts
+src/components/AppNav.tsx
+```
+
+### `src/app/auth/actions.ts`
+
+```ts
+"use server";
+
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export async function signInAction(formData: FormData) {
+  const supabase = await createClient();
+  const email = String(formData.get("email") ?? "");
+  const password = String(formData.get("password") ?? "");
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+  redirect("/login?error=invalid-credentials");
+  }
+
+  redirect("/issues");
+}
+
+export async function signOutAction() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}
+```
+
+### `src/lib/auth.ts`
+
+```ts
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export async function requireUser() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+
+  if (!data.user) {
+  redirect("/login");
+  }
+
+  return data.user;
+}
+```
+
+### Protect page
+
+```tsx
+export default async function NewIssuePage() {
+  await requireUser();
+
+  return <IssueForm />;
+}
+```
+
+---
+
+## Slide 14: Common Mistakes
+
+### ข้อผิดพลาดที่พบบ่อย
+
+- ลืมสร้าง user ใน Supabase Auth
+- password ผิด
+- user ยังไม่ confirmed
+- ใช้ browser client ใน server action
+- ลืม proxy จากชั่วโมงแรก
+- protect แค่ UI แต่ไม่ protect page/server action
+- redirect วนเพราะเรียก `requireUser()` ในหน้า `/login`
+
+---
+
+## Slide 15: Recap ชั่วโมงที่สองของ Day 5
+
+### สิ่งที่ได้เรียน
+
+- สร้าง login page
+- login ด้วย email/password
+- logout
+- อ่าน user ฝั่ง server
+- protect page
+- ใช้ prepared accounts เพื่อควบคุมเวลาในห้องเรียน
+
+### ต่อไป
+
+เราจะเพิ่ม authorization, role, หน้า admin แบบเล็ก และ RLS ให้ database ไม่เปิดแบบ demo-public อีกต่อไป
+
+---
+
+
+---
+
+## อ้างอิงสำหรับผู้สอน
+
+- [Supabase Auth with Next.js](https://supabase.com/docs/guides/auth/quickstarts/nextjs)
