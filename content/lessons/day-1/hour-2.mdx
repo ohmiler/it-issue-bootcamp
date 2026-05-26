@@ -98,11 +98,39 @@ HTML ไม่ได้มีหน้าที่ทำให้เว็บส
 
 ## Slide 3: HTML, CSS, TypeScript แบ่งหน้าที่กันอย่างไร
 
-```text
-HTML       -> โครงสร้างและความหมาย
-CSS        -> หน้าตา สี ระยะห่าง layout
-TypeScript -> logic และการจัดการข้อมูล
+```mermaid
+flowchart LR
+  html["HTML<br/>โครงสร้างและความหมาย<br/>label / input / button"]
+  css["CSS<br/>หน้าตาและ layout<br/>สี / ระยะห่าง / responsive"]
+  ts["TypeScript<br/>พฤติกรรมและข้อมูล<br/>validate / submit / state"]
+  page["หน้า form ที่ user ใช้งานได้"]
+  backend["Backend<br/>validate ซ้ำ / บันทึกข้อมูล"]
+  database[("Database<br/>เก็บ issue")]
+
+  html -->|"สร้างส่วนประกอบ"| page
+  css -->|"ทำให้อ่านง่าย"| page
+  ts -->|"ทำให้โต้ตอบได้"| page
+  page -->|"submit data"| backend
+  backend -->|"save"| database
+
+  classDef markup fill:#1f3a5f,stroke:#3794ff,color:#ffffff;
+  classDef visual fill:#3a2f14,stroke:#cca700,color:#ffffff;
+  classDef logic fill:#173b2b,stroke:#73c991,color:#ffffff;
+  classDef runtime fill:#252526,stroke:#3c3c3c,color:#ffffff;
+  classDef data fill:#2a2d2e,stroke:#cca700,color:#ffffff;
+
+  class html markup;
+  class css visual;
+  class ts logic;
+  class page,backend runtime;
+  class database data;
 ```
+
+### จำแบบง่าย
+
+- HTML ตอบว่า **บนหน้านี้มีอะไร และแต่ละอย่างคืออะไร**
+- CSS ตอบว่า **แต่ละอย่างหน้าตาเป็นอย่างไร และจัดวางตรงไหน**
+- TypeScript ตอบว่า **เมื่อ user โต้ตอบแล้วระบบต้องทำอะไรกับข้อมูล**
 
 ### ตัวอย่างปุ่ม Submit
 
@@ -128,6 +156,10 @@ function handleSubmit() {
   // validate and send data
 }
 ```
+
+### Key Message
+
+HTML สร้างความหมายของหน้าเว็บ, CSS ทำให้หน้าเว็บอ่านง่ายและใช้งานง่าย, TypeScript ทำให้หน้าเว็บตอบสนองและจัดการข้อมูลได้
 
 ### Speaker Notes
 
