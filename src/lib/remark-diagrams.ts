@@ -98,7 +98,7 @@ function stepsToMermaid(steps: string[]) {
   );
   const edgeLines = steps.slice(1).map((_, index) => `  step${index} --> step${index + 1}`);
 
-  return ["flowchart TD", ...nodeLines, ...edgeLines].join("\n");
+  return ["flowchart LR", ...nodeLines, ...edgeLines].join("\n");
 }
 
 function escapeMermaidLabel(value: string) {
