@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { compileMDX } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import { mdxComponents } from "@/components/mdx-components";
 
@@ -23,6 +24,7 @@ export async function compileCourseMdx(filePath: string) {
     options: {
       parseFrontmatter: true,
       mdxOptions: {
+        remarkPlugins: [remarkGfm],
         rehypePlugins: [
           [
             rehypePrettyCode,
