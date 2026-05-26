@@ -4,6 +4,7 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import { mdxComponents } from "@/components/mdx-components";
+import { remarkDiagrams } from "@/lib/remark-diagrams";
 
 export type MdxFrontmatter = {
   title?: string;
@@ -24,7 +25,7 @@ export async function compileCourseMdx(filePath: string) {
     options: {
       parseFrontmatter: true,
       mdxOptions: {
-        remarkPlugins: [remarkGfm],
+        remarkPlugins: [remarkGfm, remarkDiagrams],
         rehypePlugins: [
           [
             rehypePrettyCode,
