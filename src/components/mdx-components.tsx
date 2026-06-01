@@ -1,9 +1,18 @@
 import type { MDXComponents } from "mdx/types";
 import { MermaidDiagram } from "@/components/mermaid-diagram";
+import {
+  TeachingFlowDiagram,
+  type TeachingFlowDiagramVariant,
+} from "@/components/teaching-flow-diagram";
 
 export const mdxComponents: MDXComponents = {
   MermaidDiagram: (props) => (
     <MermaidDiagram chart={String(props.chart ?? "")} />
+  ),
+  TeachingFlowDiagram: (props) => (
+    <TeachingFlowDiagram
+      variant={String(props.variant ?? "") as TeachingFlowDiagramVariant}
+    />
   ),
   h1: (props) => <h1 {...props} />,
   h2: (props) => <h2 {...props} />,

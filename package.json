@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "migrate:lessons": "node scripts/migrate-lessons.mjs",
+    "verify:diagrams": "node scripts/verify-diagrams.mjs",
     "verify:content": "node scripts/verify-content.mjs",
-    "check": "npm run verify:content && npm run build"
+    "check": "npm run verify:content && npm run verify:diagrams && npm run build"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

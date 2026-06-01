@@ -90,7 +90,10 @@ export function SlideDeck({
             <BookOpen size={16} aria-hidden="true" />
             Document
           </Link>
-          <span className="slide-counter">
+          <span
+            className="slide-counter"
+            aria-label={`Slide ${activeIndex + 1} of ${slides.length}`}
+          >
             {activeIndex + 1} / {slides.length}
           </span>
         </div>

@@ -348,6 +348,190 @@ code {
   font-size: 0.875rem;
 }
 
+.teaching-flow {
+  max-width: 100%;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 1rem;
+}
+
+.teaching-flow__caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.teaching-flow__steps {
+  display: flex;
+  align-items: stretch;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.teaching-flow__item {
+  min-width: 0;
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+}
+
+.teaching-flow__node {
+  min-width: 0;
+  min-height: 6rem;
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-raised);
+  padding: 0.85rem;
+}
+
+.teaching-flow__icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--accent-strong);
+}
+
+.teaching-flow__node-text {
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.teaching-flow__node-text strong {
+  color: var(--text-strong);
+  font-size: 0.98rem;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.teaching-flow__node-text span {
+  color: var(--text);
+  font-size: 0.84rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.teaching-flow__connector {
+  position: relative;
+  min-width: 3rem;
+  display: grid;
+  flex: 0 0 clamp(3rem, 4vw, 4.6rem);
+  place-items: center;
+  padding: 0 0.25rem;
+}
+
+.teaching-flow__connector-line {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent-strong);
+  transform: translateY(-50%);
+}
+
+.teaching-flow__connector-line::after {
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid var(--accent-strong);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.teaching-flow__connector-label {
+  position: relative;
+  max-width: 5.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 0.2rem 0.35rem;
+  color: var(--text);
+  font-size: 0.72rem;
+  line-height: 1.25;
+  text-align: center;
+  z-index: 1;
+}
+
+.teaching-flow__branches {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.teaching-flow__branch {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-raised);
+  padding: 0.75rem;
+  color: var(--text);
+}
+
+.teaching-flow__branch strong {
+  color: var(--text-strong);
+}
+
+.teaching-flow__branch span {
+  min-width: 0;
+  line-height: 1.4;
+}
+
+.teaching-flow__node--user,
+.teaching-flow__node--repo {
+  border-color: var(--accent-strong);
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+}
+
+.teaching-flow__node--server,
+.teaching-flow__node--success,
+.teaching-flow__node--deploy,
+.teaching-flow__branch--success {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 14%, var(--panel));
+}
+
+.teaching-flow__node--data,
+.teaching-flow__node--decision,
+.teaching-flow__branch--warning {
+  border-color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 13%, var(--panel));
+}
+
+.teaching-flow__node--tool,
+.teaching-flow__node--action,
+.teaching-flow__node--client {
+  border-color: var(--border);
+}
+
 @media (max-width: 640px) {
   .lesson-prose h1 {
     font-size: 2.25rem;
@@ -355,6 +539,53 @@ code {
 
   .mermaid-diagram__svg {
     min-width: 420px;
+  }
+
+  .teaching-flow__steps {
+    flex-direction: column;
+  }
+
+  .teaching-flow__item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .teaching-flow__node {
+    min-height: 0;
+  }
+
+  .teaching-flow__connector {
+    min-height: 2rem;
+    flex-basis: auto;
+  }
+
+  .teaching-flow__connector-line {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .teaching-flow__connector-line::after {
+    top: auto;
+    right: auto;
+    bottom: -1px;
+    left: 50%;
+    border-top: 7px solid var(--accent-strong);
+    border-right: 5px solid transparent;
+    border-bottom: 0;
+    border-left: 5px solid transparent;
+    transform: translateX(-50%);
+  }
+
+  .teaching-flow__branches {
+    grid-template-columns: 1fr;
+  }
+
+  .teaching-flow__branch {
+    grid-template-columns: auto auto minmax(0, 1fr);
   }
 }
 
@@ -479,25 +710,30 @@ code {
 }
 
 .slide-prose {
-  max-width: 1180px;
+  max-width: min(1320px, 100%);
   margin: 0 auto;
   line-height: 1.55;
 }
 
 .slide-prose h2 {
-  margin: 0 0 1.35rem;
+  margin: 0 0 1.3rem;
+  padding-top: 0.12em;
   font-size: clamp(2.45rem, 4.2vw, 4.25rem);
-  line-height: 1.08;
+  line-height: 1.28;
+  overflow: visible;
 }
 
 .slide-prose h3 {
-  margin: 1.35rem 0 0.6rem;
+  margin: 1.25rem 0 0.6rem;
+  padding-top: 0.08em;
   font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.42;
 }
 
 .slide-prose p,
 .slide-prose li {
   font-size: clamp(1.1rem, 1.45vw, 1.45rem);
+  line-height: 1.68;
 }
 
 .slide-prose ul,
@@ -509,6 +745,71 @@ code {
 .slide-prose .mermaid-diagram,
 .slide-prose .lesson-table-scroll {
   margin: 1rem 0;
+}
+
+.slide-prose .mermaid-diagram {
+  overflow: hidden;
+}
+
+.slide-prose .mermaid-diagram__svg {
+  min-width: 0;
+}
+
+.slide-prose .mermaid-diagram__svg svg {
+  width: 100%;
+  max-height: min(54svh, 460px);
+}
+
+.slide-prose .teaching-flow {
+  margin: 1rem 0;
+  padding: clamp(0.8rem, 1.2vw, 1.1rem);
+}
+
+.slide-prose .teaching-flow__steps {
+  flex-wrap: nowrap;
+  gap: 0;
+}
+
+.slide-prose .teaching-flow__item {
+  flex: 1 1 0;
+}
+
+.slide-prose .teaching-flow__node {
+  min-height: 6.1rem;
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 0.42rem;
+  padding: clamp(0.8rem, 1.1vw, 1rem);
+}
+
+.slide-prose .teaching-flow__icon {
+  width: 2.35rem;
+  height: 2.35rem;
+}
+
+.slide-prose .teaching-flow__node-text {
+  gap: 0.18rem;
+}
+
+.slide-prose .teaching-flow__node-text strong {
+  font-size: clamp(1rem, 1.25vw, 1.22rem);
+  line-height: 1.35;
+}
+
+.slide-prose .teaching-flow__node-text span,
+.slide-prose .teaching-flow__branch span {
+  font-size: clamp(0.82rem, 0.95vw, 1rem);
+  line-height: 1.45;
+}
+
+.slide-prose .teaching-flow__connector {
+  min-width: 2rem;
+  flex: 0 0 clamp(2rem, 2.8vw, 3.2rem);
+  padding: 0;
+}
+
+.slide-prose .teaching-flow__connector-label {
+  display: none;
 }
 
 .slide-prose pre {
@@ -575,6 +876,17 @@ code {
   color: var(--muted-strong);
 }
 
+@media (min-width: 761px) and (max-width: 1040px) {
+  .slide-prose .teaching-flow__steps {
+    flex-wrap: wrap;
+    gap: 0.65rem 0;
+  }
+
+  .slide-prose .teaching-flow__item {
+    flex: 1 1 clamp(12rem, 30vw, 16rem);
+  }
+}
+
 @media (max-width: 760px) {
   .slide-topbar {
     align-items: flex-start;
@@ -610,5 +922,65 @@ code {
   .slide-prose p,
   .slide-prose li {
     font-size: 1rem;
+  }
+
+  .slide-prose .mermaid-diagram {
+    margin: 0.75rem 0;
+    padding: 0.6rem;
+  }
+
+  .slide-prose .mermaid-diagram__svg svg {
+    max-height: 46svh;
+  }
+
+  .slide-prose .teaching-flow {
+    margin: 0.5rem 0;
+    padding: 0.7rem;
+  }
+
+  .slide-prose .teaching-flow__steps {
+    gap: 0;
+  }
+
+  .slide-prose .teaching-flow__item {
+    flex: 0 0 auto;
+  }
+
+  .slide-prose .teaching-flow__node {
+    min-height: 0;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.55rem;
+    padding: 0.62rem;
+  }
+
+  .slide-prose .teaching-flow__icon {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+
+  .slide-prose .teaching-flow__node-text strong {
+    font-size: 0.95rem;
+  }
+
+  .slide-prose .teaching-flow__node-text span,
+  .slide-prose .teaching-flow__branch span {
+    font-size: 0.8rem;
+  }
+
+  .slide-prose .teaching-flow__connector {
+    min-height: 1rem;
+  }
+
+  .slide-prose .teaching-flow__connector-label {
+    display: none;
+  }
+
+  .slide-prose .teaching-flow__branches {
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .slide-prose .teaching-flow__branch {
+    padding: 0.58rem;
   }
 }

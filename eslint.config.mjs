@@ -12,6 +12,14 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local AI harness skill bundles are vendored tooling, not app source.
+    ".agents/**",
+    ".claude/**",
+    ".cursor/**",
+    ".gemini/**",
+    ".impeccable/**",
+    ".kiro/**",
+    ".qoder/**",
   ]),
 ]);
 

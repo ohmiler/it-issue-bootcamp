@@ -54,7 +54,7 @@
       },
       "slide-display": {
         "displayName": "Slide Display",
-        "purpose": "Projected slide headings that must scale with viewport size."
+        "purpose": "Projected slide headings that must scale with viewport size while using Thai-safe line height and top padding so vowels and tone marks stay unclipped."
       },
       "body": {
         "displayName": "Thai Lesson Body",
@@ -144,9 +144,9 @@
       "name": "Slide Controls",
       "kind": "custom",
       "refersTo": "button-slide",
-      "description": "Full-viewport slide mode controls with minimal chrome.",
-      "html": "<div class=\"ds-slide-controls\"><button class=\"ds-slide-icon\" aria-label=\"Previous slide\">‹</button><div class=\"ds-slide-progress\"><span></span></div><button class=\"ds-slide-icon\" aria-label=\"Next slide\">›</button></div>",
-      "css": ".ds-slide-controls { display: flex; align-items: center; gap: 16px; border-top: 1px solid var(--border, #3c3c3c); background: linear-gradient(0deg, rgba(30,30,30,0.94), rgba(30,30,30,0.68) 72%, rgba(30,30,30,0)); padding: 14px 16px; backdrop-filter: blur(14px); font-family: \"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif; } .ds-slide-icon { width: 42px; height: 42px; display: inline-grid; place-items: center; border: 1px solid var(--border, #3c3c3c); border-radius: var(--radius-md, 8px); background: var(--panel, #252526); color: var(--text, #d4d4d4); cursor: pointer; transition: border-color 150ms ease, background 150ms ease, color 150ms ease; } .ds-slide-icon:hover { border-color: var(--accent-strong, #3794ff); background: var(--panel-soft, #2d2d30); color: var(--text-strong, #ffffff); } .ds-slide-progress { height: 8px; flex: 1; overflow: hidden; border-radius: var(--radius-pill, 999px); background: var(--panel-soft, #2d2d30); } .ds-slide-progress span { display: block; width: 45%; height: 100%; border-radius: inherit; background: var(--accent-strong, #3794ff); }"
+      "description": "Full-viewport slide mode controls with minimal chrome. Slide count belongs in the topbar beside the Document action. Dense MDX sections can use slide-only break markers so slides stay teachable without duplicating document content.",
+      "html": "<div class=\"ds-slide-topbar\"><button class=\"ds-slide-document\">Document</button><span class=\"ds-slide-counter\">1 / 17</span></div><div class=\"ds-slide-controls\"><button class=\"ds-slide-icon\" aria-label=\"Previous slide\">‹</button><div class=\"ds-slide-progress\"><span></span></div><button class=\"ds-slide-icon\" aria-label=\"Next slide\">›</button></div>",
+      "css": ".ds-slide-topbar { display: flex; justify-content: flex-end; align-items: center; gap: 12px; font-family: \"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif; } .ds-slide-document, .ds-slide-counter { border: 1px solid var(--border, #3c3c3c); border-radius: var(--radius-md, 8px); background: var(--panel, #252526); color: var(--text, #d4d4d4); padding: 9px 11px; font-size: 14px; line-height: 20px; } .ds-slide-counter { min-width: 77px; text-align: center; font-variant-numeric: tabular-nums; } .ds-slide-controls { display: flex; align-items: center; gap: 16px; border-top: 1px solid var(--border, #3c3c3c); background: linear-gradient(0deg, rgba(30,30,30,0.94), rgba(30,30,30,0.68) 72%, rgba(30,30,30,0)); padding: 14px 16px; backdrop-filter: blur(14px); font-family: \"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif; } .ds-slide-icon { width: 42px; height: 42px; display: inline-grid; place-items: center; border: 1px solid var(--border, #3c3c3c); border-radius: var(--radius-md, 8px); background: var(--panel, #252526); color: var(--text, #d4d4d4); cursor: pointer; transition: border-color 150ms ease, background 150ms ease, color 150ms ease; } .ds-slide-icon:hover { border-color: var(--accent-strong, #3794ff); background: var(--panel-soft, #2d2d30); color: var(--text-strong, #ffffff); } .ds-slide-progress { height: 8px; flex: 1; overflow: hidden; border-radius: var(--radius-pill, 999px); background: var(--panel-soft, #2d2d30); } .ds-slide-progress span { display: block; width: 45%; height: 100%; border-radius: inherit; background: var(--accent-strong, #3794ff); }"
     }
   ],
   "narrative": {
@@ -196,7 +196,7 @@
       "Do use the accent only for action, current position, links, diagrams, progress, and semantic state.",
       "Do keep long Thai prose readable with comfortable line height, clear heading scale, and predictable spacing.",
       "Do make slide mode feel like the same content in a live-teaching format, not a separate deck with separate copy.",
-      "Do keep diagrams, tables, and code blocks visible, bordered, and easy to scan.",
+      "Do keep diagrams, tables, and code blocks visible, bordered, and easy to scan; use Teaching Flow Diagram for wide workflow diagrams that must remain readable in slide mode.",
       "Do respect reduced motion and keep transitions limited to state feedback."
     ],
     "donts": [

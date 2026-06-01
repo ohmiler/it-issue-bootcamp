@@ -14,15 +14,27 @@ type SlideDraft = {
 };
 
 const slideHeadingPattern = /^##\s+Slide\s+(\d+):?\s*(.+)?$/;
+const slideBreakPattern = /^\{\/\*\s*slide-break:\s*(.+?)\s*\*\/\}$/;
+const secondLevelHeadingPattern = /^##\s+/;
 
 export function splitLessonSlides(raw: string): LessonSlideSource[] {
   const { content } = matter(raw);
   const lines = content.split(/\r?\n/);
   const drafts: SlideDraft[] = [];
   let current: SlideDraft | null = null;
+  let slideOrder = 0;
   let inFence = false;
   let fenceMarker = "";
   let fenceLength = 0;
+
+  function createSlide(title: string, headingLine?: string): SlideDraft {
+    slideOrder += 1;
+    return {
+      index: slideOrder,
+      title,
+      lines: [headingLine ?? `## ${title}`],
+    };
+  }
 
   for (const line of lines) {
     const fenceMatch = line.match(/^(\s*)(`{3,}|~{3,})/);
@@ -43,14 +55,26 @@ export function splitLessonSlides(raw: string): LessonSlideSource[] {
     }
 
     const slideMatch = !inFence ? line.match(slideHeadingPattern) : null;
+    const slideBreakMatch =
+      !inFence && current ? line.match(slideBreakPattern) : null;
 
     if (slideMatch) {
-      current = {
-        index: Number(slideMatch[1]),
-        title: slideMatch[2]?.trim() ?? `Slide ${slideMatch[1]}`,
-        lines: [line],
-      };
+      current = createSlide(
+        slideMatch[2]?.trim() ?? `Slide ${slideMatch[1]}`,
+        line,
+      );
       drafts.push(current);
+      continue;
+    }
+
+    if (slideBreakMatch) {
+      current = createSlide(slideBreakMatch[1].trim());
+      drafts.push(current);
+      continue;
+    }
+
+    if (!inFence && current && secondLevelHeadingPattern.test(line)) {
+      current = null;
       continue;
     }
 
@@ -60,8 +84,13 @@ export function splitLessonSlides(raw: string): LessonSlideSource[] {
   }
 
   return drafts.map((draft) => {
+    const displayLines = trimSectionBreaks(draft.lines);
+    if (displayLines.length > 0) {
+      displayLines[0] = `## ${draft.title}`;
+    }
+
     const { markdown, notes } = splitSpeakerNotes(
-      trimSectionBreaks(draft.lines).join("\n").trim(),
+      displayLines.join("\n").trim(),
     );
 
     return {

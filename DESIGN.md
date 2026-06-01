@@ -31,7 +31,7 @@ typography:
     fontFamily: "\"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif"
     fontSize: "clamp(2.45rem, 4.2vw, 4.25rem)"
     fontWeight: 400
-    lineHeight: 1.08
+    lineHeight: 1.28
     letterSpacing: "0"
   headline:
     fontFamily: "\"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif"
@@ -167,7 +167,7 @@ The palette is a restrained dark product system: near-black background, nested c
 ### Hierarchy
 
 - **Display** (700, 3rem, 1.05): Course and lesson page titles. Use only at the top of a page or major section.
-- **Slide Display** (400, clamp(2.45rem, 4.2vw, 4.25rem), 1.08): Slide headings. This is the only fluid type role because projection and viewport size matter during teaching.
+- **Slide Display** (400, clamp(2.45rem, 4.2vw, 4.25rem), 1.28): Slide headings. This is the only fluid type role because projection and viewport size matter during teaching. Keep the line height and top padding Thai-safe so vowels and tone marks are not clipped.
 - **Headline** (600, 1.45rem, 1.25): MDX section headings and major content divisions.
 - **Title** (600, 1.15-1.35rem, 1.3): Card titles, slide subheadings, and compact panel headings.
 - **Body** (400, 1rem, 1.75): Thai lesson prose. Keep reading columns comfortable and avoid dense uninterrupted paragraphs.
@@ -231,11 +231,11 @@ This system is flat by default. Depth is conveyed through tonal layers, borders,
 
 ### Lesson Prose
 
-Lesson prose is the signature component. Headings, paragraphs, lists, code blocks, Mermaid diagrams, and tables must stay readable as one continuous teaching flow. Bullets use Instruction Blue markers. Tables are wrapped in a scroll container with a visible border. Inline code uses Soft Panel Charcoal background and Code String text.
+Lesson prose is the signature component. Headings, paragraphs, lists, code blocks, diagrams, and tables must stay readable as one continuous teaching flow. Bullets use Instruction Blue markers. Tables are wrapped in a scroll container with a visible border. Inline code uses Soft Panel Charcoal background and Code String text. Mermaid is appropriate for compact sequence diagrams and document-friendly diagrams; wide teaching flows should use the reusable Teaching Flow Diagram component so slide mode can switch from horizontal to stacked layouts without shrinking text.
 
 ### Slide Deck
 
-Slide mode is a full-viewport teaching surface. The slide canvas is 100vw by 100svh with content padded away from fixed overlays. Topbar and controls use fixed positioning, translucent dark gradients, 14px backdrop blur, and 1px borders. Slide controls are familiar, icon-led, and minimal.
+Slide mode is a full-viewport teaching surface. The slide canvas is 100vw by 100svh with content padded away from fixed overlays. Slide headings should contain only the content title; slide position stays in the topbar beside the Document action. Dense document sections can use `{/* slide-break: Title */}` to split the same MDX into smaller teaching beats in slide mode without fragmenting the document page. Workflow diagrams must remain readable when projected: keep wide Teaching Flow Diagrams horizontal on projector-sized screens, stack them on mobile, and reserve Mermaid for diagrams that keep legible geometry at slide size. Topbar and controls use fixed positioning, translucent dark gradients, 14px backdrop blur, and 1px borders. Slide controls are familiar, icon-led, and minimal.
 
 ## 6. Do's and Don'ts
 
