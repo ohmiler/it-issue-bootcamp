@@ -69,18 +69,15 @@ File: index.html
 
 **HyperText Markup Language**
 
+{/* slide-break: HTML ใช้กำหนดโครงสร้างของหน้าเว็บ */}
+
 ### HTML ทำหน้าที่อะไร
 
 HTML ใช้กำหนดโครงสร้างและความหมายของเนื้อหาบนหน้าเว็บ เช่น:
 
-- หัวข้อ
-- ย่อหน้า
-- รายการ
-- ลิงก์
-- รูปภาพ
-- ตาราง
-- แบบฟอร์ม
-- ปุ่ม
+- หัวข้อและย่อหน้า
+- รายการ ลิงก์ และรูปภาพ
+- ตาราง แบบฟอร์ม และปุ่ม
 
 ### Key Message
 
@@ -90,33 +87,9 @@ HTML ไม่ได้มีหน้าที่ทำให้เว็บส
 
 ## Slide 3: HTML, CSS, TypeScript แบ่งหน้าที่กันอย่างไร
 
-```mermaid
-flowchart LR
-  html["HTML<br/>โครงสร้างและความหมาย<br/>label / input / button"]
-  css["CSS<br/>หน้าตาและ layout<br/>สี / ระยะห่าง / responsive"]
-  ts["TypeScript<br/>พฤติกรรมและข้อมูล<br/>validate / submit / state"]
-  page["หน้า form ที่ user ใช้งานได้"]
-  backend["Backend<br/>validate ซ้ำ / บันทึกข้อมูล"]
-  database[("Database<br/>เก็บ issue")]
+<TeachingFlowDiagram variant="frontend-responsibilities" />
 
-  html -->|"สร้างส่วนประกอบ"| page
-  css -->|"ทำให้อ่านง่าย"| page
-  ts -->|"ทำให้โต้ตอบได้"| page
-  page -->|"submit data"| backend
-  backend -->|"save"| database
-
-  classDef markup fill:#1f3a5f,stroke:#3794ff,color:#ffffff;
-  classDef visual fill:#3a2f14,stroke:#cca700,color:#ffffff;
-  classDef logic fill:#173b2b,stroke:#73c991,color:#ffffff;
-  classDef runtime fill:#252526,stroke:#3c3c3c,color:#ffffff;
-  classDef data fill:#2a2d2e,stroke:#cca700,color:#ffffff;
-
-  class html markup;
-  class css visual;
-  class ts logic;
-  class page,backend runtime;
-  class database data;
-```
+{/* slide-break: จำหน้าที่ของ HTML, CSS, TypeScript แบบง่าย */}
 
 ### จำแบบง่าย
 
@@ -124,30 +97,15 @@ flowchart LR
 - CSS ตอบว่า **แต่ละอย่างหน้าตาเป็นอย่างไร และจัดวางตรงไหน**
 - TypeScript ตอบว่า **เมื่อ user โต้ตอบแล้วระบบต้องทำอะไรกับข้อมูล**
 
+{/* slide-break: ตัวอย่างเดียวกันใน 3 ภาษา */}
+
 ### ตัวอย่างปุ่ม Submit
 
-HTML:
-
-```html
-<button type="submit">ส่งข้อมูล</button>
-```
-
-CSS:
-
-```css
-button {
-  background: blue;
-  color: white;
-}
-```
-
-TypeScript:
-
-```ts
-function handleSubmit() {
-  // validate and send data
-}
-```
+| ส่วน | ตัวอย่าง | หน้าที่ |
+|---|---|---|
+| HTML | `<button type="submit">ส่งข้อมูล</button>` | บอกว่ามีปุ่ม submit |
+| CSS | `button { background: blue; color: white; }` | กำหนดหน้าตาปุ่ม |
+| TypeScript | `handleSubmit()` | ตรวจสอบและส่งข้อมูล |
 
 ### Key Message
 
@@ -171,6 +129,8 @@ index.html
 
 ใช้ code นี้เป็นโครงเริ่มต้นของไฟล์ `index.html` ทั้งไฟล์
 
+{/* slide-break: โครงเริ่มต้นของ index.html */}
+
 ```html
 <!doctype html>
 <html lang="th">
@@ -184,6 +144,8 @@ index.html
   </body>
 </html>
 ```
+
+{/* slide-break: โครงสร้าง HTML แต่ละส่วนทำหน้าที่อะไร */}
 
 ### อธิบายแต่ละส่วน
 
@@ -199,30 +161,19 @@ index.html
 
 ## Slide 5: Element, Tag และ Attribute
 
-### Element
+### ดูจากตัวอย่างเดียว
 
-ส่วนประกอบหนึ่งชิ้นของ HTML
-
-```html
-<h1>ระบบแจ้งปัญหา IT</h1>
-```
-
-### Tag
-
-คำสั่งเปิดและปิด element
-
-```html
-<h1>
-</h1>
-```
-
-### Attribute
-
-ข้อมูลเพิ่มเติมของ element
+| คำ | ตัวอย่าง | ความหมาย |
+|---|---|---|
+| Element | `<h1>ระบบแจ้งปัญหา IT</h1>` | ส่วนประกอบหนึ่งชิ้นของ HTML |
+| Tag | `<h1>` และ `</h1>` | คำสั่งเปิดและปิด element |
+| Attribute | `type="text"` | ข้อมูลเพิ่มเติมของ element |
 
 ```html
 <input type="text" name="title" required />
 ```
+
+{/* slide-break: Attribute ที่เห็นบ่อย */}
 
 ### Attribute ที่เห็นบ่อย
 
@@ -242,33 +193,34 @@ index.html
 
 Semantic HTML คือการใช้ tag ที่สื่อความหมายตามหน้าที่จริงของเนื้อหา
 
+### Key Message
+
+ใช้ tag ให้ตรงความหมาย ช่วยให้ code อ่านง่ายขึ้น และช่วยเรื่อง accessibility
+
+{/* slide-break: Semantic tag ที่ควรรู้ */}
+
 ### ตัวอย่าง Tag ที่ควรรู้
 
 | Tag | ใช้ทำอะไร |
 |---|---|
 | `header` | ส่วนหัวของหน้า |
-| `nav` | เมนูนำทาง |
 | `main` | เนื้อหาหลัก |
 | `section` | กลุ่มเนื้อหา |
-| `article` | เนื้อหาหนึ่งรายการ |
-| `aside` | เนื้อหาด้านข้าง |
 | `footer` | ส่วนท้าย |
 
-### Key Message
+{/* slide-break: Semantic tag ที่จะเจอบ่อยต่อไป */}
 
-ใช้ tag ให้ตรงความหมาย ช่วยให้ code อ่านง่ายขึ้น และช่วยเรื่อง accessibility
+| Tag | ใช้ทำอะไร |
+|---|---|
+| `nav` | เมนูนำทาง |
+| `article` | เนื้อหาหนึ่งรายการ |
+| `aside` | เนื้อหาด้านข้าง |
 
 ---
 
 ## Slide 7: ตัวอย่างโครงหน้าเว็บด้วย Semantic HTML
 
-### File
-
-```text
-index.html
-```
-
-### ตำแหน่งที่แก้
+File: `index.html`
 
 แทนที่เนื้อหาใน `<body>...</body>` เดิมด้วยโครง `header`, `main`, `footer` นี้
 
@@ -312,6 +264,12 @@ Form คือส่วนที่ให้ user กรอกข้อมูล
 - search form
 - upload form
 
+### Key Message
+
+ในระบบ CRUD ส่วนใหญ่ การสร้างข้อมูลใหม่มักเริ่มจาก form
+
+{/* slide-break: ตัวอย่าง form ง่าย ๆ */}
+
 ### ตัวอย่าง form ง่าย ๆ
 
 ```html
@@ -322,10 +280,6 @@ Form คือส่วนที่ให้ user กรอกข้อมูล
   <button type="submit">ส่งข้อมูล</button>
 </form>
 ```
-
-### Key Message
-
-ในระบบ CRUD ส่วนใหญ่ การสร้างข้อมูลใหม่มักเริ่มจาก form
 
 ---
 
@@ -365,6 +319,8 @@ Form คือส่วนที่ให้ user กรอกข้อมูล
 | `date` | วันที่ |
 | `checkbox` | เลือก/ไม่เลือก |
 | `radio` | เลือกหนึ่งตัวเลือก |
+
+{/* slide-break: ตัวอย่าง input type ใน form */}
 
 ### ตัวอย่าง
 
@@ -427,6 +383,8 @@ Form คือส่วนที่ให้ user กรอกข้อมูล
 - หัวข้อปัญหา
 - รายละเอียดปัญหา
 
+{/* slide-break: โครงสร้างของ Issue Report Form */}
+
 ### Form Structure
 
 ```text
@@ -474,6 +432,8 @@ type Issue = {
 };
 ```
 
+{/* slide-break: Mapping ชื่อ field ไป Day 2 */}
+
 ### Mapping ที่ควรใช้ให้ตรงกัน
 
 | HTML `name` | ความหมาย | ใช้ต่อใน Day 2 |
@@ -491,19 +451,9 @@ type Issue = {
 
 ## Slide 15: Code ตัวอย่าง Issue Report Form
 
-### File
+File: `index.html`
 
-```text
-index.html
-```
-
-### ตำแหน่งที่วาง
-
-วาง `<form>...</form>` นี้ใน `<section>` ที่มีหัวข้อ `แจ้งปัญหาใหม่` โดยวางแทน comment:
-
-```html
-<!-- form will be here -->
-```
+ตำแหน่ง: วาง `<form>...</form>` นี้แทนที่ `<!-- form will be here -->`
 
 ```html
 <form>
@@ -537,6 +487,8 @@ index.html
 </form>
 ```
 
+{/* slide-break: Field เดิมจะใช้ต่อในวันถัดไป */}
+
 ### Key Message
 
 หลังจาก slide นี้เป็นต้นไป ถ้าเห็น `reporterName`, `reporterEmail`, `title` หรือ `description` ในชั่วโมงถัดไป ให้ถือว่าเป็น field เดิมจาก form นี้ ไม่ใช่ field ใหม่ที่เพิ่มกลางทาง
@@ -553,6 +505,8 @@ index.html
 - ปุ่มควรมีข้อความที่เข้าใจได้
 - form error ควรบอกชัดเจน
 - อย่าใช้สีเพียงอย่างเดียวในการสื่อความหมาย
+
+{/* slide-break: ตัวอย่าง accessibility ของรูปภาพ */}
 
 ### ตัวอย่าง
 
@@ -598,6 +552,8 @@ index.html
 - ปุ่ม submit
 - footer ระบุชื่อฝ่ายหรือชมรม
 
+{/* slide-break: จุดที่หน้าแจ้งปัญหาต้องครบ */}
+
 ### จุดที่ต้องครบ
 
 - ต้องใช้ semantic HTML
@@ -611,15 +567,9 @@ index.html
 
 ## Slide 19: โค้ดสุดท้ายของ `index.html` หลังชั่วโมงนี้
 
-### File
+File: `index.html`
 
-```text
-index.html
-```
-
-### ตำแหน่งที่ใช้
-
-ใช้เป็นภาพรวมหลังเขียนโค้ดครบ: โครงนี้คือไฟล์ทั้งไฟล์ ส่วน `<!-- form -->` ต้องแทนด้วย form จาก Slide 15
+ใช้เป็นภาพรวมหลังเขียนโค้ดครบ โดย `<!-- form -->` ต้องแทนด้วย form จาก Slide 15
 
 ```html
 <!doctype html>
@@ -661,6 +611,9 @@ index.html
 - มี `<meta name="viewport">` หรือไม่
 - มี heading หลักเพียงหนึ่ง `h1` หรือไม่
 - ใช้ semantic tag เช่น `header`, `main`, `section`, `footer` หรือไม่
+
+{/* slide-break: จุดที่ต้องตรวจใน form */}
+
 - input ทุกช่องมี label หรือไม่
 - label `for` ตรงกับ input `id` หรือไม่
 - input มี `name` หรือไม่
@@ -686,10 +639,9 @@ index.html
 
 ---
 
+{/* slide-break: คำศัพท์สำคัญ */}
 
 ---
-
-  คำศัพท์สำคัญ
 
 | คำศัพท์ | ความหมาย |
 |---|---|
@@ -697,6 +649,11 @@ index.html
 | Element | ส่วนประกอบหนึ่งชิ้นของ HTML |
 | Tag | คำสั่งเปิด/ปิด element |
 | Attribute | ข้อมูลเพิ่มเติมของ element |
+
+{/* slide-break: คำศัพท์สำคัญของ form */}
+
+| คำศัพท์ | ความหมาย |
+|---|---|
 | Semantic HTML | HTML ที่ใช้ tag ตามความหมายของเนื้อหา |
 | Form | ส่วนรับข้อมูลจากผู้ใช้ |
 | Label | ข้อความกำกับ input |

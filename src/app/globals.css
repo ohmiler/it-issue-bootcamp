@@ -505,6 +505,73 @@ code {
   line-height: 1.4;
 }
 
+.teaching-flow__composition {
+  display: grid;
+  grid-template-columns:
+    minmax(13.5rem, 1.2fr) minmax(2.4rem, 0.25fr)
+    minmax(12rem, 1fr) minmax(2.4rem, 0.25fr)
+    minmax(11.5rem, 0.9fr) minmax(2.4rem, 0.25fr)
+    minmax(10.5rem, 0.85fr);
+  align-items: center;
+  gap: clamp(0.55rem, 1.2vw, 1rem);
+}
+
+.teaching-flow__composition-stack {
+  position: relative;
+  display: grid;
+  gap: 0.65rem;
+  padding-right: 0.9rem;
+}
+
+.teaching-flow__composition-stack::after {
+  position: absolute;
+  top: 2.25rem;
+  right: 0;
+  bottom: 2.25rem;
+  width: 2px;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  content: "";
+  opacity: 0.75;
+}
+
+.teaching-flow__composition-node {
+  position: relative;
+  min-height: 5.2rem;
+}
+
+.teaching-flow__composition-stack .teaching-flow__composition-node {
+  min-height: 4.65rem;
+}
+
+.teaching-flow__composition-stack .teaching-flow__composition-node::after {
+  position: absolute;
+  top: 50%;
+  right: -0.9rem;
+  width: 0.9rem;
+  height: 2px;
+  background: var(--accent-strong);
+  content: "";
+  opacity: 0.75;
+  transform: translateY(-50%);
+}
+
+.teaching-flow__composition-connector {
+  position: relative;
+  min-height: 4rem;
+  display: grid;
+  place-items: center;
+}
+
+.teaching-flow__composition-connector .teaching-flow__connector-line {
+  width: 100%;
+}
+
+.teaching-flow--composition .teaching-flow__connector-label {
+  max-width: 6.5rem;
+  white-space: nowrap;
+}
+
 .teaching-flow__node--user,
 .teaching-flow__node--repo {
   border-color: var(--accent-strong);
@@ -524,6 +591,39 @@ code {
 .teaching-flow__branch--warning {
   border-color: var(--warning);
   background: color-mix(in srgb, var(--warning) 13%, var(--panel));
+}
+
+.teaching-flow__node--html {
+  border-color: #569cd6;
+  background: color-mix(in srgb, #569cd6 20%, var(--panel));
+}
+
+.teaching-flow__node--html .teaching-flow__icon {
+  border-color: color-mix(in srgb, #569cd6 65%, var(--border));
+  background: color-mix(in srgb, #569cd6 12%, var(--panel));
+  color: #569cd6;
+}
+
+.teaching-flow__node--css {
+  border-color: #d7ba7d;
+  background: color-mix(in srgb, #d7ba7d 16%, var(--panel));
+}
+
+.teaching-flow__node--css .teaching-flow__icon {
+  border-color: color-mix(in srgb, #d7ba7d 65%, var(--border));
+  background: color-mix(in srgb, #d7ba7d 10%, var(--panel));
+  color: #d7ba7d;
+}
+
+.teaching-flow__node--typescript {
+  border-color: #4fc1ff;
+  background: color-mix(in srgb, #4fc1ff 14%, var(--panel));
+}
+
+.teaching-flow__node--typescript .teaching-flow__icon {
+  border-color: color-mix(in srgb, #4fc1ff 65%, var(--border));
+  background: color-mix(in srgb, #4fc1ff 10%, var(--panel));
+  color: #4fc1ff;
 }
 
 .teaching-flow__node--tool,
@@ -586,6 +686,37 @@ code {
 
   .teaching-flow__branch {
     grid-template-columns: auto auto minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .teaching-flow__composition {
+    grid-template-columns: 1fr;
+  }
+
+  .teaching-flow__composition-connector {
+    min-height: 2.2rem;
+  }
+
+  .teaching-flow__composition-connector .teaching-flow__connector-line {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  .teaching-flow__composition-connector .teaching-flow__connector-line::after {
+    top: auto;
+    right: auto;
+    bottom: -1px;
+    left: 50%;
+    border-top: 7px solid var(--accent-strong);
+    border-right: 5px solid transparent;
+    border-bottom: 0;
+    border-left: 5px solid transparent;
+    transform: translateX(-50%);
   }
 }
 
@@ -812,8 +943,41 @@ code {
   display: none;
 }
 
+.slide-prose .teaching-flow__composition-node {
+  min-height: 4.6rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.68rem;
+}
+
+.slide-prose .teaching-flow__composition-stack .teaching-flow__composition-node {
+  min-height: 4.35rem;
+}
+
+.slide-prose .teaching-flow--composition .teaching-flow__icon {
+  width: 2.05rem;
+  height: 2.05rem;
+}
+
 .slide-prose pre {
+  max-height: min(40svh, 24rem);
+  overflow: auto;
   padding: 0.85rem;
+}
+
+.slide-prose pre:has([data-line]:nth-child(8)) {
+  height: min(40svh, 24rem);
+}
+
+@media (min-height: 820px) {
+  .slide-prose pre {
+    max-height: min(62svh, calc(100svh - 23rem), 46rem);
+  }
+
+  .slide-prose pre:has([data-line]:nth-child(8)) {
+    height: min(62svh, calc(100svh - 23rem), 46rem);
+  }
 }
 
 .slide-controls {

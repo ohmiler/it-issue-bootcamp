@@ -19,13 +19,16 @@ import type { ComponentType } from "react";
 type DiagramRole =
   | "action"
   | "client"
+  | "css"
   | "data"
   | "decision"
   | "deploy"
+  | "html"
   | "repo"
   | "server"
   | "success"
   | "tool"
+  | "typescript"
   | "user"
   | "warning";
 
@@ -84,6 +87,43 @@ const diagrams = {
         detail: "ใช้งานจริง",
         role: "deploy",
         icon: UploadCloud,
+      },
+    ],
+  },
+  "frontend-responsibilities": {
+    caption:
+      "HTML, CSS และ TypeScript ประกอบกันเป็นหน้าเว็บที่ผู้ใช้ใช้งานได้ ก่อนส่งข้อมูลต่อไปยัง backend และ database",
+    connectors: ["จัดหน้า", "เพิ่มพฤติกรรม", "ส่งข้อมูล", "บันทึก"],
+    steps: [
+      {
+        title: "HTML",
+        detail: "structure, meaning",
+        role: "html",
+        icon: Code2,
+      },
+      {
+        title: "CSS",
+        detail: "layout, responsive",
+        role: "css",
+        icon: Monitor,
+      },
+      {
+        title: "TypeScript",
+        detail: "validate, submit, state",
+        role: "typescript",
+        icon: ShieldCheck,
+      },
+      {
+        title: "Backend",
+        detail: "validate ซ้ำ, API",
+        role: "server",
+        icon: ServerCog,
+      },
+      {
+        title: "Database",
+        detail: "เก็บ issue",
+        role: "data",
+        icon: Database,
       },
     ],
   },
@@ -253,8 +293,110 @@ type TeachingFlowDiagramProps = {
   variant: TeachingFlowDiagramVariant;
 };
 
+function CompositionNode({
+  detail,
+  icon: Icon,
+  role,
+  title,
+}: FlowStep) {
+  return (
+    <div
+      className={`teaching-flow__node teaching-flow__composition-node teaching-flow__node--${role}`}
+    >
+      <span className="teaching-flow__icon">
+        <Icon size={22} aria-hidden />
+      </span>
+      <span className="teaching-flow__node-text">
+        <strong>{title}</strong>
+        <span>{detail}</span>
+      </span>
+    </div>
+  );
+}
+
+function CompositionConnector({ label }: { label: string }) {
+  return (
+    <div className="teaching-flow__composition-connector" aria-hidden="true">
+      <span className="teaching-flow__connector-line" />
+      <span className="teaching-flow__connector-label">{label}</span>
+    </div>
+  );
+}
+
+function FrontendResponsibilitiesDiagram({
+  caption,
+}: {
+  caption: string;
+}) {
+  const frontendLayers = [
+    {
+      title: "HTML",
+      detail: "โครงสร้างและความหมาย",
+      role: "html",
+      icon: Code2,
+    },
+    {
+      title: "CSS",
+      detail: "หน้าตา, layout, responsive",
+      role: "css",
+      icon: Monitor,
+    },
+    {
+      title: "TypeScript",
+      detail: "validate, submit, state",
+      role: "typescript",
+      icon: ShieldCheck,
+    },
+  ] satisfies FlowStep[];
+
+  return (
+    <figure className="teaching-flow teaching-flow--frontend-responsibilities teaching-flow--composition">
+      <figcaption className="teaching-flow__caption">{caption}</figcaption>
+
+      <div className="teaching-flow__composition" aria-label={caption}>
+        <div className="teaching-flow__composition-stack">
+          {frontendLayers.map((step) => (
+            <CompositionNode {...step} key={step.title} />
+          ))}
+        </div>
+
+        <CompositionConnector label="ประกอบเป็น" />
+
+        <CompositionNode
+          title="หน้า Form"
+          detail="กรอกข้อมูล, submit"
+          role="client"
+          icon={Globe2}
+        />
+
+        <CompositionConnector label="submit" />
+
+        <CompositionNode
+          title="Backend"
+          detail="validate ซ้ำ, API"
+          role="server"
+          icon={ServerCog}
+        />
+
+        <CompositionConnector label="save" />
+
+        <CompositionNode
+          title="Database"
+          detail="เก็บ issue"
+          role="data"
+          icon={Database}
+        />
+      </div>
+    </figure>
+  );
+}
+
 export function TeachingFlowDiagram({ variant }: TeachingFlowDiagramProps) {
   const diagram: FlowDiagram = diagrams[variant];
+
+  if (variant === "frontend-responsibilities") {
+    return <FrontendResponsibilitiesDiagram caption={diagram.caption} />;
+  }
 
   return (
     <figure className={`teaching-flow teaching-flow--${variant}`}>
