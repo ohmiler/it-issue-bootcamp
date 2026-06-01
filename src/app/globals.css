@@ -357,3 +357,232 @@ code {
     min-width: 420px;
   }
 }
+
+.slide-mode {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--background);
+  color: var(--text);
+}
+
+.slide-topbar,
+.slide-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-color: var(--border);
+  background: rgba(30, 30, 30, 0.94);
+  padding: 0.85rem 1rem;
+}
+
+.slide-topbar {
+  border-bottom: 1px solid var(--border);
+}
+
+.slide-topbar__title {
+  min-width: 0;
+}
+
+.slide-topbar__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.slide-topbar h1 {
+  margin: 0.2rem 0 0;
+  color: var(--text-strong);
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.slide-topbar__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.slide-command,
+.slide-counter,
+.slide-icon-button,
+.slide-control-hint {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+}
+
+.slide-command {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.slide-command:hover {
+  border-color: var(--accent-strong);
+  background: var(--panel-soft);
+  color: var(--text-strong);
+}
+
+.slide-counter {
+  min-width: 4.8rem;
+  padding: 0.55rem 0.7rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.slide-stage {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.slide-frame {
+  width: min(1180px, calc(100vw - 2.5rem));
+  max-height: calc(100svh - 9.5rem);
+  aspect-ratio: 16 / 9;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #1b1b1b;
+  padding: 2.25rem;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+}
+
+.slide-prose {
+  line-height: 1.55;
+}
+
+.slide-prose h2 {
+  margin: 0 0 1.25rem;
+  font-size: 2.35rem;
+  line-height: 1.14;
+}
+
+.slide-prose h3 {
+  margin: 1.25rem 0 0.55rem;
+  font-size: 1.35rem;
+}
+
+.slide-prose p,
+.slide-prose li {
+  font-size: 1.08rem;
+}
+
+.slide-prose ul,
+.slide-prose ol {
+  margin-bottom: 1rem;
+}
+
+.slide-prose [data-rehype-pretty-code-figure],
+.slide-prose .mermaid-diagram,
+.slide-prose .lesson-table-scroll {
+  margin: 1rem 0;
+}
+
+.slide-prose pre {
+  padding: 0.85rem;
+}
+
+.slide-controls {
+  border-top: 1px solid var(--border);
+}
+
+.slide-icon-button {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.slide-icon-button:hover:not(:disabled) {
+  border-color: var(--accent-strong);
+  background: var(--panel-soft);
+  color: var(--text-strong);
+}
+
+.slide-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.slide-progress {
+  height: 0.5rem;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--panel-soft);
+}
+
+.slide-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-strong);
+  transition: width 180ms ease;
+}
+
+.slide-control-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.6rem;
+  color: var(--muted-strong);
+}
+
+@media (max-width: 760px) {
+  .slide-topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .slide-topbar__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .slide-stage {
+    padding: 0.75rem;
+  }
+
+  .slide-frame {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100svh - 12rem);
+    min-height: calc(100svh - 12rem);
+    aspect-ratio: auto;
+    padding: 1.25rem;
+  }
+
+  .slide-prose h2 {
+    font-size: 1.8rem;
+  }
+
+  .slide-prose h3 {
+    font-size: 1.2rem;
+  }
+
+  .slide-prose p,
+  .slide-prose li {
+    font-size: 1rem;
+  }
+}

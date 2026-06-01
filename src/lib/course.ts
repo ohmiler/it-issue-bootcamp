@@ -261,3 +261,7 @@ export function getNextLesson(slug: string): Lesson | undefined {
 export function lessonHref(lesson: Lesson): string {
   return `/lessons/day-${lesson.day}/hour-${lesson.hour}`;
 }
+
+export function lessonSlidesHref(lesson: Lesson): string {
+  return `${lessonHref(lesson)}/slides`;
+}

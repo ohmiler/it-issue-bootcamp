@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
-import { Clock, Goal } from "lucide-react";
+import Link from "next/link";
+import { Clock, Goal, Presentation } from "lucide-react";
 import { CourseShell } from "@/components/course-shell";
 import { LessonPager } from "@/components/lesson-pager";
-import { getLesson, lessons } from "@/lib/course";
+import { getLesson, lessonSlidesHref, lessons } from "@/lib/course";
 import { compileLessonMdx } from "@/lib/mdx";
 
 type LessonPageProps = {
@@ -52,6 +53,15 @@ export default async function LessonPage({ params }: LessonPageProps) {
         <p className="mt-4 max-w-3xl text-[color:var(--text)]">
           {lesson.summary}
         </p>
+        <div className="mt-5">
+          <Link
+            href={lessonSlidesHref(lesson)}
+            className="inline-flex items-center gap-2 rounded-md border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-3 py-2 text-sm font-semibold text-[color:var(--text-strong)] transition hover:border-[color:var(--accent-strong)] hover:bg-[color:var(--selection)]"
+          >
+            <Presentation size={16} aria-hidden="true" />
+            Slide mode
+          </Link>
+        </div>
         <div className="mt-5 grid gap-3 text-sm text-[color:var(--text)] md:grid-cols-2">
           <div className="flex gap-2 rounded-md border border-[color:var(--border-subtle)] bg-[color:var(--panel-raised)] p-3">
             <Clock
