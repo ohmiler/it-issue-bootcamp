@@ -50,6 +50,43 @@ type FlowDiagram = {
 };
 
 const diagrams = {
+  "bootcamp-map": {
+    caption:
+      "Bootcamp เริ่มจาก static web page แล้วค่อยต่อยอดเป็น Next.js, CRUD, database, authentication และ deployment",
+    connectors: ["ต่อยอด", "เพิ่มข้อมูล", "ป้องกัน", "ส่งขึ้นใช้"],
+    steps: [
+      {
+        title: "Web Page",
+        detail: "HTML, CSS prototype",
+        role: "client",
+        icon: Code2,
+      },
+      {
+        title: "Next.js",
+        detail: "components, routing",
+        role: "tool",
+        icon: Globe2,
+      },
+      {
+        title: "CRUD",
+        detail: "create, read, update",
+        role: "action",
+        icon: FilePenLine,
+      },
+      {
+        title: "Auth + Data",
+        detail: "login, users, issues",
+        role: "server",
+        icon: ShieldCheck,
+      },
+      {
+        title: "Deploy",
+        detail: "ใช้งานจริง",
+        role: "deploy",
+        icon: UploadCloud,
+      },
+    ],
+  },
   "system-overview": {
     caption:
       "ผู้ใช้ทำงานผ่าน browser และ frontend จากนั้น frontend ติดต่อ backend เพื่ออ่านหรือเขียนข้อมูลใน database",

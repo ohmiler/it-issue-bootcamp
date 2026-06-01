@@ -16,6 +16,7 @@ const component = fs.existsSync(componentPath)
   : "";
 
 const requiredVariants = [
+  "bootcamp-map",
   "system-overview",
   "issue-submit-flow",
   "runtime-flow",
