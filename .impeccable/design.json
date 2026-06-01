@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-01T09:05:48+07:00",
+  "title": "Design System: IT Issue Bootcamp",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Editor Background",
+        "canonical": "#1e1e1e",
+        "tonalRamp": ["#0f0f0f", "#161616", "#1e1e1e", "#2a2a2a", "#3a3a3a", "#585858", "#858585", "#d4d4d4"]
+      },
+      "slide-background": {
+        "role": "neutral",
+        "displayName": "Slide Canvas",
+        "canonical": "#1b1b1b",
+        "tonalRamp": ["#0d0d0d", "#141414", "#1b1b1b", "#272727", "#383838", "#565656", "#838383", "#d0d0d0"]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel Charcoal",
+        "canonical": "#252526",
+        "tonalRamp": ["#111112", "#1a1a1b", "#252526", "#303033", "#424247", "#62626a", "#909098", "#d9d9de"]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Workbench Blue",
+        "canonical": "#007acc",
+        "tonalRamp": ["#001928", "#00395e", "#005b99", "#007acc", "#1e9bff", "#65bbff", "#a8daff", "#e5f5ff"]
+      },
+      "accent-strong": {
+        "role": "primary",
+        "displayName": "Instruction Blue",
+        "canonical": "#3794ff",
+        "tonalRamp": ["#001a36", "#003d79", "#146bd1", "#3794ff", "#70b5ff", "#a7d2ff", "#d7ecff", "#f1f8ff"]
+      },
+      "success": {
+        "role": "secondary",
+        "displayName": "Operational Green",
+        "canonical": "#73c991",
+        "tonalRamp": ["#0f2516", "#1f4b2d", "#377747", "#54a869", "#73c991", "#a0ddb5", "#caf0d6", "#effaf3"]
+      },
+      "warning": {
+        "role": "secondary",
+        "displayName": "Review Amber",
+        "canonical": "#cca700",
+        "tonalRamp": ["#2b2200", "#5a4900", "#8b7100", "#cca700", "#e4c63b", "#f1dc7b", "#faefbc", "#fff9e5"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Document Display",
+        "purpose": "Course and lesson page titles only."
+      },
+      "slide-display": {
+        "displayName": "Slide Display",
+        "purpose": "Projected slide headings that must scale with viewport size."
+      },
+      "body": {
+        "displayName": "Thai Lesson Body",
+        "purpose": "Long-form Thai explanations with comfortable line height."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Code blocks and inline code examples."
+      }
+    },
+    "shadows": [
+      {
+        "name": "none-at-rest",
+        "value": "box-shadow: none",
+        "purpose": "Default depth model for panels, code blocks, diagrams, tables, and slide frames."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-transition",
+        "value": "150ms ease",
+        "purpose": "Default hover and focus transition for links, buttons, and cards."
+      },
+      {
+        "name": "slide-progress-transition",
+        "value": "width 180ms ease",
+        "purpose": "Slide progress feedback."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-prose",
+        "value": "640px"
+      },
+      {
+        "name": "mobile-slide",
+        "value": "760px"
+      },
+      {
+        "name": "desktop-shell",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Use for the primary start action on course pages.",
+      "html": "<button class=\"ds-btn-primary\">Start Day 1</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: var(--radius-sm, 6px); background: var(--accent, #007acc); color: var(--text-strong, #ffffff); padding: 8px 16px; font-family: \"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; line-height: 20px; cursor: pointer; transition: background 150ms ease, color 150ms ease; } .ds-btn-primary:hover { background: var(--accent-strong, #3794ff); } .ds-btn-primary:focus-visible { outline: 2px solid var(--accent-strong, #3794ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Use for secondary navigation such as Extension Map or Document.",
+      "html": "<button class=\"ds-btn-secondary\">Extension Map</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border, #3c3c3c); border-radius: var(--radius-sm, 6px); background: var(--panel, #252526); color: var(--text-strong, #ffffff); padding: 8px 16px; font-family: \"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 600; line-height: 20px; cursor: pointer; transition: border-color 150ms ease, background 150ms ease, color 150ms ease; } .ds-btn-secondary:hover { border-color: var(--accent-strong, #3794ff); background: var(--panel-soft, #2d2d30); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--accent-strong, #3794ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Active Lesson Link",
+      "kind": "nav",
+      "refersTo": "nav-active",
+      "description": "Sidebar lesson row that marks the current hour.",
+      "html": "<a class=\"ds-nav-active\" href=\"#\"><span class=\"ds-nav-hour\">Hour 1</span><span class=\"ds-nav-title\">Basic Website Workflow</span></a>",
+      "css": ".ds-nav-active { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--accent, #007acc); border-radius: var(--radius-sm, 6px); background: var(--accent-soft, rgba(0,122,204,0.18)); color: var(--text-strong, #ffffff); padding: 8px 12px; font-family: \"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif; font-size: 14px; line-height: 20px; text-decoration: none; transition: background 150ms ease, border-color 150ms ease; } .ds-nav-active:hover { border-color: var(--accent-strong, #3794ff); background: var(--selection, #264f78); } .ds-nav-hour { color: var(--muted, #858585); font-size: 12px; } .ds-nav-title { color: var(--text-strong, #ffffff); }"
+    },
+    {
+      "name": "Course Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Use for day summaries, lesson headers, and repeated course items.",
+      "html": "<article class=\"ds-card\"><p class=\"ds-card-kicker\">Day 1</p><h2 class=\"ds-card-title\">Static Prototype and Git</h2><p class=\"ds-card-body\">Understand web workflow and create a static issue reporting prototype.</p></article>",
+      "css": ".ds-card { border: 1px solid var(--border, #3c3c3c); border-radius: var(--radius-sm, 6px); background: var(--panel, #252526); color: var(--text, #d4d4d4); padding: 20px; font-family: \"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif; box-shadow: none; } .ds-card-kicker { margin: 0 0 4px; color: var(--accent-strong, #3794ff); font-size: 14px; font-weight: 600; line-height: 20px; } .ds-card-title { margin: 0; color: var(--text-strong, #ffffff); font-size: 24px; font-weight: 600; line-height: 32px; } .ds-card-body { margin: 8px 0 0; color: var(--muted-strong, #a6a6a6); font-size: 16px; line-height: 24px; }"
+    },
+    {
+      "name": "Code Block",
+      "kind": "custom",
+      "refersTo": "code-block",
+      "description": "Code examples in MDX lesson prose.",
+      "html": "<pre class=\"ds-code\"><code>type IssueStatus = \"open\" | \"in_progress\" | \"closed\";</code></pre>",
+      "css": ".ds-code { width: 100%; overflow-x: auto; border: 1px solid var(--border, #3c3c3c); border-radius: var(--radius-md, 8px); background: var(--background, #1e1e1e); color: var(--text, #d4d4d4); padding: 16px; font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace; font-size: 16px; line-height: 28px; } .ds-code code { color: inherit; font: inherit; }"
+    },
+    {
+      "name": "Slide Controls",
+      "kind": "custom",
+      "refersTo": "button-slide",
+      "description": "Full-viewport slide mode controls with minimal chrome.",
+      "html": "<div class=\"ds-slide-controls\"><button class=\"ds-slide-icon\" aria-label=\"Previous slide\">‹</button><div class=\"ds-slide-progress\"><span></span></div><button class=\"ds-slide-icon\" aria-label=\"Next slide\">›</button></div>",
+      "css": ".ds-slide-controls { display: flex; align-items: center; gap: 16px; border-top: 1px solid var(--border, #3c3c3c); background: linear-gradient(0deg, rgba(30,30,30,0.94), rgba(30,30,30,0.68) 72%, rgba(30,30,30,0)); padding: 14px 16px; backdrop-filter: blur(14px); font-family: \"IBM Plex Sans Thai\", \"Segoe UI\", Arial, Helvetica, sans-serif; } .ds-slide-icon { width: 42px; height: 42px; display: inline-grid; place-items: center; border: 1px solid var(--border, #3c3c3c); border-radius: var(--radius-md, 8px); background: var(--panel, #252526); color: var(--text, #d4d4d4); cursor: pointer; transition: border-color 150ms ease, background 150ms ease, color 150ms ease; } .ds-slide-icon:hover { border-color: var(--accent-strong, #3794ff); background: var(--panel-soft, #2d2d30); color: var(--text-strong, #ffffff); } .ds-slide-progress { height: 8px; flex: 1; overflow: hidden; border-radius: var(--radius-pill, 999px); background: var(--panel-soft, #2d2d30); } .ds-slide-progress span { display: block; width: 45%; height: 100%; border-radius: inherit; background: var(--accent-strong, #3794ff); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Instructor Workbench",
+    "overview": "This system should feel like a practical teaching workspace: dark, quiet, code-adjacent, and ready for a 4-hour class session. The course-book and slide surfaces share one identity. The system explicitly rejects a marketing landing page, a decorative slide template, or a colorful showcase that competes with the lesson content.",
+    "keyCharacteristics": [
+      "VS Code Dark Plus surfaces with restrained blue accent use.",
+      "One Thai-first sans family across UI, prose, diagrams, and slides.",
+      "Flat tonal layers, 1px borders, and 6-8px corners.",
+      "Document mode for reading and practice, slide mode for live teaching.",
+      "Controls stay predictable and familiar, not novel."
+    ],
+    "rules": [
+      {
+        "name": "The Accent-Earns-Its-Place Rule",
+        "body": "Blue is for action, current position, links, and diagrams. Do not use blue as decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dark-Layer Rule",
+        "body": "Depth comes from tonal steps: background, panel, raised panel, soft panel. Do not introduce unrelated tinted neutrals.",
+        "section": "colors"
+      },
+      {
+        "name": "The Thai-First Rule",
+        "body": "IBM Plex Sans Thai is the primary voice. Do not introduce a display face or decorative font for lesson UI.",
+        "section": "typography"
+      },
+      {
+        "name": "The Slide Exception Rule",
+        "body": "Fluid type belongs to slide headings only. Product UI labels, navigation, and document prose stay fixed and predictable.",
+        "section": "typography"
+      },
+      {
+        "name": "The No-Ghost-Card Rule",
+        "body": "Do not pair 1px borders with large soft shadows. Use borders and tonal surfaces instead.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Overlay-Only Rule",
+        "body": "Blur and translucent gradients are allowed on slide topbar and controls because they protect readability over the full-screen slide canvas. Do not use glass effects as decoration elsewhere.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the VS Code Dark Plus palette: Editor Background, Panel Charcoal, Text Gray, Strong White, and Workbench Blue.",
+      "Do use the accent only for action, current position, links, diagrams, progress, and semantic state.",
+      "Do keep long Thai prose readable with comfortable line height, clear heading scale, and predictable spacing.",
+      "Do make slide mode feel like the same content in a live-teaching format, not a separate deck with separate copy.",
+      "Do keep diagrams, tables, and code blocks visible, bordered, and easy to scan.",
+      "Do respect reduced motion and keep transitions limited to state feedback."
+    ],
+    "donts": [
+      "Don't make the site feel like a marketing landing page.",
+      "Don't make the site feel like a decorative slide template.",
+      "Don't make the site feel like a colorful showcase that competes with the lesson content.",
+      "Don't hide core workflow diagrams, code, or checkpoints behind visual flourishes.",
+      "Don't introduce ornamental layouts, noisy effects, generic course-platform styling, or dense pages where learners cannot tell what to do next.",
+      "Don't use gradient text, oversized rounded cards, side-stripe borders, or large soft drop shadows."
+    ]
+  }
+}
