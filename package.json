@@ -10,7 +10,7 @@
     "build": "next build",
     "build:pages": "next build",
     "preview:pages": "npm run build:pages && npx wrangler pages dev out",
-    "deploy:pages": "npm run build:pages && npx wrangler pages deploy out --project-name advance-bootcamp-5-days",
+    "deploy:pages": "npm run build:pages && npx wrangler pages deploy out --project-name it-issue-bootcamp",
     "start": "next start",
     "lint": "eslint",
     "migrate:lessons": "node scripts/migrate-lessons.mjs",
