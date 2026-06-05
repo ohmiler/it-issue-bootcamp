@@ -11,6 +11,8 @@ type LessonSlidesPageProps = {
   }>;
 };
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return lessons.map((lesson) => ({
     day: `day-${lesson.day}`,

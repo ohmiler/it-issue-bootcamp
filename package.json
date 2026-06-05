@@ -2,9 +2,15 @@
   "name": "advance-bootcamp-5-days",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:pages": "next build",
+    "preview:pages": "npm run build:pages && npx wrangler pages dev out",
+    "deploy:pages": "npm run build:pages && npx wrangler pages deploy out --project-name advance-bootcamp-5-days",
     "start": "next start",
     "lint": "eslint",
     "migrate:lessons": "node scripts/migrate-lessons.mjs",
