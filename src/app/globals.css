@@ -578,12 +578,16 @@ code {
   background: color-mix(in srgb, var(--accent) 18%, var(--panel));
 }
 
-.teaching-flow__node--server,
 .teaching-flow__node--success,
-.teaching-flow__node--deploy,
 .teaching-flow__branch--success {
   border-color: var(--success);
   background: color-mix(in srgb, var(--success) 14%, var(--panel));
+}
+
+.teaching-flow__node--server,
+.teaching-flow__node--deploy {
+  border-color: var(--border);
+  background: var(--panel-raised);
 }
 
 .teaching-flow__node--data,
@@ -630,6 +634,12 @@ code {
 .teaching-flow__node--action,
 .teaching-flow__node--client {
   border-color: var(--border);
+}
+
+.teaching-flow--system-overview .teaching-flow__node--user,
+.teaching-flow--system-overview .teaching-flow__node--data {
+  border-color: var(--border);
+  background: var(--panel-raised);
 }
 
 @media (max-width: 640px) {
