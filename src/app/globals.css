@@ -598,11 +598,13 @@ code {
   background: color-mix(in srgb, var(--warning) 13%, var(--panel));
 }
 
+.teaching-flow--issue-submit-flow .teaching-flow__branch--warning,
 .teaching-flow--backend-validation .teaching-flow__branch--warning {
   border-color: var(--danger);
   background: color-mix(in srgb, var(--danger) 14%, var(--panel));
 }
 
+.teaching-flow--issue-submit-flow .teaching-flow__branch--warning svg,
 .teaching-flow--backend-validation .teaching-flow__branch--warning svg {
   color: var(--danger);
 }
@@ -648,6 +650,11 @@ code {
 
 .teaching-flow--system-overview .teaching-flow__node--user,
 .teaching-flow--system-overview .teaching-flow__node--data {
+  border-color: var(--border);
+  background: var(--panel-raised);
+}
+
+.teaching-flow--issue-submit-flow .teaching-flow__node--decision {
   border-color: var(--border);
   background: var(--panel-raised);
 }
