@@ -105,6 +105,7 @@
   --accent-soft: rgba(0, 122, 204, 0.18);
   --success: #73c991;
   --warning: #cca700;
+  --danger: #f48771;
   --selection: #264f78;
 }
 
@@ -595,6 +596,15 @@ code {
 .teaching-flow__branch--warning {
   border-color: var(--warning);
   background: color-mix(in srgb, var(--warning) 13%, var(--panel));
+}
+
+.teaching-flow--backend-validation .teaching-flow__branch--warning {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 14%, var(--panel));
+}
+
+.teaching-flow--backend-validation .teaching-flow__branch--warning svg {
+  color: var(--danger);
 }
 
 .teaching-flow__node--html {

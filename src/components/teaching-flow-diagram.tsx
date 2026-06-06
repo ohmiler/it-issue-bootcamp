@@ -212,6 +212,55 @@ const diagrams = {
       },
     ],
   },
+  "backend-validation": {
+    caption:
+      "เมื่อ frontend ส่งข้อมูลเข้ามา backend จะตรวจ validation และ login ก่อนตัดสินใจว่าจะบันทึกข้อมูลหรือส่ง error กลับไป",
+    connectors: ["รับ request", "ตรวจ title", "ตรวจ email", "ตรวจ login", "ตรวจความยาว"],
+    steps: [
+      {
+        title: "Submit",
+        detail: "ข้อมูลจาก frontend",
+        role: "client",
+        icon: Send,
+      },
+      {
+        title: "Title",
+        detail: "ต้องไม่ว่าง",
+        role: "decision",
+        icon: FilePenLine,
+      },
+      {
+        title: "Email",
+        detail: "รูปแบบต้องรับได้",
+        role: "decision",
+        icon: Globe2,
+      },
+      {
+        title: "Login",
+        detail: "ผู้ใช้ต้องเข้าระบบแล้ว",
+        role: "decision",
+        icon: UserRound,
+      },
+      {
+        title: "Length",
+        detail: "ข้อมูลต้องไม่ยาวเกินไป",
+        role: "decision",
+        icon: ShieldCheck,
+      },
+    ],
+    branches: [
+      {
+        title: "ผ่าน",
+        detail: "ไปขั้นตอนบันทึกข้อมูลลง database",
+        role: "success",
+      },
+      {
+        title: "ไม่ผ่าน",
+        detail: "ส่ง error กลับไปให้ frontend แสดงผล",
+        role: "warning",
+      },
+    ],
+  },
   "runtime-flow": {
     caption:
       "ตอนระบบถูกใช้งานจริง ผู้ใช้เห็น frontend ส่วน backend กับ auth ตรวจสอบก่อนอ่านหรือเขียนข้อมูลใน database",
