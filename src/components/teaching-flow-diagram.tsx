@@ -261,6 +261,49 @@ const diagrams = {
       },
     ],
   },
+  "issue-example-flow": {
+    caption:
+      "ตัวอย่าง flow ของระบบแจ้งปัญหาเมื่อผู้ใช้แจ้งว่า login เข้าระบบไม่ได้ ตั้งแต่เปิดฟอร์มจน admin อัปเดตสถานะ",
+    connectors: ["เปิดฟอร์ม", "กรอกข้อมูล", "ส่ง request", "ตรวจสอบ", "บันทึก"],
+    steps: [
+      {
+        title: "User",
+        detail: "แจ้งว่า login ไม่ได้",
+        role: "user",
+        icon: UserRound,
+      },
+      {
+        title: "Issue form",
+        detail: "กรอก title, รายละเอียด, email",
+        role: "client",
+        icon: FilePenLine,
+      },
+      {
+        title: "Submit",
+        detail: "frontend ส่งข้อมูล",
+        role: "client",
+        icon: Send,
+      },
+      {
+        title: "Backend",
+        detail: "validate และเช็กสิทธิ์",
+        role: "server",
+        icon: ShieldCheck,
+      },
+      {
+        title: "Database",
+        detail: "บันทึก issue ใหม่",
+        role: "data",
+        icon: Database,
+      },
+      {
+        title: "Admin",
+        detail: "เห็นงานและอัปเดต status",
+        role: "success",
+        icon: CheckCircle2,
+      },
+    ],
+  },
   "runtime-flow": {
     caption:
       "ตอนระบบถูกใช้งานจริง ผู้ใช้เห็น frontend ส่วน backend กับ auth ตรวจสอบก่อนอ่านหรือเขียนข้อมูลใน database",

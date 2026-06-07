@@ -654,9 +654,33 @@ code {
   background: var(--panel-raised);
 }
 
+.teaching-flow--runtime-flow .teaching-flow__node--user,
+.teaching-flow--runtime-flow .teaching-flow__node--data {
+  border-color: var(--border);
+  background: var(--panel-raised);
+}
+
+.teaching-flow--issue-example-flow .teaching-flow__node {
+  border-color: var(--border);
+  background: var(--panel-raised);
+}
+
 .teaching-flow--issue-submit-flow .teaching-flow__node--decision {
   border-color: var(--border);
   background: var(--panel-raised);
+}
+
+@media (min-width: 761px) {
+  .teaching-flow--issue-example-flow .teaching-flow__item {
+    flex: 0 0 auto;
+    align-items: stretch;
+  }
+
+  .teaching-flow--issue-example-flow .teaching-flow__node {
+    flex: 0 0 clamp(8.6rem, 11vw, 10rem);
+    width: clamp(8.6rem, 11vw, 10rem);
+    min-height: 7rem;
+  }
 }
 
 @media (max-width: 640px) {
