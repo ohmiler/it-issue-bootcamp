@@ -127,6 +127,48 @@ const diagrams = {
       },
     ],
   },
+  "css-builds-on-html": {
+    caption:
+      "CSS ต่อเติมจาก HTML โดยเริ่มจากโครงสร้างเดิม เลือกส่วนที่จะตกแต่ง เขียน rule แล้วได้ form ที่อ่านง่ายก่อนต่อยอดไป TypeScript",
+    connectors: [
+      "มีโครงสร้างแล้ว",
+      "เลือกส่วนที่จะตกแต่ง",
+      "ปรับหน้าตาและ layout",
+      "ต่อยอดเรื่อง logic",
+    ],
+    steps: [
+      {
+        title: "HTML เดิม",
+        detail: "form, label, input, button",
+        role: "html",
+        icon: Code2,
+      },
+      {
+        title: "CSS Selector",
+        detail: "เลือก tag หรือ class",
+        role: "css",
+        icon: Monitor,
+      },
+      {
+        title: "CSS Rule",
+        detail: "สี, spacing, border, layout",
+        role: "css",
+        icon: FilePenLine,
+      },
+      {
+        title: "Styled Form",
+        detail: "อ่านง่าย ใช้งานง่าย responsive",
+        role: "success",
+        icon: CheckCircle2,
+      },
+      {
+        title: "TypeScript ภายหลัง",
+        detail: "logic, data, validation",
+        role: "typescript",
+        icon: ShieldCheck,
+      },
+    ],
+  },
   "system-overview": {
     caption:
       "ผู้ใช้ทำงานผ่าน browser และ frontend จากนั้น frontend ติดต่อ backend เพื่ออ่านหรือเขียนข้อมูลใน database",

@@ -1017,17 +1017,9 @@ code {
   padding: 0.85rem;
 }
 
-.slide-prose pre:has([data-line]:nth-child(8)) {
-  height: min(40svh, 24rem);
-}
-
 @media (min-height: 820px) {
   .slide-prose pre {
     max-height: min(62svh, calc(100svh - 23rem), 46rem);
-  }
-
-  .slide-prose pre:has([data-line]:nth-child(8)) {
-    height: min(62svh, calc(100svh - 23rem), 46rem);
   }
 }
 
