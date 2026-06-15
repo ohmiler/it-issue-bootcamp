@@ -1,4 +1,5 @@
 import type { MDXComponents } from "mdx/types";
+import { BoxModelDiagram } from "@/components/box-model-diagram";
 import { MermaidDiagram } from "@/components/mermaid-diagram";
 import {
   TeachingFlowDiagram,
@@ -6,6 +7,7 @@ import {
 } from "@/components/teaching-flow-diagram";
 
 export const mdxComponents: MDXComponents = {
+  BoxModelDiagram: () => <BoxModelDiagram />,
   MermaidDiagram: (props) => (
     <MermaidDiagram chart={String(props.chart ?? "")} />
   ),

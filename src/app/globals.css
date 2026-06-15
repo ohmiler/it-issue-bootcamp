@@ -349,6 +349,83 @@ code {
   font-size: 0.875rem;
 }
 
+.box-model-diagram {
+  max-width: min(100%, 38rem);
+  margin: 1.35rem auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 1rem;
+}
+
+.box-model-diagram__caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.box-model-diagram__layer {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  padding: clamp(1.05rem, 2.2vw, 1.55rem);
+}
+
+.box-model-diagram__layer--margin {
+  border: 1px dashed color-mix(in srgb, var(--accent-strong) 62%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 30%, var(--panel));
+}
+
+.box-model-diagram__layer--border {
+  width: min(100%, 30rem);
+  border: 2px solid var(--accent-strong);
+  background: var(--panel-raised);
+}
+
+.box-model-diagram__layer--padding {
+  width: min(100%, 22rem);
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
+}
+
+.box-model-diagram__layer--content {
+  width: min(100%, 14rem);
+  min-height: 4.25rem;
+  border: 1px solid color-mix(in srgb, var(--success) 68%, var(--border));
+  background: color-mix(in srgb, var(--success) 18%, var(--background));
+}
+
+.box-model-diagram__label {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.6rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--background);
+  padding: 0.15rem 0.45rem;
+  color: var(--text-strong);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.box-model-diagram__label--content {
+  inset: auto;
+  position: static;
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  color: var(--text-strong);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
 .teaching-flow {
   max-width: 100%;
   margin: 1.5rem 0;

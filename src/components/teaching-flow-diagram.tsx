@@ -169,6 +169,31 @@ const diagrams = {
       },
     ],
   },
+  "class-migration-flow": {
+    caption:
+      "ชื่อ class ที่ชัดเจนช่วยให้ย้ายจาก prototype วันนี้ไปเป็นหน้า Next.js พรุ่งนี้ได้ง่ายขึ้น",
+    connectors: ["เก็บชื่อเดิม", "ใช้ต่อใน Next.js"],
+    steps: [
+      {
+        title: "ตั้งชื่อ class",
+        detail: "เช่น form-group",
+        role: "html",
+        icon: Code2,
+      },
+      {
+        title: "ย้าย CSS",
+        detail: "style.css -> app/globals.css",
+        role: "css",
+        icon: FilePenLine,
+      },
+      {
+        title: "ใช้ใน component",
+        detail: "className เดิม",
+        role: "success",
+        icon: CheckCircle2,
+      },
+    ],
+  },
   "system-overview": {
     caption:
       "ผู้ใช้ทำงานผ่าน browser และ frontend จากนั้น frontend ติดต่อ backend เพื่ออ่านหรือเขียนข้อมูลใน database",
