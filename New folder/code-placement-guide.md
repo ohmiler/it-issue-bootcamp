@@ -59,7 +59,7 @@ File: src/app/page.tsx
 
 ```text
 index.html
-styles.css
+style.css
 README.md
 ```
 
@@ -86,16 +86,16 @@ index.html
 โค้ด CSS หลักอยู่ใน:
 
 ```text
-styles.css
+style.css
 ```
 
 ต้องเชื่อมใน `index.html`:
 
 ```html
-<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="style.css" />
 ```
 
-ใส่ CSS เหล่านี้ใน `styles.css`:
+ใส่ CSS เหล่านี้ใน `style.css`:
 
 - reset และ `box-sizing`
 - `body`
@@ -119,7 +119,7 @@ index.html
 CSS ของ table และ badge อยู่ใน:
 
 ```text
-styles.css
+style.css
 ```
 
 คำอธิบาย project อยู่ใน:

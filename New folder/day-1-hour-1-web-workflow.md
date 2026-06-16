@@ -18,7 +18,7 @@
 
 ```text
 index.html
-styles.css
+style.css
 README.md
 ```
 
@@ -89,7 +89,7 @@ Day 1 จะสร้าง **static prototype** ก่อน:
 
 ```text
 index.html
-styles.css
+style.css
 ```
 
 Prototype นี้จะมี:

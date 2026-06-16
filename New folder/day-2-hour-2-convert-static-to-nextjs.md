@@ -6,7 +6,7 @@
 
 1. ย้ายโครงสร้าง HTML จาก Day 1 เข้า `src/app/page.tsx` ได้
 2. เข้าใจความต่างสำคัญระหว่าง HTML และ TSX เช่น `className`, `htmlFor` และ self-closing tag
-3. ย้าย CSS จาก `styles.css` เข้า `src/app/globals.css` ได้
+3. ย้าย CSS จาก `style.css` เข้า `src/app/globals.css` ได้
 4. แสดงหน้า form แจ้งปัญหาและ issue list ใน Next.js ได้เหมือน static prototype เดิม
 5. เข้าใจว่าในชั่วโมงถัดไป ข้อมูล static ใน table จะถูกย้ายไปเป็น TypeScript data model
 
@@ -77,7 +77,7 @@ src/app/layout.tsx
 
 ```text
 index.html
-styles.css
+style.css
 ```
 
 ## ไปเป็น Day 2
@@ -455,7 +455,7 @@ src/app/page.tsx
 ## จาก Day 1
 
 ```text
-styles.css
+style.css
 ```
 
 ## ใน Next.js
@@ -779,7 +779,7 @@ issues.map((issue) => ...)
 - ใน TSX ใช้ `className` แทน `class`
 - ใน TSX ใช้ `htmlFor` แทน `for`
 - Tag เช่น `input` ต้องปิดด้วย `/`
-- CSS จาก `styles.css` ย้ายเข้า `globals.css`
+- CSS จาก `style.css` ย้ายเข้า `globals.css`
 - ตอนนี้ prototype ของเราอยู่ใน Next.js แล้ว
 
 ## ต่อไป

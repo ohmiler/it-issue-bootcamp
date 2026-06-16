@@ -6,6 +6,20 @@ type MermaidDiagramProps = {
   chart: string;
 };
 
+function keepMermaidLabelsInsideMeasuredBoxes(svg: string) {
+  return svg.replace(
+    "</style>",
+    [
+      "foreignObject p{",
+      "font-size:16px!important;",
+      "line-height:1.5!important;",
+      "margin:0!important;",
+      "}",
+      "</style>",
+    ].join(""),
+  );
+}
+
 export function MermaidDiagram({ chart }: MermaidDiagramProps) {
   const reactId = useId();
   const diagramId = `mermaid-${reactId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -70,7 +84,7 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
         const result = await mermaid.render(diagramId, chart);
 
         if (!cancelled) {
-          setSvg(result.svg);
+          setSvg(keepMermaidLabelsInsideMeasuredBoxes(result.svg));
           setError(null);
         }
       } catch (renderError) {

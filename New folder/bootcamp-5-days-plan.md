@@ -160,7 +160,7 @@ Hour 4: recap, debugging, check result, next step
 
 ผลลัพธ์:
 
-- ได้ `styles.css` และหน้า static ที่อ่านง่ายขึ้น
+- ได้ `style.css` และหน้า static ที่อ่านง่ายขึ้น
 
 ## ชั่วโมงที่ 4: Static Issue List และ Git/GitHub
 

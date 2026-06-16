@@ -258,7 +258,7 @@ export const lessons: Lesson[] = [
     title: "CSS Foundation",
     summary: "Selectors, box model, form styling, layout, and responsive basics.",
     sourceFile: "day-1-hour-3-css-foundation.md",
-    checkpoint: "Learners have a readable static form styled with styles.css."
+    checkpoint: "Learners have a readable static form styled with style.css."
   },
   {
     slug: "day-1/hour-4",
