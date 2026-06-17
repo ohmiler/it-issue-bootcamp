@@ -471,32 +471,49 @@ body {
 
 ### `package.json`
 
-ไฟล์ที่บอกข้อมูล project และ scripts ที่ใช้รันคำสั่ง
+ไฟล์ที่บอกว่า project นี้ชื่ออะไร ใช้คำสั่งอะไร และต้องติดตั้ง package อะไรบ้าง
 
-ตัวอย่าง scripts:
+### ตัวอย่างจาก create-next-app ปัจจุบัน
 
 ```json
 {
+  "name": "it-issue-nextjs",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "16.2.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
 ```
 
-หมายเหตุ: script บางตัว เช่น `lint` อาจต่างกันตาม version ของ Next.js และตัวเลือกตอนสร้าง project ให้ผู้เรียนดู `package.json` จริงในเครื่องเป็นหลัก
+### อ่านไฟล์นี้อย่างไร
 
-### คำสั่งที่ใช้บ่อย
-
-```bash
-npm run dev
-npm run build
-```
+- `name` คือชื่อ project
+- `scripts` คือคำสั่งที่เราเรียกผ่าน `npm run ...`
+- `dependencies` คือ package ที่ app ต้องใช้ตอนทำงาน
+- `devDependencies` คือ package ที่ช่วยตอนพัฒนา เช่น TypeScript, ESLint, Tailwind
 
 ### Key Message
 
-เวลาเห็นคำสั่ง `npm run ...` ให้ไปดูได้ใน `package.json` ว่ามันรันอะไรจริง ๆ
+เวลาเห็นคำสั่ง `npm run dev` หรือ `npm run build` ให้กลับมาดูที่ `scripts` ใน `package.json`
 
 ---
 
