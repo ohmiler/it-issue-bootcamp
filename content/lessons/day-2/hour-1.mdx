@@ -358,7 +358,13 @@ export default function Home() {
 
 ### `layout.tsx`
 
-คือโครงหลักที่ครอบ page ต่าง ๆ
+คือไฟล์ที่เป็นกรอบร่วมของหน้าเว็บ
+
+คิดภาพง่าย ๆ:
+
+- `page.tsx` คือเนื้อหาของหน้า
+- `layout.tsx` คือกรอบที่ครอบเนื้อหานั้น
+- `children` คือจุดที่ Next.js เอาเนื้อหาจาก `page.tsx` มาใส่
 
 ### File
 
@@ -366,34 +372,37 @@ export default function Home() {
 app/layout.tsx
 ```
 
-### ตำแหน่งที่ใช้
+### ส่วนที่ควรสังเกต
 
-ตัวอย่างนี้คือโครงของไฟล์ `layout.tsx` ทั้งไฟล์ ใช้อธิบาย concept ก่อน ยังไม่จำเป็นต้องแก้ถ้า project ที่สร้างมามี layout อยู่แล้วและ `lang` ถูกต้อง
+ใน `app/layout.tsx` ให้ดู function `RootLayout` เป็นหลัก โค้ดนี้คือโครงเดิมที่ Next.js สร้างมาให้ ใช้เพื่อดูว่า layout ครอบ page อย่างไร
 
 ```tsx
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-  <html lang="th">
-    <body>{children}</body>
-  </html>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
   );
 }
 ```
 
 ### ใช้ทำอะไร
 
-- ตั้งค่า `<html lang="th">`
-- ใส่ font
-- ใส่ global layout
-- ใส่ navigation ที่ใช้ร่วมกันทุกหน้า
+- `<html>` ตั้งค่าพื้นฐานของทั้ง application
+- `<body>` เป็นพื้นที่หลักของหน้าเว็บ
+- `{children}` คือเนื้อหาจาก `page.tsx` ที่ถูกนำมาแสดง
+- ส่วนที่ใช้ร่วมกันทุกหน้า เช่น font, layout หรือ navigation มักวางที่นี่
 
 ### Speaker Notes
 
-ยังไม่ต้องอธิบาย `React.ReactNode` ลึกในชั่วโมงนี้ บอกแค่ว่า `children` คือเนื้อหาของ page ที่ถูกนำมาแสดงใน layout
+อธิบายด้วยภาพ mental model: `layout.tsx` เหมือนกรอบบ้าน ส่วน `page.tsx` คือของที่อยู่ข้างในบ้าน ยังไม่ต้องลงรายละเอียด TypeScript ลึก บอกแค่ว่า `React.ReactNode` คือชนิดข้อมูลของสิ่งที่ React render ได้
 
 ---
 
