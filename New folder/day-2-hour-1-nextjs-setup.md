@@ -400,7 +400,7 @@ export default function RootLayout({
 
 ## `globals.css`
 
-คือ CSS ที่ใช้กับทั้ง application
+คือไฟล์ CSS กลางของทั้ง application
 
 ## File
 
@@ -408,28 +408,52 @@ export default function RootLayout({
 app/globals.css
 ```
 
-## ตำแหน่งที่ใช้
+## ภาพรวม
 
-ตัวอย่างนี้คือ CSS global ที่สามารถวางใน `app/globals.css` ได้ แต่ในชั่วโมงนี้ให้ใช้เพื่ออธิบายก่อน ยังไม่ต้องย้าย CSS ทั้งหมดจนถึงชั่วโมงถัดไป
+เมื่อสร้าง project แบบ recommended defaults ไฟล์นี้จะถูกสร้างมาให้แล้ว และถูก import จาก `app/layout.tsx`
 
-ตัวอย่าง:
+## ตัวอย่างจาก create-next-app ปัจจุบัน
 
 ```css
-* {
-  box-sizing: border-box;
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background:  f6f7fb;
-  color:  111827;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }
 ```
 
-## เชื่อมกับ Day 1 อย่างไร
+## อ่านไฟล์นี้อย่างไร
 
-CSS ที่เราเขียนใน `style.css` จาก Day 1 สามารถย้ายมาบางส่วนไว้ใน `globals.css` ได้
+- `@import "tailwindcss";` เปิดให้ใช้ Tailwind class ได้
+- `:root` เก็บค่าสีกลางของเว็บ เช่น background และ foreground
+- `@theme inline` เชื่อมค่า CSS variables ให้ Tailwind ใช้ต่อได้
+- `@media (prefers-color-scheme: dark)` เปลี่ยนค่าสีเมื่อเครื่องผู้ใช้เปิด dark mode
+- `body` คือ style พื้นฐานที่ครอบทุกหน้า
+
+## Key Message
+
+ชั่วโมงนี้ให้เข้าใจก่อนว่า `globals.css` คือที่เก็บ style ระดับทั้งแอป ส่วนรายละเอียด Tailwind และ theme จะค่อยต่อยอดใน Day 3
 
 ---
 
