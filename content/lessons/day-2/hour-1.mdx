@@ -15,7 +15,7 @@ Day 2 - ชั่วโมงที่ 1: From Static HTML to Next.js Project
 หลังจบชั่วโมงแรกของ Day 2 ผู้เรียนควรสามารถ:
 
 1. เข้าใจว่า Next.js คืออะไร และทำไมจึงใช้ต่อจาก HTML/CSS static prototype
-2. เห็นภาพว่า `index.html` จาก Day 1 จะถูกย้ายไปเป็น `src/app/page.tsx`
+2. เห็นภาพว่า `index.html` จาก Day 1 จะถูกย้ายไปเป็น `app/page.tsx`
 3. สร้าง Next.js project ด้วย TypeScript ได้
 4. เข้าใจโครงสร้างไฟล์พื้นฐานของ Next.js App Router
 5. เปิด development server และดูหน้าเว็บใน browser ได้
@@ -29,16 +29,16 @@ Day 2 - ชั่วโมงที่ 1: From Static HTML to Next.js Project
 ไฟล์หลักที่แตะในชั่วโมงนี้:
 
 ```text
-src/app/page.tsx
-src/app/layout.tsx
-src/app/globals.css
+app/page.tsx
+app/layout.tsx
+app/globals.css
 package.json
 ```
 
 ถ้า slide เป็นหน้าแรก ให้ระบุ:
 
 ```text
-File: src/app/page.tsx
+File: app/page.tsx
 ```
 
 ---
@@ -151,18 +151,19 @@ style.css
 
 ### Day 2
 
-```text
-src/
-  app/
-  page.tsx
+```text {5}
+app/
+  favicon.ico
+  globals.css
   layout.tsx
+  page.tsx
 ```
 
 ### แนวคิด
 
 ```text
-HTML structure เดิม -> JSX ใน page.tsx
-CSS เดิม            -> globals.css ก่อน แล้วค่อยไป Tailwind ใน Day 3
+HTML structure เดิม -> JSX ใน app/page.tsx
+CSS เดิม            -> app/globals.css ก่อน แล้วค่อยไป Tailwind ใน Day 3
 ข้อมูล static       -> TypeScript array
 ส่วนที่ซ้ำ          -> Component
 ```
@@ -186,7 +187,7 @@ JSX ที่ใช้ร่วมกับ TypeScript
 ตัวอย่าง:
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <main>
     <h1>ระบบแจ้งปัญหา IT</h1>
@@ -223,33 +224,27 @@ npm -v
 git --version
 ```
 
-### หมายเหตุสำหรับผู้สอน
-
-ควรตรวจเครื่องผู้เรียนก่อนเริ่ม Day 2 หรือเตรียม starter repo สำรองไว้ เพราะขั้นตอน setup มักกินเวลาเกินคาด
-
 ---
 
 ## Slide 7: สร้าง Next.js Project
 
-### คำสั่ง
-
 ### ตำแหน่งที่รันคำสั่ง
 
-รันใน folder ที่ต้องการเก็บ project เช่น folder งาน bootcamp ไม่ต้องรันใน project เดิมของ Day 1
+รันใน folder ว่างที่ต้องการใช้เป็น Next.js project เช่น `it-issue-nextjs` ไม่ต้องรันใน project เดิมของ Day 1
 
 ```bash
-npx create-next-app@latest it-issue-report
+npx create-next-app@latest
 ```
 
-### ตัวเลือกที่แนะนำ
+### Prompt ปัจจุบัน
 
-```text
-TypeScript: Yes
-ESLint: Yes
-Tailwind CSS: No
-src/ directory: Yes
-App Router: Yes
-Import alias: Yes
+```text {2-4}
+? Would you like to use the recommended Next.js defaults?
+> Yes, use recommended defaults
+  TypeScript, ESLint, No React Compiler, Tailwind CSS,
+  No src/ directory, App Router, AGENTS.md
+  No, reuse previous settings
+  No, customize settings
 ```
 
 ### คำแนะนำสำหรับคอร์สนี้
@@ -257,10 +252,10 @@ Import alias: Yes
 สำหรับ flow นี้ แนะนำเลือก:
 
 ```text
-Tailwind CSS: No
+Yes, use recommended defaults
 ```
 
-เพราะ Day 2 จะย้าย CSS จาก Day 1 เข้า `globals.css` ก่อน เพื่อให้ผู้เรียนเห็นความต่อเนื่องจาก static prototype แล้วค่อยเริ่ม Tailwind ใน Day 3
+เพราะจะได้ TypeScript, ESLint, App Router และโครงสร้างแบบ `app/` ที่ไม่มี `src/` ตรงกับ slide ก่อนหน้า แม้ project จะมี Tailwind CSS ติดมา แต่ Day 2 ยังโฟกัส `app/page.tsx` และ `app/globals.css` ก่อน
 
 ---
 
@@ -271,7 +266,7 @@ Tailwind CSS: No
 รันต่อจาก Slide 7 หลังสร้าง project เสร็จ โดยเข้าไปใน folder project ก่อน
 
 ```bash
-cd it-issue-report
+cd it-issue-nextjs
 npm run dev
 ```
 
@@ -298,8 +293,7 @@ http://localhost:3000
 ตัวอย่าง:
 
 ```text
-it-issue-report/
-  src/
+it-issue-nextjs/
   app/
     favicon.ico
     globals.css
@@ -313,9 +307,9 @@ it-issue-report/
 
 ### ไฟล์ที่ควรรู้วันนี้
 
-- `src/app/page.tsx`
-- `src/app/layout.tsx`
-- `src/app/globals.css`
+- `app/page.tsx`
+- `app/layout.tsx`
+- `app/globals.css`
 - `package.json`
 - `tsconfig.json`
 
@@ -328,7 +322,7 @@ it-issue-report/
 คือไฟล์ที่สร้างหน้าเว็บของ route หนึ่ง ๆ
 
 ```text
-src/app/page.tsx -> /
+app/page.tsx -> /
 ```
 
 ### ตัวอย่าง
@@ -336,7 +330,7 @@ src/app/page.tsx -> /
 ### File
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### ตำแหน่งที่แก้
@@ -344,7 +338,7 @@ src/app/page.tsx
 ตัวอย่างนี้คือเนื้อหาของ function หน้าแรก ไม่ใช่ code ที่ต้องเพิ่มต่อท้ายไฟล์
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <main>
     <h1>ระบบแจ้งปัญหา IT</h1>
@@ -369,7 +363,7 @@ export default function HomePage() {
 ### File
 
 ```text
-src/app/layout.tsx
+app/layout.tsx
 ```
 
 ### ตำแหน่งที่ใช้
@@ -412,12 +406,12 @@ export default function RootLayout({
 ### File
 
 ```text
-src/app/globals.css
+app/globals.css
 ```
 
 ### ตำแหน่งที่ใช้
 
-ตัวอย่างนี้คือ CSS global ที่สามารถวางใน `src/app/globals.css` ได้ แต่ในชั่วโมงนี้ให้ใช้เพื่ออธิบายก่อน ยังไม่ต้องย้าย CSS ทั้งหมดจนถึงชั่วโมงถัดไป
+ตัวอย่างนี้คือ CSS global ที่สามารถวางใน `app/globals.css` ได้ แต่ในชั่วโมงนี้ให้ใช้เพื่ออธิบายก่อน ยังไม่ต้องย้าย CSS ทั้งหมดจนถึงชั่วโมงถัดไป
 
 ตัวอย่าง:
 
@@ -478,15 +472,15 @@ npm run build
 ### เปิดไฟล์
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### แทนที่เนื้อหาเดิมด้วย
 
-ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `src/app/page.tsx` ในขั้นตอนแรก
+ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `app/page.tsx` ในขั้นตอนแรก
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <main>
     <h1>ระบบแจ้งปัญหา IT</h1>
@@ -540,14 +534,14 @@ TSX:
 
 ---
 
-## Slide 16: โค้ดสุดท้ายของ `src/app/page.tsx` หลังชั่วโมงนี้
+## Slide 16: โค้ดสุดท้ายของ `app/page.tsx` หลังชั่วโมงนี้
 
 ### ขั้นตอน
 
 1. สร้าง Next.js project
 2. รัน `npm run dev`
 3. เปิด `http://localhost:3000`
-4. แก้ `src/app/page.tsx`
+4. แก้ `app/page.tsx`
 5. เปลี่ยนหน้าแรกให้มี:
 ### - ชื่อระบบ
 ### - คำอธิบายสั้น ๆ
@@ -559,15 +553,15 @@ TSX:
 ### File
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### ตำแหน่งที่แก้
 
-ใช้ตัวอย่างนี้แทน function `HomePage` จาก Slide 14 เพื่อเพิ่ม section placeholder สำหรับ form
+ใช้ตัวอย่างนี้แทน function `Home` จาก Slide 14 เพื่อเพิ่ม section placeholder สำหรับ form
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <main>
     <h1>ระบบแจ้งปัญหา IT</h1>
@@ -598,7 +592,7 @@ export default function HomePage() {
 ### ตัวอย่างปัญหาที่พบบ่อย
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <h1>ระบบแจ้งปัญหา IT</h1>
   <p>แจ้งปัญหา</p>
@@ -609,7 +603,7 @@ export default function HomePage() {
 ต้องครอบด้วย element เดียว:
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <main>
     <h1>ระบบแจ้งปัญหา IT</h1>

@@ -288,6 +288,11 @@ code {
   padding: 0 0.25rem;
 }
 
+.lesson-prose [data-highlighted-line] {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+}
+
 .lesson-prose :not(pre) > code {
   border: 1px solid var(--border);
   border-radius: 6px;
