@@ -18,18 +18,18 @@ export function LessonPager({ lesson }: LessonPagerProps) {
   return (
     <nav
       aria-label="Lesson navigation"
-      className="mt-12 grid gap-3 border-t border-[color:var(--border)] pt-6 md:grid-cols-2"
+      className="lesson-pager"
     >
       {previous ? (
         <Link
           href={lessonHref(previous)}
-          className="rounded-md border border-[color:var(--border)] bg-[color:var(--panel)] p-4 text-[color:var(--text)] transition hover:border-[color:var(--accent-strong)] hover:bg-[color:var(--panel-soft)]"
+          className="lesson-pager__link"
         >
-          <span className="mb-2 flex items-center gap-2 text-xs uppercase tracking-normal text-[color:var(--muted)]">
+          <span>
             <ArrowLeft size={14} aria-hidden="true" />
             Previous
           </span>
-          <span className="font-medium">{previous.title}</span>
+          <strong>{previous.title}</strong>
         </Link>
       ) : (
         <div />
@@ -38,13 +38,13 @@ export function LessonPager({ lesson }: LessonPagerProps) {
       {next ? (
         <Link
           href={lessonHref(next)}
-          className="rounded-md border border-[color:var(--border)] bg-[color:var(--panel)] p-4 text-right text-[color:var(--text)] transition hover:border-[color:var(--accent-strong)] hover:bg-[color:var(--panel-soft)]"
+          className="lesson-pager__link lesson-pager__link--next"
         >
-          <span className="mb-2 flex items-center justify-end gap-2 text-xs uppercase tracking-normal text-[color:var(--muted)]">
+          <span>
             Next
             <ArrowRight size={14} aria-hidden="true" />
           </span>
-          <span className="font-medium">{next.title}</span>
+          <strong>{next.title}</strong>
         </Link>
       ) : (
         <div />

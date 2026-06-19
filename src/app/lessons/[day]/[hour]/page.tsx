@@ -45,38 +45,32 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   return (
     <CourseShell currentSlug={lesson.slug}>
-      <header className="mb-8 rounded-md border border-[color:var(--border)] bg-[color:var(--panel)] p-5">
-        <p className="text-sm font-semibold text-[color:var(--accent-strong)]">
+      <header className="lesson-header">
+        <p className="lesson-header__eyebrow">
           Day {lesson.day} / Hour {lesson.hour}
         </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-normal text-[color:var(--text-strong)] md:text-5xl">
-          {lesson.title}
-        </h1>
-        <p className="mt-4 max-w-3xl text-[color:var(--text)]">
-          {lesson.summary}
-        </p>
-        <div className="mt-5">
+        <h1>{lesson.title}</h1>
+        <p>{lesson.summary}</p>
+        <div className="lesson-header__actions">
           <Link
             href={lessonSlidesHref(lesson)}
-            className="inline-flex items-center gap-2 rounded-md border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-3 py-2 text-sm font-semibold text-[color:var(--text-strong)] transition hover:border-[color:var(--accent-strong)] hover:bg-[color:var(--selection)]"
+            className="workbench-button workbench-button--primary"
           >
             <Presentation size={16} aria-hidden="true" />
             Slide mode
           </Link>
         </div>
-        <div className="mt-5 grid gap-3 text-sm text-[color:var(--text)] md:grid-cols-2">
-          <div className="flex gap-2 rounded-md border border-[color:var(--border-subtle)] bg-[color:var(--panel-raised)] p-3">
+        <div className="lesson-header__meta">
+          <div>
             <Clock
               size={16}
-              className="mt-0.5 text-[color:var(--accent-strong)]"
               aria-hidden="true"
             />
             <span>{frontmatter.duration ?? 60} minutes</span>
           </div>
-          <div className="flex gap-2 rounded-md border border-[color:var(--border-subtle)] bg-[color:var(--panel-raised)] p-3">
+          <div>
             <Goal
               size={16}
-              className="mt-0.5 text-[color:var(--success)]"
               aria-hidden="true"
             />
             <span>{lesson.checkpoint}</span>
