@@ -14,8 +14,8 @@ source: "day-2-hour-4-components-and-routing.md"
 
 หลังจบชั่วโมงที่สี่ของ Day 2 ผู้เรียนควรสามารถ:
 
-1. เห็นปัญหาของการเก็บ form, table, badge, type และ mock data ทั้งหมดไว้ใน `src/app/page.tsx`
-2. แยก UI ออกเป็นไฟล์ component จริงใน `src/components/`
+1. เห็นปัญหาของการเก็บ form, table, badge, type และ mock data ทั้งหมดไว้ใน `app/page.tsx`
+2. แยก UI ออกเป็นไฟล์ component จริงใน `components/`
 3. สร้าง `StatusBadge.tsx`, `IssueList.tsx` และ `IssueForm.tsx` ได้
 4. ใช้ `export` และ `import` เพื่อเรียก component ข้ามไฟล์ได้
 5. ส่งข้อมูลเข้า component ผ่าน props ได้
@@ -27,16 +27,16 @@ source: "day-2-hour-4-components-and-routing.md"
 ชั่วโมงนี้สอนการแยกไฟล์ component เป็นแกนหลัก โดยสร้างไฟล์จริงเหล่านี้ตั้งแต่ต้น:
 
 ```text
-src/components/StatusBadge.tsx
-src/components/IssueList.tsx
-src/components/IssueForm.tsx
-src/types/issue.ts
-src/data/issues.ts
-src/app/page.tsx
-src/app/layout.tsx
-src/app/issues/page.tsx
-src/app/issues/new/page.tsx
-src/app/issues/[id]/page.tsx
+components/StatusBadge.tsx
+components/IssueList.tsx
+components/IssueForm.tsx
+types/issue.ts
+data/issues.ts
+app/page.tsx
+app/layout.tsx
+app/issues/page.tsx
+app/issues/new/page.tsx
+app/issues/[id]/page.tsx
 ```
 
 ---
@@ -47,9 +47,9 @@ src/app/issues/[id]/page.tsx
 |---|---|---|
 | 0-5 นาที | Recap Hour 3: TypeScript data model | เชื่อมเข้าเนื้อหา |
 | 5-12 นาที | แยกส่วนใน `page.tsx` ออกมาเป็นไฟล์ component อะไรบ้าง | Explain |
-| 12-18 นาที | สร้างโครง `src/components/`, `src/types/`, `src/data/` | Live coding |
+| 12-18 นาที | สร้างโครง `components/`, `types/`, `data/` | Live coding |
 | 18-35 นาที | สร้างไฟล์ component จริง: `StatusBadge`, `IssueList`, `IssueForm` | Live coding |
-| 35-45 นาที | import component กลับมาใช้ใน `src/app/page.tsx` | Live coding |
+| 35-45 นาที | import component กลับมาใช้ใน `app/page.tsx` | Live coding |
 | 45-52 นาที | ใช้ component เดิมซ้ำใน routes | Live coding |
 | 52-60 นาที | ตรวจโค้ดสุดท้ายและ recap | สรุป |
 
@@ -66,7 +66,7 @@ src/app/issues/[id]/page.tsx
 
 ### ปัญหาตอนนี้
 
-ทุกอย่างยังอยู่ใน `src/app/page.tsx`:
+ทุกอย่างยังอยู่ใน `app/page.tsx`:
 
 ```text
 types
@@ -76,8 +76,6 @@ form JSX
 table JSX
 page layout
 ```
-
-### Key Message
 
 ชั่วโมงนี้เราจะเริ่มจากการแยก `form`, `table` และ `status badge` ออกจาก `page.tsx` ไปเป็นไฟล์ component จริง
 
@@ -98,17 +96,13 @@ page layout
 ### สิ่งที่จะแยกออกมา
 
 ```text
-status badge JSX  -> src/components/StatusBadge.tsx
-issue table JSX   -> src/components/IssueList.tsx
-issue form JSX    -> src/components/IssueForm.tsx
-type ของ issue    -> src/types/issue.ts
-mock issues       -> src/data/issues.ts
+status badge JSX  -> components/StatusBadge.tsx
+issue table JSX   -> components/IssueList.tsx
+issue form JSX    -> components/IssueForm.tsx
+type ของ issue    -> types/issue.ts
+mock issues       -> data/issues.ts
 page.tsx          -> เหลือแค่ import และจัด layout
 ```
-
-### Key Message
-
-วันนี้ไม่แยกเป็น function ย่อยใน `page.tsx` แต่แยกเป็นไฟล์ component จริงเลย เพื่อให้ route อื่น import ไปใช้ซ้ำได้
 
 ---
 
@@ -116,25 +110,24 @@ page.tsx          -> เหลือแค่ import และจัด layout
 
 ### โครงที่ต้องการ
 
-```text
-src/
-  app/
-    layout.tsx
+```text {10-13}
+app/
+  layout.tsx
+  page.tsx
+  issues/
     page.tsx
-    issues/
+    new/
       page.tsx
-      new/
-        page.tsx
-      [id]/
-        page.tsx
-  components/
-    IssueForm.tsx
-    IssueList.tsx
-    StatusBadge.tsx
-  data/
-    issues.ts
-  types/
-    issue.ts
+    [id]/
+      page.tsx
+components/
+  IssueForm.tsx
+  IssueList.tsx
+  StatusBadge.tsx
+data/
+  issues.ts
+types/
+  issue.ts
 ```
 
 ### แต่ละ folder ใช้ทำอะไร
@@ -146,9 +139,7 @@ src/
 | `data` | เก็บ mock data |
 | `app` | เก็บ pages/routes |
 
-### Key Message
-
-หัวใจของชั่วโมงนี้คือ `src/components/` ส่วน `types` และ `data` เป็นไฟล์กลางที่ช่วยให้ component import ใช้ได้เป็นระเบียบ
+หัวใจของชั่วโมงนี้คือ `components/` ส่วน `types` และ `data` เป็นไฟล์กลางที่ช่วยให้ component import ใช้ได้เป็นระเบียบ
 
 ---
 
@@ -184,8 +175,6 @@ export function IssueForm() {}
 import { StatusBadge } from "@/components/StatusBadge";
 ```
 
-### Key Message
-
 แยกไฟล์ component แล้วต้องเข้าใจ `export` และ `import` ไม่อย่างนั้น route อื่นจะเรียกใช้ component ไม่ได้
 
 ---
@@ -195,14 +184,16 @@ import { StatusBadge } from "@/components/StatusBadge";
 ### File
 
 ```text
-src/types/issue.ts
+types/issue.ts
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้าง folder `src/types/` แล้วสร้างไฟล์ `issue.ts`
+สร้าง `types/` ไว้ที่ root project ระดับเดียวกับ `app/`
 
-วาง type ที่เคยอยู่ด้านบนของ `src/app/page.tsx` มาไว้ที่ไฟล์นี้ เพื่อให้ `StatusBadge` และ `IssueList` import ไปใช้ได้
+จากนั้นสร้างไฟล์ `issue.ts` ไว้ข้างใน `types/`
+
+วาง type ที่เคยอยู่ด้านบนของ `app/page.tsx` มาไว้ที่ไฟล์นี้ เพื่อให้ `StatusBadge` และ `IssueList` import ไปใช้ได้
 
 ```ts
 export type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
@@ -230,12 +221,14 @@ export type Issue = {
 ### File
 
 ```text
-src/data/issues.ts
+data/issues.ts
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้าง folder `src/data/` แล้วสร้างไฟล์ `issues.ts`
+สร้าง `data/` ไว้ที่ root project ระดับเดียวกับ `app/`
+
+จากนั้นสร้างไฟล์ `issues.ts` ไว้ข้างใน `data/`
 
 ```ts
 import type { Issue } from "@/types/issue";
@@ -272,8 +265,6 @@ export const issues: Issue[] = [
 ];
 ```
 
-### Key Message
-
 `issues` เป็น mock data กลางที่หน้า `/` และ `/issues` ใช้ร่วมกันได้
 
 ---
@@ -283,12 +274,14 @@ export const issues: Issue[] = [
 ### File
 
 ```text
-src/components/StatusBadge.tsx
+components/StatusBadge.tsx
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้าง folder `src/components/` แล้วสร้างไฟล์ `StatusBadge.tsx`
+สร้าง `components/` ไว้ที่ root project ระดับเดียวกับ `app/`
+
+จากนั้นสร้างไฟล์ `StatusBadge.tsx` ไว้ข้างใน `components/`
 
 ```tsx
 import type { IssueStatus } from "@/types/issue";
@@ -324,8 +317,6 @@ export function StatusBadge({ status }: StatusBadgeProps) {
 <StatusBadge status={issue.status} />
 ```
 
-### Key Message
-
 `StatusBadge` รับแค่ `status` และรับผิดชอบเรื่องหน้าตาของ status เท่านั้น
 
 ---
@@ -358,8 +349,6 @@ export function StatusBadge({ status }: StatusBadgeProps) {
 Parent component ส่งข้อมูล -> Child component รับผ่าน props
 ```
 
-### Key Message
-
 Props ทำให้ component ไม่ต้องรู้ข้อมูลทั้งระบบ รู้เฉพาะข้อมูลที่จำเป็นต่อการแสดงผล
 
 ---
@@ -369,16 +358,16 @@ Props ทำให้ component ไม่ต้องรู้ข้อมูล
 ### File
 
 ```text
-src/components/IssueList.tsx
+components/IssueList.tsx
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้างไฟล์ `IssueList.tsx` ใน `src/components/`
+สร้างไฟล์ `IssueList.tsx` ใน `components/`
 
 ```tsx
 import Link from "next/link";
-import { StatusBadge } from "@/components/StatusBadge";
+import { StatusBadge } from "./StatusBadge";
 import type { Issue } from "@/types/issue";
 
 type IssueListProps = {
@@ -424,8 +413,6 @@ export function IssueList({ issues }: IssueListProps) {
 }
 ```
 
-### Key Message
-
 `IssueList` ไม่สนใจว่า data มาจาก mock, state หรือ database แค่รับ `issues` แล้วแสดงผล
 
 ---
@@ -435,12 +422,12 @@ export function IssueList({ issues }: IssueListProps) {
 ### File
 
 ```text
-src/components/IssueForm.tsx
+components/IssueForm.tsx
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้างไฟล์ `IssueForm.tsx` ใน `src/components/`
+สร้างไฟล์ `IssueForm.tsx` ใน `components/`
 
 ```tsx
 export function IssueForm() {
@@ -482,8 +469,6 @@ export function IssueForm() {
 }
 ```
 
-### Key Message
-
 ตอนนี้ form ยังไม่ submit จริง แต่เรามี component ที่พร้อมต่อยอดใน Day 3 และ Day 4
 
 ---
@@ -493,19 +478,19 @@ export function IssueForm() {
 ### File
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### ตำแหน่งที่แก้
 
-ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `src/app/page.tsx`
+ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `app/page.tsx`
 
 ```tsx
 import { IssueForm } from "@/components/IssueForm";
 import { IssueList } from "@/components/IssueList";
 import { issues } from "@/data/issues";
 
-export default function HomePage() {
+export default function Home() {
   return (
     <>
       <header>
@@ -537,13 +522,11 @@ export default function HomePage() {
 ### Next.js ใช้ folder สร้าง route
 
 ```text
-src/app/page.tsx              -> /
-src/app/issues/page.tsx       -> /issues
-src/app/issues/new/page.tsx   -> /issues/new
-src/app/issues/[id]/page.tsx  -> /issues/001
+app/page.tsx              -> /
+app/issues/page.tsx       -> /issues
+app/issues/new/page.tsx   -> /issues/new
+app/issues/[id]/page.tsx  -> /issues/001
 ```
-
-### Key Message
 
 ใน App Router ถ้าอยากสร้างหน้าใหม่ ให้สร้าง folder แล้วใส่ไฟล์ `page.tsx`
 
@@ -554,12 +537,12 @@ src/app/issues/[id]/page.tsx  -> /issues/001
 ### File
 
 ```text
-src/app/issues/page.tsx
+app/issues/page.tsx
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้าง folder `src/app/issues/` แล้วสร้างไฟล์ `page.tsx`
+สร้าง folder `app/issues/` แล้วสร้างไฟล์ `page.tsx`
 
 ```tsx
 import { IssueList } from "@/components/IssueList";
@@ -588,12 +571,12 @@ http://localhost:3000/issues
 ### File
 
 ```text
-src/app/issues/new/page.tsx
+app/issues/new/page.tsx
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้าง folder `src/app/issues/new/` แล้วสร้างไฟล์ `page.tsx`
+สร้าง folder `app/issues/new/` แล้วสร้างไฟล์ `page.tsx`
 
 ```tsx
 import { IssueForm } from "@/components/IssueForm";
@@ -621,17 +604,19 @@ http://localhost:3000/issues/new
 ### File
 
 ```text
-src/app/issues/[id]/page.tsx
+app/issues/[id]/page.tsx
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้าง folder `src/app/issues/[id]/` แล้วสร้างไฟล์ `page.tsx`
+สร้าง folder `app/issues/[id]/` แล้วสร้างไฟล์ `page.tsx`
 
 ```tsx
 import { notFound } from "next/navigation";
 import { issues } from "@/data/issues";
 
+// params คือข้อมูลจาก dynamic route เช่น [id]
+// ใน Next.js เวอร์ชันนี้ params เป็น Promise จึงต้อง await ก่อนใช้งาน
 type IssueDetailPageProps = {
   params: Promise<{
     id: string;
@@ -639,6 +624,7 @@ type IssueDetailPageProps = {
 };
 
 export default async function IssueDetailPage({ params }: IssueDetailPageProps) {
+  // ดึง id จาก URL เช่น /issues/001 จะได้ id เป็น "001"
   const { id } = await params;
   const issue = issues.find((item) => item.id === id);
 
@@ -658,8 +644,6 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
 }
 ```
 
-### Key Message
-
 `[id]` คือ dynamic segment ที่ทำให้ URL แต่ละรายการมีหน้ารายละเอียดของตัวเอง
 
 ---
@@ -669,7 +653,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
 ### File
 
 ```text
-src/app/layout.tsx
+app/layout.tsx
 ```
 
 ### ตำแหน่งที่แก้
@@ -702,12 +686,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 File:
 
 ```text
-src/app/globals.css
+app/globals.css
 ```
 
 ตำแหน่งที่วาง:
 
-วางต่อท้ายไฟล์ `src/app/globals.css`
+วางต่อท้ายไฟล์ `app/globals.css`
 
 ```css
 .app-nav {
@@ -735,8 +719,6 @@ src/app/globals.css
 }
 ```
 
-### Key Message
-
 สิ่งที่อยู่ใน `layout.tsx` จะใช้ร่วมกันทุกหน้า ส่วน style ของ navigation ใส่สั้น ๆ ใน Day 2 แค่พอให้ใช้งานได้ แล้ว Day 3 ค่อยต่อยอดด้วย Tailwind
 
 ---
@@ -748,7 +730,7 @@ src/app/globals.css
 ตอนสร้าง project เราใช้ import alias:
 
 ```text
-@/* -> src/*
+@/* -> project root
 ```
 
 ดังนั้น:
@@ -762,12 +744,10 @@ import type { Issue } from "@/types/issue";
 หมายถึง:
 
 ```text
-src/components/IssueList
-src/data/issues
-src/types/issue
+components/IssueList
+data/issues
+types/issue
 ```
-
-### Key Message
 
 ใช้ alias ช่วยให้ import สั้นและไม่ต้องเขียน path ยาว ๆ เช่น `../../../components/...`
 
@@ -778,24 +758,23 @@ src/types/issue
 ### โครงไฟล์ที่ควรได้
 
 ```text
-src/
-  app/
-    layout.tsx
+app/
+  layout.tsx
+  page.tsx
+  issues/
     page.tsx
-    issues/
+    new/
       page.tsx
-      new/
-        page.tsx
-      [id]/
-        page.tsx
-  components/
-    IssueForm.tsx
-    IssueList.tsx
-    StatusBadge.tsx
-  data/
-    issues.ts
-  types/
-    issue.ts
+    [id]/
+      page.tsx
+components/
+  IssueForm.tsx
+  IssueList.tsx
+  StatusBadge.tsx
+data/
+  issues.ts
+types/
+  issue.ts
 ```
 
 ### Route ที่ต้องเปิดได้
