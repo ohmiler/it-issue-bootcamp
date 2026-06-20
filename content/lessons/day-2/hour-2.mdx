@@ -14,9 +14,9 @@ source: "day-2-hour-2-convert-static-to-nextjs.md"
 
 หลังจบชั่วโมงที่สองของ Day 2 ผู้เรียนควรสามารถ:
 
-1. ย้ายโครงสร้าง HTML จาก Day 1 เข้า `src/app/page.tsx` ได้
+1. ย้ายโครงสร้าง HTML จาก Day 1 เข้า `app/page.tsx` ได้
 2. เข้าใจความต่างสำคัญระหว่าง HTML และ TSX เช่น `className`, `htmlFor` และ self-closing tag
-3. ย้าย CSS จาก `style.css` เข้า `src/app/globals.css` ได้
+3. ย้าย CSS จาก `style.css` เข้า `app/globals.css` ได้
 4. แสดงหน้า form แจ้งปัญหาและ issue list ใน Next.js ได้เหมือน static prototype เดิม
 5. เข้าใจว่าในชั่วโมงถัดไป ข้อมูล static ใน table จะถูกย้ายไปเป็น TypeScript data model
 
@@ -25,19 +25,19 @@ source: "day-2-hour-2-convert-static-to-nextjs.md"
 HTML/TSX ของหน้าแรกอยู่ใน:
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 CSS จาก Day 1 ย้ายเข้า:
 
 ```text
-src/app/globals.css
+app/globals.css
 ```
 
 ตั้งค่า `<html lang="th">` ใน:
 
 ```text
-src/app/layout.tsx
+app/layout.tsx
 ```
 
 ---
@@ -62,9 +62,9 @@ src/app/layout.tsx
 - สร้าง Next.js project
 - รัน development server ด้วย `npm run dev`
 - เข้าใจไฟล์พื้นฐาน:
-  - `src/app/page.tsx`
-  - `src/app/layout.tsx`
-  - `src/app/globals.css`
+  - `app/page.tsx`
+  - `app/layout.tsx`
+  - `app/globals.css`
   - `package.json`
 - แก้หน้าแรกเล็กน้อย
 
@@ -86,8 +86,7 @@ style.css
 ### ไปเป็น Day 2
 
 ```text
-src/
-  app/
+app/
   page.tsx
   globals.css
 ```
@@ -200,7 +199,7 @@ TSX:
 ### ตัวอย่าง
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <main>
     {/* Issue form */}
@@ -223,17 +222,17 @@ export default function HomePage() {
 ### เปิดไฟล์
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### ตำแหน่งที่วาง
 
-แทนที่ code เดิมทั้งหมดใน `src/app/page.tsx` ด้วยโครงนี้ก่อน เพื่อให้ทุกคนเริ่มจากไฟล์เดียวกัน
+แทนที่ code เดิมทั้งหมดใน `app/page.tsx` ด้วยโครงนี้ก่อน เพื่อให้ทุกคนเริ่มจากไฟล์เดียวกัน
 
 ### โครงเริ่มต้น
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <>
     <header>
@@ -266,7 +265,7 @@ export default function HomePage() {
 ### File
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### ตำแหน่งที่วาง
@@ -338,7 +337,7 @@ Slide นี้ย้าย form จาก Day 1 เข้ามาเป็น 
 ### File
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### สิ่งที่ควรมีใน `<form>`
@@ -363,7 +362,7 @@ description
 ### File
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### ตำแหน่งที่วาง
@@ -415,7 +414,7 @@ src/app/page.tsx
 ### File
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### วางใน `<td>` ของ column สถานะ
@@ -464,12 +463,12 @@ style.css
 ### ใน Next.js
 
 ```text
-src/app/globals.css
+app/globals.css
 ```
 
 ### ตำแหน่งที่วาง
 
-เปิด `src/app/globals.css` แล้ววาง CSS จาก Day 1 ต่อจาก Tailwind import หรือ CSS reset ที่มีอยู่เดิม เช่น:
+เปิด `app/globals.css` แล้ววาง CSS จาก Day 1 ต่อจาก Tailwind import หรือ CSS reset ที่มีอยู่เดิม เช่น:
 
 ```css
 @import "tailwindcss";
@@ -502,7 +501,7 @@ src/app/globals.css
 ### File
 
 ```text
-src/app/globals.css
+app/globals.css
 ```
 
 ### ตำแหน่งที่วาง
@@ -526,14 +525,14 @@ section + section {
 ### File
 
 ```text
-src/app/layout.tsx
+app/layout.tsx
 ```
 
 ### ตำแหน่งที่แก้
 
-แก้เฉพาะ attribute ของ `<html>` จากค่าเดิม เช่น `lang="en"` ให้เป็น `lang="th"` ไม่ต้องย้าย code ส่วนอื่น
+ใน project เวอร์ชันใหม่ `layout.tsx` มักมี font variables จาก Geist และ class บน `<body>` อยู่แล้ว ให้แก้ `lang` เป็น `th` และเก็บ class เดิมไว้
 
-### ตั้งภาษาเป็นไทย
+### ตัวอย่างเวอร์ชันใหม่
 
 ```tsx
 export default function RootLayout({
@@ -542,18 +541,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-  <html lang="th">
-    <body>{children}</body>
-  </html>
+    <html
+      lang="th"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
   );
 }
 ```
 
 ### ทำไมสำคัญ
 
-- ช่วย browser เข้าใจภาษาหลักของหน้า
-- ช่วย accessibility tool
-- ทำให้ต่อยอดเรื่อง SEO/metadata ได้ถูกขึ้น
+- `lang="th"` บอก browser และ accessibility tool ว่าหน้านี้ใช้ภาษาไทย
+- `className` บน `<html>` เก็บ font variables และ utility class ที่ project สร้างมาให้
+- `body` เป็นจุดครอบ page ทั้งหมด อย่าลบ `{children}` เพราะ page จะไม่ถูกแสดง
 
 ---
 
@@ -597,33 +599,12 @@ export default function RootLayout({
 
 ---
 
-## Slide 16: Convert หน้า Day 1 เข้า Next.js
-
-### ขั้นตอน
-
-ใน Next.js project:
-
-1. เปิด `src/app/page.tsx`
-2. ย้าย header จาก Day 1 เข้า TSX
-3. ย้าย form แจ้งปัญหาเข้า TSX
-4. ย้าย issue list table เข้า TSX
-5. เปลี่ยน `class` เป็น `className`
-6. เปลี่ยน `for` เป็น `htmlFor`
-7. ย้าย CSS เข้า `src/app/globals.css`
-8. เปิด browser เพื่อตรวจผล
-
-### ผลลัพธ์
-
-Next.js app แสดงหน้าใกล้เคียงกับ static prototype จาก Day 1
-
----
-
-## Slide 17: โค้ดสุดท้ายของ `src/app/page.tsx` หลัง Convert
+## Slide 17: โค้ดสุดท้ายของ `app/page.tsx` หลัง Convert
 
 ### File
 
 ```text
-src/app/page.tsx
+app/page.tsx
 ```
 
 ### ตำแหน่งที่ใช้
@@ -631,7 +612,7 @@ src/app/page.tsx
 ใช้โค้ดนี้เป็นภาพรวมหลังย้าย header, form และ issue list จาก Day 1 เข้า Next.js ครบแล้ว
 
 ```tsx
-export default function HomePage() {
+export default function Home() {
   return (
   <>
     <header>
