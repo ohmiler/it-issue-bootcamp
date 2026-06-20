@@ -586,20 +586,6 @@ TSX:
 
 ## Slide 16: โค้ดสุดท้ายของ `app/page.tsx` หลังชั่วโมงนี้
 
-### ขั้นตอน
-
-1. สร้าง Next.js project
-2. รัน `npm run dev`
-3. เปิด `http://localhost:3000`
-4. แก้ `app/page.tsx`
-5. เปลี่ยนหน้าแรกให้มี:
-### - ชื่อระบบ
-### - คำอธิบายสั้น ๆ
-### - หัวข้อ “แจ้งปัญหาใหม่”
-### - ข้อความ placeholder ว่าจะย้าย form จาก Day 1 มาที่นี่
-
-### ตัวอย่าง
-
 ### File
 
 ```text
@@ -665,23 +651,6 @@ export default function Home() {
 
 ---
 
-## Slide 18: HTML/CSS/TypeScript อยู่ตรงไหนใน Next.js
-
-```text
-HTML structure -> JSX/TSX ใน page.tsx หรือ component
-CSS            -> globals.css หรือ Tailwind class
-TypeScript     -> type, props, function, data model
-Routing        -> folder และ page.tsx
-Backend logic  -> server action หรือ route handler
-Database       -> Prisma หรือ database client
-```
-
-### Key Message
-
-Next.js คือพื้นที่ที่ทุกอย่างจะมาเชื่อมกัน ไม่ใช่สิ่งที่แยกออกจาก HTML/CSS/TypeScript
-
----
-
 ## Slide 19: สิ่งที่จะทำในชั่วโมงถัดไป
 
 ### ชั่วโมงที่ 2
@@ -715,22 +684,3 @@ Next.js คือพื้นที่ที่ทุกอย่างจะม
 ### ต่อไป
 
 เราจะ convert งาน Day 1 จาก HTML/CSS static prototype เข้า Next.js project ที่เพิ่งสร้าง
-
----
-
-
----
-
-  คำศัพท์สำคัญ
-
-| คำศัพท์ | ความหมาย |
-|---|---|
-| Next.js | Framework สำหรับสร้าง React web application |
-| React | Library สำหรับสร้าง UI ด้วย component |
-| JSX | Syntax สำหรับเขียน UI คล้าย HTML ใน JavaScript |
-| TSX | JSX ที่ใช้ร่วมกับ TypeScript |
-| App Router | ระบบ routing แบบ folder-based ของ Next.js |
-| `page.tsx` | ไฟล์ที่สร้างหน้าเว็บของ route |
-| `layout.tsx` | ไฟล์ layout ที่ครอบ page |
-| `globals.css` | CSS ที่ใช้กับทั้ง application |
-| Dev server | server สำหรับรัน project ระหว่างพัฒนา |
