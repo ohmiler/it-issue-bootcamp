@@ -22,7 +22,7 @@ postcss.config.mjs
 app/globals.css
 app/layout.tsx
 app/page.tsx
-src/components/*.tsx
+components/*.tsx
 ```
 
 ถ้า slide เป็น config ให้ระบุ `File: postcss.config.mjs`
@@ -535,7 +535,7 @@ app/page.tsx
 เพิ่ม class ให้ `<main>` เพื่อจำกัดความกว้าง จัดกลาง และเว้นระยะระหว่าง form กับ list
 
 ```tsx
-<main className="mx-auto grid max-w-5xl gap-6 px-6 py-8">
+<main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
   <IssueForm />
   <IssueList issues={issues} />
 </main>
@@ -545,7 +545,7 @@ app/page.tsx
 
 - `mx-auto max-w-5xl` จำกัดความกว้างและจัดกลาง
 - `px-6 py-8` กำหนดระยะห่าง
-- `grid gap-6` ทำให้ `IssueForm` และ `IssueList` เว้นระยะกันเป็นระบบ
+- `grid grid-cols-1 gap-6` ทำให้ `IssueForm` และ `IssueList` เรียงเป็น 1 column, เว้นระยะกันเป็นระบบ และช่วยไม่ให้ section ที่มีตารางดันความกว้างของ layout บนจอเล็ก
 
 ---
 
@@ -554,7 +554,7 @@ app/page.tsx
 ## File
 
 ```text
-app/components/IssueForm.tsx
+components/IssueForm.tsx
 ```
 
 ## ตำแหน่งที่แก้
@@ -598,7 +598,7 @@ app/components/IssueForm.tsx
 ## File
 
 ```text
-app/components/IssueForm.tsx
+components/IssueForm.tsx
 ```
 
 ## ตำแหน่งที่แก้
@@ -670,7 +670,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-5xl gap-6 px-6 py-8">
+      <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
         <IssueForm />
         <IssueList issues={issues} />
       </main>
@@ -689,7 +689,7 @@ export default function Home() {
 
 ## File
 
-app/components/IssueForm.tsx
+components/IssueForm.tsx
 
 ## โค้ดสุดท้าย
 
