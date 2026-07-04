@@ -31,8 +31,8 @@ components/IssueList.tsx
 Types และ mock data:
 
 ```text
-src/types/issue.ts
-src/data/issues.ts
+types/issue.ts
+data/issues.ts
 ```
 
 ถ้าแยก validation helper:
@@ -74,8 +74,6 @@ src/lib/validation.ts
 - issue ใหม่ยังไม่เพิ่มเข้า list
 - ยังไม่มี loading/error state จริง
 
-## Key Message
-
 ชั่วโมงนี้เราจะทำให้ form เริ่มมี behavior แบบ frontend application
 
 ---
@@ -84,13 +82,16 @@ src/lib/validation.ts
 
 ## ใน Next.js App Router
 
-โดย default component ใน `app` เป็น Server Component
+โดย default layouts และ pages ใน `app` เป็น Server Component หมายความว่า component จะถูก render ฝั่ง server ก่อน แล้วส่งผลลัพธ์ไปให้ browser
 
 Server Component เหมาะกับ:
 
 - render UI จากข้อมูล
 - query database ในอนาคต
 - ลด JavaScript ที่ส่งไป browser
+- ใช้ secret หรือ logic ฝั่ง server โดยไม่ส่งโค้ดนั้นไป client
+
+ข้อจำกัดคือ Server Component ใช้ state, event handler หรือ browser API โดยตรงไม่ได้ เช่น `useState`, `onSubmit`, `window`, `localStorage`
 
 Client Component เหมาะกับ:
 
@@ -99,13 +100,19 @@ Client Component เหมาะกับ:
 - event handler เช่น `onClick`, `onSubmit`
 - interaction ที่เกิดใน browser
 
-## Key Message
+Client Component ยังอาจถูก prerender เป็น HTML ตอนโหลดครั้งแรกได้ จากนั้น JavaScript ฝั่ง browser จะเข้ามา "hydrate" หรือเติม event handler/state ให้ HTML นั้นโต้ตอบกับผู้ใช้ได้
 
-ถ้าต้องใช้ state หรือ event handler ใน component ต้องทำเป็น Client Component ด้วย `"use client"`
+ถ้าต้องใช้ state หรือ event handler ใน component ต้องทำเป็น Client Component ด้วย `"use client"` และควรวาง `"use client"` เฉพาะ component ที่ต้อง interactive เพื่อไม่ให้ส่ง JavaScript ไป browser มากเกินจำเป็น
 
 ---
 
-# Slide 3: `"use client"` คืออะไร
+# Slide 3: รู้จักกับ `"use client"`
+
+`"use client"` คือ directive ที่บอก Next.js ว่าไฟล์นี้เป็นจุดเริ่มต้นของ Client Component
+
+เมื่อใส่ `"use client"` ไว้บนสุดของไฟล์ component ในไฟล์นั้น รวมถึง component หรือ helper ที่ import เข้ามาใช้ภายใน จะถูกนับเป็นส่วนของ client bundle ที่ browser ต้องโหลดไปทำงาน
+
+เราใช้เมื่อ component ต้องมี interaction เช่น state, event handler, effect หรือ browser API
 
 ## ตัวอย่าง
 
@@ -124,29 +131,36 @@ export function IssueBoard() {
 ## จุดสำคัญ
 
 - ต้องอยู่บรรทัดบนสุดของไฟล์
-- ทำให้ไฟล์นี้และ component ข้างในทำงานเป็น Client Component
-- ใช้เมื่อจำเป็น ไม่ต้องใส่ทุกไฟล์
+- เป็น boundary ระหว่าง server code กับ client code
+- ทำให้ไฟล์นี้และสิ่งที่ import เข้ามาในไฟล์นี้เข้า client bundle
+- ใช้เฉพาะ component ที่ต้อง interactive ไม่ต้องใส่ทุกไฟล์
 
 ---
 
-# Slide 4: ทำไมต้องมี `IssueBoard`
+# Slide 4: Component ที่จะสร้างต่อไป: `IssueBoard`
 
-## ปัญหา
+## เป้าหมายของชั่วโมงนี้
 
-เราต้องให้ `IssueForm` เพิ่มข้อมูลเข้า `IssueList`
+เราจะสร้าง component กลางชื่อ `IssueBoard` เพื่อให้ `IssueForm` และ `IssueList` ทำงานร่วมกันได้
 
 ```text
 IssueForm submit -> เพิ่ม issue ใหม่ -> IssueList อัปเดต
 ```
 
-## วิธีทำใน frontend mock
+## บทบาทของ `IssueBoard`
 
-สร้าง component กลางที่ถือ state:
+`IssueBoard` จะเป็น parent component ที่ถือ state ของรายการปัญหา แล้วส่งข้อมูลลงไปให้ component ลูก:
 
 ```text
-IssueBoard
-  ├─ IssueForm
-  └─ IssueList
+1. IssueBoard ถือ state: items
+        ↓
+2. ส่ง items ไปให้ IssueList
+        ↓
+3. ส่ง onCreateIssue ไปให้ IssueForm
+        ↓
+4. IssueForm submit issue ใหม่กลับมา
+        ↓
+5. IssueBoard setItems แล้ว IssueList แสดงรายการล่าสุด
 ```
 
 `IssueBoard` จะเก็บ:
@@ -155,9 +169,7 @@ IssueBoard
 const [items, setItems] = useState(initialIssues);
 ```
 
-## Key Message
-
-ถ้าหลาย component ต้องใช้ state ร่วมกัน ให้ยก state ไปไว้ที่ parent component
+แนวคิดนี้เรียกว่า lifting state up: ถ้าหลาย component ต้องใช้ข้อมูลชุดเดียวกัน ให้ยก state ไปไว้ที่ parent component ที่ครอบ component เหล่านั้น
 
 ---
 
@@ -179,6 +191,9 @@ components/IssueBoard.tsx
 "use client";
 
 import { useState } from "react";
+import { IssueForm } from "./IssueForm";
+import { IssueList } from "./IssueList";
+import type { Issue } from "@/types/issue";
 
 type IssueBoardProps = {
   initialIssues: Issue[];
@@ -188,64 +203,125 @@ export function IssueBoard({ initialIssues }: IssueBoardProps) {
   const [items, setItems] = useState<Issue[]>(initialIssues);
 
   return (
-  <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
-    <IssueForm />
-    <IssueList issues={items} />
-  </main>
+    <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
+      <IssueForm />
+      <IssueList issues={items} />
+    </main>
   );
 }
 ```
 
 ## หมายเหตุ
 
-ตัวอย่างนี้สมมติว่า `Issue`, `IssueForm` และ `IssueList` ถูก import จากไฟล์กลางแล้ว ถ้ายังอยู่ใน `page.tsx` ให้ใช้เป็น demo concept ก่อน
+เพราะ `IssueBoard.tsx` อยู่ใน folder `components` เหมือน `IssueForm` และ `IssueList` จึง import component ด้วย path แบบ relative ได้ ส่วน type `Issue` import จาก folder `types`
+
+ชื่อไฟล์ต้องเป็น `IssueBoard.tsx` และเวลา import ต้องใช้ `@/components/IssueBoard` ให้ตัวพิมพ์เล็กใหญ่ตรงกัน ห้ามใช้ `@/components/issueBoard`
 
 ---
 
-# Slide 6: ส่ง Function จาก Parent ไป Child
+# Slide 6: เปลี่ยน `page.tsx` ให้ใช้ `IssueBoard`
+
+## ทำไมต้องทำตรงนี้
+
+หลังจากนี้ `IssueForm` จะมี `onSubmit` และ state ของ form แล้ว ถ้า `page.tsx` ยัง render `IssueForm` ตรง ๆ จะชนกับกติกา Server Component
+
+ให้ `page.tsx` เป็น Server Component เหมือนเดิม แล้วส่งข้อมูลเริ่มต้นเข้า Client Component ชื่อ `IssueBoard`
+
+## File
+
+```text
+app/page.tsx
+```
+
+## ส่วนที่ต้องปรับ
+
+ลบ import เดิมของ `IssueForm` และ `IssueList` ออกจาก `page.tsx` แล้ว import `IssueBoard` แทน
+
+```tsx
+import { IssueBoard } from "@/components/IssueBoard";
+import { issues } from "@/data/issue";
+```
+
+```tsx
+<IssueBoard initialIssues={issues} />
+```
+
+## ตัวอย่างตำแหน่งในหน้า
+
+```tsx
+export default function Home() {
+  return (
+    <>
+      <header>...</header>
+      <IssueBoard initialIssues={issues} />
+      <footer>...</footer>
+    </>
+  );
+}
+```
+
+ไม่ต้อง render `<IssueForm />` และ `<IssueList />` ใน `page.tsx` แล้ว เพราะ `IssueBoard` จะเป็นคนครอบสอง component นี้แทน
+
+ถ้าเจอ error `Module not found: Can't resolve "@/components/issueBoard"` ให้เช็กชื่อไฟล์และ import path ก่อน จุดที่ถูกคือ `IssueBoard` ตัว I และ B เป็นตัวใหญ่
+
+---
+
+# Slide 7: ส่ง Function จาก Parent ไป Child
 
 ## เป้าหมาย
 
 ให้ `IssueForm` แจ้ง parent เมื่อมี issue ใหม่
 
-## File
-
-```text
-components/IssueForm.tsx และ components/IssueBoard.tsx
-```
-
 ## ตำแหน่งที่แก้
 
-เพิ่ม `IssueFormProps` เหนือ function `IssueForm` และเพิ่ม `handleCreateIssue` ใน `IssueBoard` ใต้บรรทัด `useState`
+เราจะให้ `IssueBoard` ส่ง function ลงไปให้ `IssueForm` ผ่าน props
+
+## 1. ไปที่ `components/IssueForm.tsx`
+
+กำหนด props ให้ `IssueForm` รับ function ชื่อ `onCreateIssue`
 
 ```tsx
+import type { Issue } from "@/types/issue";
+
 type IssueFormProps = {
   onCreateIssue: (issue: Issue) => void;
 };
+
+export function IssueForm({ onCreateIssue }: IssueFormProps) {
+  // ...
+}
 ```
 
-## ใน `IssueBoard`
+## 2. ไปที่ `components/IssueBoard.tsx`
+
+สร้าง function `handleCreateIssue` ภายใน component `IssueBoard`
 
 ```tsx
 function handleCreateIssue(issue: Issue) {
   setItems((currentItems) => [issue, ...currentItems]);
 }
+```
 
+function นี้คือจุดที่ parent เปลี่ยน state จริง โดยเพิ่ม issue ใหม่ไว้บนสุดของ list
+
+## 3. ยังอยู่ที่ `components/IssueBoard.tsx`
+
+ส่ง function ลงไปให้ `IssueForm` ผ่าน prop `onCreateIssue`
+
+```tsx
 return (
   <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
-  <IssueForm onCreateIssue={handleCreateIssue} />
-  <IssueList issues={items} />
+    <IssueForm onCreateIssue={handleCreateIssue} />
+    <IssueList issues={items} />
   </main>
 );
 ```
 
-## Key Message
-
-Parent ถือ state ส่วน child เรียก function ผ่าน props เพื่อขอเปลี่ยน state
+สรุปคือ parent ถือ state ส่วน child เรียก function ผ่าน props เพื่อบอก parent ว่า "มี issue ใหม่แล้ว"
 
 ---
 
-# Slide 7: Form Submit ใน Client Component
+# Slide 8: Form Submit ใน Client Component
 
 ## `onSubmit`
 
@@ -257,27 +333,45 @@ components/IssueForm.tsx
 
 ## ตำแหน่งที่แก้
 
-แก้ function `IssueForm` เดิมให้รับ `{ onCreateIssue }` เป็น props แล้วเพิ่ม `handleSubmit` ไว้เป็น function ด้านใน ก่อน `return`
+เพิ่ม props ให้ `IssueForm` รับ function จาก parent แล้วผูก `handleSubmit` เข้ากับ `<form>` เดิม
 
 ```tsx
-function IssueForm({ onCreateIssue }: IssueFormProps) {
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
+import type { Issue } from "@/types/issue";
+
+type IssueFormProps = {
+  onCreateIssue: (issue: Issue) => void;
+};
+
+export function IssueForm({ onCreateIssue }: IssueFormProps) {
+  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
   }
 
-  return <form onSubmit={handleSubmit}>...</form>;
+  return (
+    <section>
+      <h2>แจ้งปัญหาใหม่</h2>
+
+      <form onSubmit={handleSubmit}>
+        <fieldset className="mt-6 grid gap-5">
+          ...
+        </fieldset>
+      </form>
+    </section>
+  );
 }
 ```
 
 ## อธิบาย
 
+- `<section>` และ `<h2>` เป็นโครง UI เดิมของ form เราเก็บไว้เหมือนเดิม
+- จุดที่เพิ่มใน slide นี้คือ `handleSubmit` และ `onSubmit={handleSubmit}` ที่ `<form>`
 - `event.preventDefault()` ป้องกัน browser reload หน้า
-- `React.FormEvent<HTMLFormElement>` คือ type ของ submit event
+- `React.SubmitEvent<HTMLFormElement>` คือ type ของ submit event
 - ชั่วโมงนี้เราจัดการ submit ฝั่ง client ก่อน
 
 ---
 
-# Slide 8: อ่านข้อมูลจาก FormData
+# Slide 9: อ่านข้อมูลจาก FormData
 
 ## File
 
@@ -290,7 +384,7 @@ components/IssueForm.tsx
 วาง code อ่าน `FormData` ไว้ใน `handleSubmit` ต่อจาก `event.preventDefault()`
 
 ```tsx
-function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
   event.preventDefault();
 
   const formData = new FormData(event.currentTarget);
@@ -302,25 +396,43 @@ function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 }
 ```
 
-## Key Message
-
 ชื่อที่ใช้ใน `formData.get(...)` ต้องตรงกับ `name` ของ input จาก Day 1
+
+## อธิบาย
+
+- `event.currentTarget` คือ `<form>` ที่กำลัง submit อยู่
+- `new FormData(event.currentTarget)` อ่านค่าจาก input ทุกตัวที่อยู่ใน form นั้น
+- `formData.get("reporterName")` จะไปหา input ที่มี `name="reporterName"`
+- `?? ""` กันกรณีอ่านค่าไม่เจอ แล้วให้ใช้ string ว่างแทน
+- `String(...)` แปลงค่าที่อ่านได้ให้เป็น string ก่อนเอาไปใช้งานต่อ
+
+ตัวอย่างเช่น input นี้:
+
+```tsx
+<input id="reporterName" name="reporterName" type="text" />
+```
+
+ต้องอ่านด้วยชื่อนี้:
+
+```tsx
+formData.get("reporterName")
+```
 
 ---
 
-# Slide 9: สร้าง Type สำหรับ Input
+# Slide 10: สร้าง Type สำหรับข้อมูลจาก Form
 
-## แยกข้อมูลจาก form ก่อนกลายเป็น Issue
+## แยกข้อมูลที่ผู้ใช้กรอก ออกจาก issue ที่ระบบใช้งานจริง
 
 ## File
 
 ```text
-components/IssueForm.tsx หรือ src/types/issue.ts
+components/IssueForm.tsx
 ```
 
 ## ตำแหน่งที่วาง
 
-ถ้ายังทำแบบง่ายในไฟล์เดียว ให้วาง `NewIssueInput` เหนือ function `IssueForm`; ถ้าแยก type แล้ว ให้วางใน `src/types/issue.ts` และ export ออกมาใช้
+วาง `NewIssueInput` เหนือ function `IssueForm` ในไฟล์เดียวกันก่อน เพราะชั่วโมงนี้ type นี้ใช้กับ form นี้โดยตรง
 
 ```ts
 type NewIssueInput = {
@@ -331,19 +443,32 @@ type NewIssueInput = {
 };
 ```
 
-## ทำไมไม่ใช้ `Issue` เลย
+## ความหมาย
 
-เพราะ issue ที่สร้างใหม่ยังไม่มี:
+`NewIssueInput` คือข้อมูลที่อ่านออกมาจาก form เท่านั้น จึงมีเฉพาะ field ที่ผู้ใช้กรอก:
+
+- `reporterName`
+- `reporterEmail`
+- `title`
+- `description`
+
+ส่วน `Issue` คือข้อมูล issue ที่พร้อมแสดงในระบบแล้ว จึงมี field ที่ระบบเติมเพิ่ม เช่น:
 
 - `id`
 - `status`
 - `createdAt`
 
-ระบบจะเติมให้หลังจาก validate แล้ว
+ดังนั้น flow ของชั่วโมงนี้คือ:
+
+```text
+FormData -> NewIssueInput -> validate -> Issue
+```
+
+ใช้ `NewIssueInput` ก่อนเพื่อให้ validation อ่านง่าย และไม่ต้องฝืนสร้าง `id`, `status`, `createdAt` ตั้งแต่ตอนอ่าน form
 
 ---
 
-# Slide 10: Extract Input จาก Form
+# Slide 11: Extract Input จาก Form
 
 ## File
 
@@ -353,28 +478,42 @@ components/IssueForm.tsx
 
 ## ตำแหน่งที่วาง
 
-วาง function `getIssueInput` ไว้นอก `IssueForm` โดยวางเหนือ function `IssueForm` เพื่อไม่ให้สร้าง function ใหม่ทุกครั้งที่ component render
+วาง function `getIssueInput` ไว้นอก `IssueForm` โดยวางเหนือ function `IssueForm`
+
+## ทำไมต้องมี function นี้
+
+ถ้าเขียน `new FormData(...)` และ `formData.get(...)` ทั้งหมดไว้ใน `handleSubmit` ตัว `handleSubmit` จะเริ่มยาวและอ่านยาก
+
+`getIssueInput` ช่วยแยกหน้าที่ให้ชัด:
+
+- `handleSubmit` ดูแล flow ตอน submit
+- `getIssueInput` ดูแลการอ่านค่าจาก form
+- `validateIssueInput` ใน slide ถัดไป ดูแลการตรวจข้อมูล
+
+ผลลัพธ์คือ `handleSubmit` จะอ่านเป็นขั้นตอนได้ง่ายขึ้น
 
 ```tsx
 function getIssueInput(form: HTMLFormElement): NewIssueInput {
   const formData = new FormData(form);
 
   return {
-  reporterName: String(formData.get("reporterName") ?? "").trim(),
-  reporterEmail: String(formData.get("reporterEmail") ?? "").trim(),
-  title: String(formData.get("title") ?? "").trim(),
-  description: String(formData.get("description") ?? "").trim(),
+    reporterName: String(formData.get("reporterName") ?? "").trim(),
+    reporterEmail: String(formData.get("reporterEmail") ?? "").trim(),
+    title: String(formData.get("title") ?? "").trim(),
+    description: String(formData.get("description") ?? "").trim(),
   };
 }
 ```
 
-## Speaker Notes
+## อธิบาย
 
-ดึงเฉพาะ field หลักของ issue เพื่อให้ validation และ state ในชั่วโมงนี้ไม่บวมเกินไป
+- รับ `form` เข้ามาแทน event เพื่อให้ function นี้สนใจแค่งานอ่านข้อมูล
+- return เป็น `NewIssueInput` เพื่อบอกชัดว่าได้ข้อมูลรูปแบบไหนกลับไป
+- `.trim()` ตัดช่องว่างหน้าหลัง เช่น ผู้ใช้เผลอพิมพ์ space ท้ายชื่อหรือหัวข้อ
 
 ---
 
-# Slide 11: Validation Function
+# Slide 12: Validation Function
 
 ## File
 
@@ -391,32 +530,30 @@ function validateIssueInput(input: NewIssueInput): string[] {
   const errors: string[] = [];
 
   if (input.reporterName.length < 2) {
-  errors.push("กรุณากรอกชื่อผู้แจ้ง");
+    errors.push("กรุณากรอกชื่อผู้แจ้ง");
   }
 
   if (!input.reporterEmail.includes("@")) {
-  errors.push("กรุณากรอกอีเมลผู้แจ้งให้ถูกต้อง");
+    errors.push("กรุณากรอกอีเมลผู้แจ้งให้ถูกต้อง");
   }
 
   if (input.title.length < 5) {
-  errors.push("หัวข้อปัญหาต้องมีอย่างน้อย 5 ตัวอักษร");
+    errors.push("หัวข้อปัญหาต้องมีอย่างน้อย 5 ตัวอักษร");
   }
 
   if (input.description.length < 10) {
-  errors.push("รายละเอียดปัญหาต้องมีอย่างน้อย 10 ตัวอักษร");
+    errors.push("รายละเอียดปัญหาต้องมีอย่างน้อย 10 ตัวอักษร");
   }
 
   return errors;
 }
 ```
 
-## Key Message
-
 แยก validation เป็น function จะช่วยให้ test และย้ายไป server validation ในอนาคตง่ายขึ้น
 
 ---
 
-# Slide 12: เก็บ Error State
+# Slide 13: เก็บ Error State
 
 ## File
 
@@ -426,33 +563,57 @@ components/IssueForm.tsx
 
 ## ตำแหน่งที่แก้
 
-เพิ่ม `useState` สำหรับ `errors` เป็นบรรทัดแรกภายใน function `IssueForm` และแทนที่ `handleSubmit` เดิมด้วย version นี้
+เพิ่ม `useState` สำหรับเก็บรายการ error ที่ได้จาก `validateIssueInput`
+
+## 1. เพิ่ม import ด้านบนไฟล์
 
 ```tsx
-function IssueForm({ onCreateIssue }: IssueFormProps) {
+import { useState } from "react";
+```
+
+ถ้าไฟล์มี `import type { Issue } from "@/types/issue";` อยู่แล้ว ให้เพิ่ม `useState` เป็นอีกบรรทัดหนึ่ง ไม่ต้องรวมกับ type import
+
+## 2. เพิ่ม state และปรับ `handleSubmit`
+
+```tsx
+export function IssueForm({ onCreateIssue }: IssueFormProps) {
   const [errors, setErrors] = useState<string[]>([]);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
+  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-  const input = getIssueInput(event.currentTarget);
-  const validationErrors = validateIssueInput(input);
+    const input = getIssueInput(event.currentTarget);
+    const validationErrors = validateIssueInput(input);
 
-  if (validationErrors.length > 0) {
-    setErrors(validationErrors);
-    return;
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors([]);
   }
 
-  setErrors([]);
-  }
+  return (
+    <section>
+      <h2>แจ้งปัญหาใหม่</h2>
 
-  return <form onSubmit={handleSubmit}>...</form>;
+      <form onSubmit={handleSubmit}>
+        ...
+      </form>
+    </section>
+  );
 }
 ```
 
+## อธิบาย
+
+- `errors` เป็น `string[]` เพราะ `validateIssueInput` return รายการข้อความ error กลับมา
+- ถ้า `validationErrors.length > 0` แปลว่าข้อมูลยังไม่ผ่าน จึง `setErrors(validationErrors)` แล้ว `return` เพื่อหยุด submit
+- ถ้าผ่าน validation แล้วให้ `setErrors([])` เพื่อล้าง error เก่าที่เคยแสดงไว้
+
 ---
 
-# Slide 13: แสดง Error Message
+# Slide 14: แสดง Error Message
 
 ## File
 
@@ -462,28 +623,26 @@ components/IssueForm.tsx
 
 ## ตำแหน่งที่วาง
 
-วาง block นี้ภายใน `<form>` เหนือ field แรก เพื่อให้ผู้เรียนเห็น error ก่อนเริ่มแก้ข้อมูล
+วาง block นี้ใน `<fieldset className="mt-6 grid gap-5">` หลัง `<legend>` และก่อน `<div className="form-row">`
 
 ```tsx
 {errors.length > 0 && (
   <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-  <p className="font-bold">กรุณาตรวจสอบข้อมูล</p>
-  <ul className="mt-2 list-disc space-y-1 pl-5">
-    {errors.map((error) => (
-      <li key={error}>{error}</li>
-    ))}
-  </ul>
+    <p className="font-bold">กรุณาตรวจสอบข้อมูล</p>
+    <ul className="mt-2 list-disc space-y-1 pl-5">
+      {errors.map((error) => (
+        <li key={error}>{error}</li>
+      ))}
+    </ul>
   </div>
 )}
 ```
-
-## Key Message
 
 Error state ควรบอกผู้ใช้ว่าต้องแก้ตรงไหน ไม่ใช่แค่แสดงคำว่า error
 
 ---
 
-# Slide 14: สร้าง Issue ใหม่จาก Input
+# Slide 15: สร้าง Issue ใหม่จาก Input
 
 ## File
 
@@ -498,13 +657,13 @@ components/IssueForm.tsx
 ```tsx
 function createIssueFromInput(input: NewIssueInput): Issue {
   return {
-  id: crypto.randomUUID().slice(0, 8),
-  reporterName: input.reporterName,
-  reporterEmail: input.reporterEmail,
-  title: input.title,
-  description: input.description,
-  status: "OPEN",
-  createdAt: new Date().toISOString().slice(0, 10),
+    id: crypto.randomUUID().slice(0, 8),
+    reporterName: input.reporterName,
+    reporterEmail: input.reporterEmail,
+    title: input.title,
+    description: input.description,
+    status: "OPEN",
+    createdAt: new Date().toISOString().slice(0, 10),
   };
 }
 ```
@@ -515,7 +674,7 @@ function createIssueFromInput(input: NewIssueInput): Issue {
 
 ---
 
-# Slide 15: Submit แล้วเพิ่มเข้า List
+# Slide 16: Submit แล้วเพิ่มเข้า List
 
 ## File
 
@@ -528,15 +687,15 @@ components/IssueForm.tsx
 ใช้ code นี้แทน function `handleSubmit` ภายใน `IssueForm`
 
 ```tsx
-function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
   event.preventDefault();
 
   const input = getIssueInput(event.currentTarget);
   const validationErrors = validateIssueInput(input);
 
   if (validationErrors.length > 0) {
-  setErrors(validationErrors);
-  return;
+    setErrors(validationErrors);
+    return;
   }
 
   const newIssue = createIssueFromInput(input);
@@ -546,46 +705,37 @@ function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 }
 ```
 
-## Key Message
-
 ตอนนี้ form เริ่มทำงานแบบ frontend CRUD prototype: Create issue จาก form และแสดงใน list ทันที
+
+## ลองทดสอบ
+
+หลังจากทำเสร็จ ให้ลองกรอกข้อมูลใน form แล้วกดส่งข้อมูล ถ้าทุกอย่างเชื่อมถูกต้อง จะเห็น issue ใหม่ปรากฏขึ้นในตารางรายการปัญหาทันที
 
 ---
 
-# Slide 16: Frontend Validation ไม่พอ
+# Slide 17: ทำไมต้องมี Validation
 
-## ต้องย้ำกับผู้เรียน
+## Validation ช่วยให้ข้อมูลเข้า list แบบมีคุณภาพ
 
-Validation ฝั่ง browser ช่วย UX แต่ไม่ใช่ security boundary
+ก่อนเพิ่ม issue เข้า list เราควรตรวจข้อมูลก่อน เพราะถ้าปล่อยข้อมูลว่างหรือข้อมูลผิดรูปแบบเข้า state ตารางจะเริ่มมีข้อมูลที่ใช้ต่อยาก
 
-## ทำไม
+## สิ่งที่ validation ช่วยเรา
+
+- ป้องกัน issue ที่ไม่มีชื่อผู้แจ้งหรือหัวข้อปัญหา
+- ช่วยบอกผู้ใช้ทันทีว่าต้องแก้ข้อมูลตรงไหน
+- ทำให้ `IssueList` ได้ข้อมูลที่พร้อมแสดงมากขึ้น
+- ทำให้ logic สร้าง issue ใหม่อ่านง่าย เพราะแยกขั้นตอน `อ่านข้อมูล -> ตรวจข้อมูล -> สร้าง issue`
+
+## แต่ Frontend Validation ยังไม่พอ
+
+Validation ฝั่ง browser ช่วย UX แต่ไม่ใช่ security boundary เพราะ:
 
 - ผู้ใช้สามารถปิด JavaScript ได้
 - request สามารถถูกยิงตรงเข้า server ได้
-- HTML required สามารถถูก bypass ได้
+- HTML `required` สามารถถูก bypass ได้
 - client-side code แก้ไขได้ใน browser
 
-## Key Message
-
 Day 3 เราทำ frontend validation เพื่อให้ผู้ใช้กรอกง่ายขึ้น แต่ Day 4/Day 5 ต้อง validate ซ้ำฝั่ง server เสมอ
-
----
-
-# Slide 17: Add Issue ด้วย Mock State
-
-## ขั้นตอน
-
-1. สร้าง `IssueBoard` เป็น Client Component
-2. เก็บ `items` ด้วย `useState`
-3. ส่ง `onCreateIssue` เข้า `IssueForm`
-4. อ่านข้อมูล form ด้วย `FormData`
-5. validate input
-6. แสดง error ถ้าข้อมูลไม่ครบ
-7. ถ้าผ่าน validation ให้เพิ่ม issue เข้า list
-
-## ผลลัพธ์
-
-ผู้เรียนกรอก form แล้วเห็น issue ใหม่เพิ่มใน table ได้ โดยยังไม่ใช้ database
 
 ---
 
@@ -611,14 +761,14 @@ export function IssueBoard({ initialIssues }: IssueBoardProps) {
   const [items, setItems] = useState<Issue[]>(initialIssues);
 
   function handleCreateIssue(issue: Issue) {
-  setItems((currentItems) => [issue, ...currentItems]);
+    setItems((currentItems) => [issue, ...currentItems]);
   }
 
   return (
-  <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
-    <IssueForm onCreateIssue={handleCreateIssue} />
-    <IssueList issues={items} />
-  </main>
+    <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
+      <IssueForm onCreateIssue={handleCreateIssue} />
+      <IssueList issues={items} />
+    </main>
   );
 }
 ```
@@ -628,15 +778,15 @@ export function IssueBoard({ initialIssues }: IssueBoardProps) {
 `IssueForm` ต้องอ่าน form, validate, สร้าง issue ใหม่ แล้วส่งกลับไปที่ `IssueBoard`:
 
 ```tsx
-function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
   event.preventDefault();
 
   const input = getIssueInput(event.currentTarget);
   const validationErrors = validateIssueInput(input);
 
   if (validationErrors.length > 0) {
-  setErrors(validationErrors);
-  return;
+    setErrors(validationErrors);
+    return;
   }
 
   const newIssue = createIssueFromInput(input);
