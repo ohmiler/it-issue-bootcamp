@@ -69,8 +69,6 @@ SQL ให้รันใน Supabase SQL Editor
 refresh page -> state reset -> ข้อมูลหาย
 ```
 
-### Key Message
-
 Day 4 เราจะเปลี่ยน source of truth จาก `useState` เป็น database จริง
 
 ---
@@ -92,42 +90,26 @@ Day 4 เราจะเปลี่ยน source of truth จาก `useState` 
 - ถ้าเปิด policy กว้างเกินไป ข้อมูลจะไม่ปลอดภัย
 - production ต้องใช้ auth และ Row Level Security อย่างถูกต้อง
 
-### Key Message
-
 Supabase ง่ายพอสำหรับห้องเรียน แต่ยังเป็น database จริงที่ต้องสอนเรื่อง security ให้ถูก
 
 ---
 
-## Slide 3: ภาพรวม Architecture Day 4
+## Slide 3: ภาพรวม Day 4 แบบง่าย ๆ
 
-```text
-Next.js Page
-  |
-  v
-Server Component / Server Action
-  |
-  v
-Supabase Client
-  |
-  v
-Supabase Postgres
-```
+Day 3 ข้อมูล issue ยังอยู่ในหน้าเว็บเท่านั้น
 
-### จาก Day 3
+- ผู้ใช้กรอกฟอร์ม
+- React เก็บข้อมูลไว้ใน `useState`
+- ถ้า refresh หน้า ข้อมูลจะหาย
 
-```text
-IssueForm -> useState -> IssueList
-```
+Day 4 เราจะย้ายข้อมูลไปเก็บใน Supabase
 
-### เป็น Day 4
+- ผู้ใช้กรอกฟอร์มเหมือนเดิม
+- Next.js ส่งข้อมูลไปที่ Supabase
+- Supabase บันทึกข้อมูลไว้ใน database จริง
+- เมื่อเปิดหน้าใหม่หรือ refresh ข้อมูลยังอยู่
 
-```text
-IssueForm -> Server Action -> Supabase -> IssueList
-```
-
-### Key Message
-
-หลังจากวันนี้ refresh หน้าแล้วข้อมูลจะยังอยู่ เพราะถูกบันทึกใน database
+คิดง่าย ๆ คือ Day 4 เราเปลี่ยนจาก “จำข้อมูลไว้ในหน้าเว็บ” เป็น “บันทึกข้อมูลไว้ใน database”
 
 ---
 
@@ -141,6 +123,14 @@ IssueForm -> Server Action -> Supabase -> IssueList
 4. เลือก region ที่ใกล้ผู้ใช้
 5. ตั้ง database password
 6. รอ project พร้อมใช้งาน
+
+### Security ให้เลือกแบบนี้
+
+- เปิด `Enable Data API`
+- ปิด `Automatically expose new tables`
+- เปิด `Enable automatic RLS`
+
+Data API ทำให้ Next.js คุยกับ Supabase ได้ ส่วน RLS ช่วยล็อก table ใหม่ไว้ก่อน แล้วค่อยเปิดสิทธิ์ด้วย policy ที่เราจะเขียนเอง
 
 ### สิ่งที่ต้องจดไว้
 
@@ -186,13 +176,29 @@ created_at
 updated_at
 ```
 
-### Key Message
-
 TypeScript มักใช้ camelCase แต่ database มักใช้ snake_case ต้อง map ให้ชัด
+
+สำหรับ field `status` เราไม่อยากให้พิมพ์ค่าอะไรก็ได้ จึงต้องเตรียม enum ก่อนสร้าง table
 
 ---
 
-## Slide 6: Enum สำหรับ Status
+## Slide 6: เตรียม Enum ก่อนสร้าง Table
+
+### File
+
+```text
+Supabase SQL Editor
+```
+
+### ทำไมยังไม่สร้าง table ทันที
+
+เพราะ table ใน Slide 7 จะมี column นี้:
+
+```sql
+status issue_status not null default 'OPEN'
+```
+
+ถ้า database ยังไม่มีชนิดข้อมูล `issue_status` คำสั่งสร้าง table จะ error
 
 ### Status
 
@@ -202,13 +208,13 @@ IN_PROGRESS
 DONE
 ```
 
-### SQL
+### SQL ที่ต้องรันก่อนสร้าง table
 
 ```sql
 create type issue_status as enum ('OPEN', 'IN_PROGRESS', 'DONE');
 ```
 
-### Key Message
+คำสั่งนี้สร้างชนิดข้อมูลชื่อ `issue_status` ใน database ก่อน แล้ว Slide 7 จะเอา enum นี้ไปใช้กับ column `status`
 
 Enum ช่วยจำกัดค่าที่ database รับได้ เหมือน union type ใน TypeScript
 
@@ -226,6 +232,16 @@ Supabase SQL Editor
 
 รัน SQL นี้ต่อจาก enum `issue_status` ที่สร้างไว้ก่อนหน้าใน Supabase SQL Editor
 
+### ทำไมต้องเขียน `public.issues`
+
+ใน Supabase table จะอยู่ใน schema ของ Postgres
+
+- `public` คือ schema เริ่มต้นที่ app ใช้งานผ่าน Data API ได้
+- `issues` คือชื่อ table ที่เราสร้าง
+- เขียนเต็มเป็น `public.issues` เพื่อบอกชัด ๆ ว่า table นี้อยู่ใน schema ไหน
+
+หลังจากนี้เวลาเขียน policy, insert หรือ select เราจะอ้างถึง table เดิมด้วยชื่อ `public.issues`
+
 ```sql
 create table public.issues (
   id uuid primary key default gen_random_uuid(),
@@ -240,9 +256,25 @@ create table public.issues (
 );
 ```
 
+### อ่านคำสั่ง SQL ชุดนี้
+
+- `uuid`: เก็บ id เป็นรหัสยาวแบบ unique
+- `primary key`: ใช้ column นี้ระบุ row หลักของ table
+- `default gen_random_uuid()`: ถ้าไม่ส่ง id มา database จะสร้าง id ให้อัตโนมัติ
+- `text`: เก็บข้อความ
+- `not null`: ห้ามเว้นว่าง
+- `check (char_length(title) >= 5)`: title ต้องยาวอย่างน้อย 5 ตัวอักษร
+- `status issue_status`: status ต้องเป็นค่าที่ enum `issue_status` อนุญาต
+- `timestamptz`: เก็บวันเวลาแบบมี timezone เหมาะกับ `created_at` และ `updated_at`
+- `default now()`: ถ้าไม่ส่งเวลามา database จะใส่เวลาปัจจุบันให้
+
 ---
 
-## Slide 8: Constraint คืออะไร
+## Slide 8: รู้จักกับ Constraint
+
+Constraint คือกติกาที่ database ใช้ตรวจข้อมูลก่อนบันทึกลง table
+
+ถ้าข้อมูลไม่ผ่านกติกา database จะปฏิเสธทันที แม้ frontend จะส่งข้อมูลเข้ามาแล้วก็ตาม
 
 ### ตัวอย่าง
 
@@ -256,8 +288,6 @@ title text not null check (char_length(title) >= 5)
 - `check`: ต้องผ่านเงื่อนไข
 - `char_length(title) >= 5`: title ต้องยาวอย่างน้อย 5 ตัวอักษร
 
-### Key Message
-
 Validation ควรมีหลายชั้น:
 
 ```text
@@ -268,15 +298,21 @@ database constraint
 
 ---
 
-## Slide 9: Row Level Security แบบ Demo-only
+## Slide 9: รู้จักกับ Row Level Security
 
-### ทำไมต้องพูดเรื่องนี้
+### Row Level Security คืออะไร
 
-Supabase ใช้ Row Level Security หรือ RLS เพื่อควบคุมว่าใครอ่าน/เขียนข้อมูลได้
+Row Level Security หรือ RLS คือระบบกำหนดสิทธิ์ระดับ row ใน database
+
+- table เดียวกันอาจมีข้อมูลหลายแถว
+- แต่ละ user หรือ role อาจเห็นข้อมูลไม่เท่ากัน
+- RLS ใช้ policy บอกว่าใครอ่าน เขียน หรือแก้ไข row ไหนได้
+
+ตัวอย่างเช่น user ควรเห็น issue ของตัวเอง ส่วน admin ควรเห็น issue ได้ทุกแถว
 
 ### สำหรับ Day 4
 
-เรายังไม่มี login/auth จึงใช้ policy แบบ demo-only เพื่อให้เรียน CRUD ได้ก่อน
+เรายังไม่มี login/auth จึงใช้ policy แบบ demo-only เพื่อให้เรียน CRUD ได้ก่อน แล้ว Day 5 ค่อยทำให้ปลอดภัยขึ้น
 
 ### Warning
 
@@ -300,24 +336,42 @@ Supabase SQL Editor
 alter table public.issues enable row level security;
 
 create policy "demo_select_issues"
-on public.issues
-for select
-to anon
-using (true);
+  on public.issues
+  for select
+  to anon
+  using (true);
 
 create policy "demo_insert_issues"
-on public.issues
-for insert
-to anon
-with check (true);
+  on public.issues
+  for insert
+  to anon
+  with check (true);
 
 create policy "demo_update_issues"
-on public.issues
-for update
-to anon
-using (true)
-with check (true);
+  on public.issues
+  for update
+  to anon
+  using (true)
+  with check (true);
 ```
+
+### อ่านคำสั่งชุดนี้
+
+- `alter table public.issues enable row level security;` คือเปิด RLS ให้ table `issues`
+- `create policy "..."` คือสร้างกติกาการเข้าถึงข้อมูล 1 ชุด
+- `on public.issues` คือ policy นี้ใช้กับ table `issues`
+- `for select` คือใช้กับการอ่านข้อมูล
+- `for insert` คือใช้กับการเพิ่มข้อมูล
+- `for update` คือใช้กับการแก้ไขข้อมูล
+- `to anon` คือให้ role anonymous ใช้ policy นี้ได้ เวลา frontend เรียกผ่าน anon key
+- `using (true)` คือเงื่อนไขสำหรับ row ที่อ่านหรือแก้ไขได้ ใน demo ใช้ `true` เพื่อเปิดให้ผ่านก่อน
+- `with check (true)` คือเงื่อนไขสำหรับ row ที่เพิ่มหรือแก้ไขแล้วต้องผ่าน ใน demo ใช้ `true` เพื่อเปิดให้ผ่านก่อน
+
+ชุดนี้เป็น policy สำหรับ demo เพื่อให้แอปลองอ่าน เพิ่ม และแก้ไขข้อมูลได้ก่อน พอขึ้น Day 5 เราจะเปลี่ยนจาก `true` เป็นเงื่อนไขที่ผูกกับ user/auth ให้ปลอดภัยขึ้น
+
+### สรุปสั้น ๆ
+
+การเปิด RLS คือการบอก database ว่า “อย่าให้ใครเข้าถึงข้อมูลได้เองจนกว่าจะมี policy อนุญาต” ทำให้เราคุมได้ว่าใครอ่าน เพิ่ม หรือแก้ไข row ไหนได้บ้าง
 
 ### Day 5 จะเปลี่ยนอะไร
 
@@ -333,6 +387,12 @@ Day 5 จะเปลี่ยน policy ให้ผูกกับ authenticat
 Supabase SQL Editor
 ```
 
+### Seed Data คืออะไร
+
+Seed data คือข้อมูลตัวอย่างที่เราใส่เข้า database ตอนเริ่มต้น เพื่อให้มีข้อมูลไว้ลองดูหน้า list, ทดสอบการ query และเช็กว่า UI แสดงผลถูกต้อง
+
+ข้อมูลชุดนี้ไม่ใช่ข้อมูลจริงของผู้ใช้ แต่เป็นข้อมูลสำหรับให้โปรเจคพร้อมทดลองใช้งานทันทีหลังสร้าง table เสร็จ
+
 ### ตำแหน่งที่รัน
 
 รันหลังจากสร้าง table และ demo policies แล้ว เพื่อให้ table มีข้อมูลตัวอย่างสำหรับทดสอบหน้า list
@@ -342,28 +402,28 @@ insert into public.issues
   (reporter_name, reporter_email, title, description, status, admin_comment)
 values
   (
-  'Anan',
-  'anan@example.com',
-  'Login เข้าระบบไม่ได้',
-  'ไม่สามารถเข้าสู่ระบบด้วยบัญชีเดิมได้',
-  'OPEN',
-  null
+    'Anan',
+    'anan@example.com',
+    'Login เข้าระบบไม่ได้',
+    'ไม่สามารถเข้าสู่ระบบด้วยบัญชีเดิมได้',
+    'OPEN',
+    null
   ),
   (
-  'Mali',
-  'mali@example.com',
-  'ส่งแบบฟอร์มสมัครไม่ได้',
-  'กดส่งข้อมูลแล้วระบบขึ้น error',
-  'IN_PROGRESS',
-  null
+    'Mali',
+    'mali@example.com',
+    'ส่งแบบฟอร์มสมัครไม่ได้',
+    'กดส่งข้อมูลแล้วระบบขึ้น error',
+    'IN_PROGRESS',
+    null
   ),
   (
-  'Kanda',
-  'kanda@example.com',
-  'ขอสิทธิ์เข้าใช้งาน dashboard',
-  'ต้องการสิทธิ์สำหรับตรวจสอบข้อมูลหลังบ้าน',
-  'DONE',
-  'อนุมัติสิทธิ์และแจ้งผู้ใช้เรียบร้อยแล้ว'
+    'Kanda',
+    'kanda@example.com',
+    'ขอสิทธิ์เข้าใช้งาน dashboard',
+    'ต้องการสิทธิ์สำหรับตรวจสอบข้อมูลหลังบ้าน',
+    'DONE',
+    'อนุมัติสิทธิ์และแจ้งผู้ใช้เรียบร้อยแล้ว'
   );
 ```
 
@@ -402,6 +462,26 @@ order by created_at desc;
 
 สร้างไฟล์ `.env.local` ที่ project root ระดับเดียวกับ `package.json` ไม่ใช่ใน `src/`
 
+### Environment Variables คืออะไร
+
+Environment variables คือค่าตั้งค่าที่โปรเจคต้องใช้ แต่เราไม่อยากเขียนฝังไว้ใน code โดยตรง
+
+ใน slide นี้เราจะใส่ค่าที่ทำให้ Next.js รู้ว่าต้องเชื่อมต่อ Supabase project ไหน และต้องใช้ key ตัวไหนในการเรียก Data API
+
+### ไปเอาค่าจาก Supabase ตรงไหน
+
+1. เข้า Supabase Dashboard
+2. เลือก project ที่สร้างไว้
+3. กดปุ่ม `Connect` ด้านบนขวา
+4. เลือก `Framework`
+5. เลือก `Next.js`
+6. เลือก `App Router`
+7. ดูส่วน `.env.local` แล้วคัดลอก `NEXT_PUBLIC_SUPABASE_URL` และ `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` มาใส่ในไฟล์ `.env.local`
+
+ถ้าหา key จากหน้า `Connect` ไม่เจอ สามารถกดไอคอนเฟือง `Settings` ด้านซ้าย แล้วเข้า `API Keys` เพื่อ copy `Publishable key` หรือ `anon public` ได้
+
+`NEXT_PUBLIC_` หมายถึงค่าเหล่านี้ถูกใช้ฝั่ง browser ได้ จึงห้ามเอา secret key หรือ service role key มาใส่ตรงนี้
+
 ### ตัวอย่าง
 
 ```env
@@ -432,6 +512,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ### ตำแหน่งที่วาง
 
 สร้างไฟล์ `.env.example` ที่ project root ระดับเดียวกับ `.env.local` และ `package.json`
+
+### `.env.example` คืออะไร
+
+`.env.example` คือไฟล์ตัวอย่างที่บอกว่า project นี้ต้องมี environment variables ชื่ออะไรบ้าง
+
+ไฟล์นี้ไม่ได้เอาไว้รัน app จริง และไม่ควรใส่ค่าจริงของ Supabase ลงไป หน้าที่ของมันคือให้คนอื่นเปิดดูแล้วรู้ว่าต้องสร้าง `.env.local` ของตัวเองด้วย key อะไร
 
 ### ใส่เฉพาะชื่อ key ไม่ใส่ค่าจริง
 
@@ -464,6 +550,14 @@ src/types/issue.ts
 
 ใช้ type ชุดนี้แทน type `IssueStatus` และ `Issue` เดิมในไฟล์ `src/types/issue.ts`
 
+### ทำไมต้องแก้ type
+
+ตอน Day 3 type `Issue` ใช้กับข้อมูลที่อยู่ใน React state เท่านั้น แต่ Day 4 ข้อมูลจะมาจาก Supabase table จริงแล้ว
+
+ดังนั้น TypeScript type ต้องสะท้อน field ที่ database มี เช่น `createdAt`, `updatedAt`, `reporterEmail` และ `status` เพื่อให้ component, server action และ function ที่ query ข้อมูลใช้รูปแบบเดียวกัน
+
+อีกจุดที่ต้องจำคือ database ใช้ชื่อแบบ snake_case เช่น `reporter_name` แต่ TypeScript ในแอปใช้ camelCase เช่น `reporterName` เดี๋ยวเราจะ map ค่าจาก database ให้เข้ากับ type นี้ตอนเขียน Supabase query
+
 ### Type
 
 ```ts
@@ -481,8 +575,6 @@ export type Issue = {
   updatedAt: string;
 };
 ```
-
-### Key Message
 
 เพิ่ม `updatedAt` เพื่อให้ TypeScript ตรงกับ database มากขึ้น
 
