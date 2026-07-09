@@ -673,7 +673,7 @@ function createIssueFromInput(input: NewIssueInput): Issue {
     title: input.title,
     description: input.description,
     status: "OPEN",
-    createdAt: new Date().toISOString().slice(0, 10),
+    createdAt: new Date().toISOString(),
   };
 }
 ```

@@ -578,6 +578,31 @@ export type Issue = {
 
 เพิ่ม `updatedAt` เพื่อให้ TypeScript ตรงกับ database มากขึ้น
 
+### ถ้า `IssueForm.tsx` error
+
+หลังเพิ่ม `updatedAt` แล้ว function ที่สร้าง issue จาก form ต้องใส่ field นี้ด้วย ไม่อย่างนั้น object ที่ return จะยังไม่ครบตาม type `Issue`
+
+ให้ไปที่ `src/app/components/IssueForm.tsx` แล้วเติม `updatedAt` ใน object ที่ return จาก `createIssueFormInput`
+
+```ts
+function createIssueFormInput(input: NewIssueInput): Issue {
+  const now = new Date().toISOString();
+
+  return {
+    id: crypto.randomUUID().slice(0, 8),
+    reporterName: input.reporterName,
+    reporterEmail: input.reporterEmail,
+    title: input.title,
+    description: input.description,
+    status: "OPEN",
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+```
+
+ใช้ตัวแปร `now` ร่วมกันเพื่อให้ `createdAt` และ `updatedAt` เป็นเวลาเดียวกันตอนสร้าง issue ใหม่
+
 ---
 
 ## Slide 16: โค้ดสุดท้ายของ Supabase Setup
