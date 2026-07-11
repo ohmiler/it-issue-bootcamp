@@ -29,12 +29,12 @@ source: "day-4-hour-2-read-from-supabase.md"
 สร้างหรือแก้ไฟล์:
 
 ```text
-src/lib/supabase/server.ts
-src/lib/issues.ts
-src/app/issues/page.tsx
-src/app/issues/[id]/page.tsx
-src/components/IssueList.tsx
-src/types/issue.ts
+lib/supabase/server.ts
+lib/issues.ts
+app/issues/page.tsx
+app/issues/[id]/page.tsx
+components/IssueList.tsx
+types/issue.ts
 ```
 
 ---
@@ -107,12 +107,28 @@ restart dev server ถ้าจำเป็น
 ### File
 
 ```text
-src/lib/supabase/server.ts
+lib/supabase/server.ts
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้าง folder `src/lib/supabase/` ถ้ายังไม่มี แล้วสร้างไฟล์ `server.ts` ใส่ code นี้เป็นเนื้อหาทั้งไฟล์
+สร้าง folder `lib/` ที่ project root ระดับเดียวกับ `app/`, `components/` และ `package.json` ถ้ายังไม่มี จากนั้นสร้าง folder `lib/supabase/` และไฟล์ `server.ts`
+
+ไม่ควรสร้างเป็น `app/lib/` เพราะ `lib/` เป็น folder สำหรับเก็บ logic ที่ใช้ร่วมกัน ไม่ใช่ route ของหน้าเว็บ
+
+โครงสร้างที่ต้องได้:
+
+```text
+project-root/
+├─ app/
+├─ components/
+├─ lib/
+│  └─ supabase/
+│     └─ server.ts
+└─ package.json
+```
+
+จากนั้นใส่ code นี้ในไฟล์ `lib/supabase/server.ts` เป็นเนื้อหาทั้งไฟล์
 
 ### Code
 
@@ -121,9 +137,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export function createSupabaseServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     throw new Error("Supabase environment variables are missing");
@@ -137,39 +151,76 @@ export function createSupabaseServerClient() {
 }
 ```
 
+### อธิบายโค้ดทีละส่วน
+
+- `import { createClient } from "@supabase/supabase-js"` นำ function `createClient` จาก package Supabase มาใช้สร้าง client สำหรับติดต่อ database
+- `export function createSupabaseServerClient()` สร้าง function กลางไว้ใช้ซ้ำ และ `export` ทำให้ไฟล์อื่น import function นี้ได้
+- `process.env.NEXT_PUBLIC_SUPABASE_URL` อ่าน URL ของ Supabase project จากไฟล์ `.env.local`
+- `process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` อ่าน publishable key จากไฟล์ `.env.local`
+- `if (!supabaseUrl || !supabaseKey)` ตรวจว่าค่าที่จำเป็นมีครบหรือไม่ ถ้าขาดจะหยุดและแจ้ง error ทันที
+- `createClient(supabaseUrl, supabaseKey)` สร้าง Supabase client ด้วย URL และ key ของ project
+- `persistSession: false` บอกว่า client นี้ไม่ต้องบันทึก session ไว้ เพราะชั่วโมงนี้ยังอ่านข้อมูลสาธารณะและยังไม่มีระบบ login
+- `return` ส่ง client ที่สร้างแล้วกลับไปให้ function อื่นนำไปใช้ query ข้อมูล
+
+ตัวอย่างเช่น `getIssues()` ใน Slide 7 จะเรียก `createSupabaseServerClient()` แล้วใช้ client นั้นอ่านข้อมูลจาก table `issues`
+
 เราเรียกไฟล์นี้ว่า server client เพราะตั้งใจใช้จาก Server Component หรือ Server Action
 
 ---
 
-## Slide 4: ทำไมไม่ใช้ Service Role Key ตอนนี้
+## Slide 4: เลือก Supabase Key ให้ถูก
 
-### Service role key คืออะไร
+### ตอนนี้เราใช้ key อะไร
 
-key ที่มีสิทธิ์สูงและ bypass RLS ได้
+ในชั่วโมงนี้เราใช้:
 
-### สำหรับ bootcamp นี้
+```env
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+```
 
-ยังไม่ใช้ service role key ใน Day 4 เพราะ:
+Publishable key คือ key สำหรับให้แอปติดต่อ Supabase Data API ได้ และสามารถอยู่ในโค้ดฝั่งแอปได้ เพราะ key นี้ไม่ได้มีสิทธิ์สูง สิทธิ์จริงยังถูกควบคุมด้วย RLS และ policy ของ database
 
-- เสี่ยงรั่วถ้านำไปใส่ผิดไฟล์
-- ผู้เรียนยังไม่ต้องใช้สิทธิ์สูง
-- demo policies อนุญาตให้ anon role ทำ CRUD ได้ชั่วคราว
+### Secret Key และ Service Role Key คืออะไร
 
-ใช้ publishable/anon key สำหรับช่วงสอนนี้ และย้ำว่า policy วันนี้เป็น demo-only
+`Secret key` คือชื่อปัจจุบันของ key ที่มีสิทธิ์สูง ส่วน `service_role` คือชื่อแบบเก่าที่ยังพบใน project เดิม
+
+key กลุ่มนี้:
+
+- ใช้สำหรับ backend หรือระบบ admin ที่ควบคุมได้เท่านั้น
+- bypass RLS ได้
+- ห้ามใส่ในตัวแปรที่ขึ้นต้นด้วย `NEXT_PUBLIC_`
+- ห้ามส่งไปที่ browser หรือ commit ลง Git
+
+### ทำไมชั่วโมงนี้ยังไม่ใช้
+
+ตอนนี้เรากำลังอ่าน issue จาก database ด้วยสิทธิ์ของแอปทั่วไป ยังไม่มีงาน admin หรือขั้นตอนที่ต้อง bypass RLS จึงใช้ publishable key ร่วมกับ RLS policy ที่เตรียมไว้ก็เพียงพอ
+
+### จำง่าย ๆ
+
+```text
+Publishable key  -> แอปทั่วไป + RLS ควบคุมสิทธิ์
+Secret key       -> backend/admin เท่านั้น + สิทธิ์สูง
+```
 
 ---
 
-## Slide 5: Database Row Type
+## Slide 5: รู้จักกับ Database Row Type
+
+ก่อนนำข้อมูลจาก Supabase ไปแสดงบนหน้าเว็บ เราควรบอก TypeScript ก่อนว่า database ส่งข้อมูลกลับมาในรูปแบบไหน
+
+`Database Row Type` คือ type ที่อธิบายข้อมูลของ issue จำนวน 1 row ที่อ่านมาจาก table `issues` โดยชื่อ field ต้องตรงกับ column ใน database ซึ่งใช้รูปแบบ `snake_case`
+
+Type นี้มีไว้ช่วย TypeScript ตรวจโค้ดและช่วยให้ editor แนะนำชื่อ field ที่ถูกต้อง ไม่ได้สร้างหรือเปลี่ยน table ใน Supabase
 
 ### File
 
 ```text
-src/lib/issues.ts
+lib/issues.ts
 ```
 
 ### ตำแหน่งที่วาง
 
-สร้างไฟล์ `src/lib/issues.ts` แล้ววาง `DbIssue` ไว้ด้านบนไฟล์ ใต้ import type จาก `src/types/issue.ts`
+สร้างไฟล์ `lib/issues.ts` แล้ววาง `DbIssue` ไว้ด้านบนไฟล์ ใต้ import type จาก `types/issue.ts`
 
 ### Code
 
@@ -198,7 +249,7 @@ type DbIssue = {
 ### File
 
 ```text
-src/lib/issues.ts
+lib/issues.ts
 ```
 
 ### ตำแหน่งที่วาง
@@ -223,26 +274,51 @@ function mapIssue(row: DbIssue): Issue {
 }
 ```
 
-Mapping ทำให้ UI ไม่ต้องรู้ว่า database ใช้ snake_case
+### `mapIssue` ทำหน้าที่อะไร
+
+Supabase ส่งข้อมูลกลับมาในรูปแบบที่ตรงกับ database เช่น `reporter_name` และ `created_at` แต่ UI ของเรากำหนดให้ใช้ชื่อแบบ `reporterName` และ `createdAt`
+
+`mapIssue` รับข้อมูลจาก database 1 row แล้วสร้าง object รูปแบบ `Issue` สำหรับส่งต่อให้ component:
+
+- `row.reporter_name` เปลี่ยนเป็น `reporterName`
+- `row.reporter_email` เปลี่ยนเป็น `reporterEmail`
+- `row.admin_comment` เปลี่ยนเป็น `adminComment`
+- `row.created_at` เปลี่ยนเป็น `createdAt`
+- `row.updated_at` เปลี่ยนเป็น `updatedAt`
+- `row.admin_comment ?? undefined` แปลงค่า `null` จาก database เป็น `undefined` ตาม type ที่ UI ใช้
+
+การแยก mapping ไว้ตรงนี้ทำให้ UI ไม่ต้องรู้รายละเอียดว่า database ใช้ `snake_case` และถ้าชื่อ field ฝั่งใดฝั่งหนึ่งเปลี่ยน เราแก้ที่ function นี้เป็นหลัก
 
 ---
 
 ## Slide 7: สร้าง `getIssues()`
 
+`getIssues()` คือ function สำหรับอ่าน issue ทั้งหมดจาก table `issues` ใน Supabase แล้วคืนข้อมูลกลับมาเป็น `Issue[]` เพื่อให้หน้า `/issues` นำไปแสดงผล
+
+เราสร้าง function นี้แยกไว้ใน `lib/issues.ts` เพื่อรวม logic ที่เกี่ยวกับการอ่านข้อมูล database ไว้ที่เดียว ส่วนหน้าเว็บมีหน้าที่เรียกใช้และแสดงผลเท่านั้น
+
 ### File
 
 ```text
-src/lib/issues.ts
+lib/issues.ts
 ```
 
 ### ตำแหน่งที่วาง
 
 วาง import `createSupabaseServerClient` ไว้บนสุดของไฟล์ แล้ววาง function `getIssues` ต่อจาก `mapIssue`
 
+ถ้าเจอ error `permission denied for table issues` ให้กลับไปตรวจ Slide 10 ของ Hour 1 ว่าได้รันคำสั่งนี้ใน Supabase SQL Editor แล้วหรือยัง:
+
+```sql
+grant select on public.issues to anon;
+```
+
+คำสั่งนี้ให้ role `anon` เข้าถึง table ได้ ส่วน RLS policy จะควบคุมสิทธิ์ในระดับ row
+
 ### Code
 
 ```ts
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "./supabase/server";
 
 export async function getIssues(): Promise<Issue[]> {
   const supabase = createSupabaseServerClient();
@@ -260,21 +336,52 @@ export async function getIssues(): Promise<Issue[]> {
 }
 ```
 
+จุดสำคัญคือเราตรวจ `error` ทันทีหลัง query ภายใน function นี้ ถ้าอ่านข้อมูลไม่สำเร็จ function จะหยุดตรงนี้และแจ้งปัญหาออกไป แทนที่จะส่งข้อมูลที่อาจไม่สมบูรณ์ให้หน้าเว็บ
+
+### อธิบายคำสั่ง
+
+- `export async function getIssues(): Promise<Issue[]>` สร้าง function แบบ asynchronous สำหรับอ่านข้อมูล และจะคืนค่าเป็น `Issue[]`
+- `createSupabaseServerClient()` สร้าง client ที่ใช้เชื่อมต่อกับ Supabase
+- `.from("issues")` ระบุว่าจะอ่านข้อมูลจาก table `issues`
+- `.select("*")` ขอข้อมูลทุก column ของ table
+- `.order("created_at", { ascending: false })` เรียงข้อมูลตาม `created_at` จากใหม่ไปเก่า
+- `{ data, error }` คือผลลัพธ์จาก Supabase โดย `data` คือข้อมูลที่อ่านได้ และ `error` คือข้อผิดพลาดถ้ามี
+- `if (error)` ตรวจสอบ query ถ้าล้มเหลวให้หยุดและแจ้ง error แทนการส่งข้อมูลที่ไม่สมบูรณ์ต่อไป
+- `data ?? []` ถ้าไม่มีข้อมูล ให้ใช้ array ว่างแทนค่า `null`
+- `.map((row) => mapIssue(row as DbIssue))` แปลงทุก row จากรูปแบบ database ให้เป็นรูปแบบ `Issue` ที่ UI ใช้
+
 ตอนนี้ source of truth คือ Supabase ไม่ใช่ mock array แล้ว
 
 ---
 
-## Slide 8: หน้า `/issues` อ่านจาก Supabase
+## Slide 8: ให้หน้า `/issues` อ่านข้อมูลจาก Supabase
+
+หน้า `/issues` มีหน้าที่อ่านข้อมูลจาก Supabase แล้วส่งข้อมูลไปแสดงผล จึงเป็น Server Component
+
+ลำดับการทำงานคือ:
+
+```text
+browser ขอหน้า /issues
+-> Server Component เรียก getIssues()
+-> Supabase ส่งข้อมูลกลับมา
+-> ส่ง issues ให้ IssueList แสดงผล
+```
+
+### สำคัญ
+
+ห้ามใส่ `"use client"` ในไฟล์ `app/issues/page.tsx` เพราะ `getIssues()` ใช้ Supabase server client และต้องใช้ `await`
+
+ถ้าใส่ `"use client"` ในไฟล์นี้ จะเกิด error เพราะหน้าเว็บพยายามเรียก server client จาก browser รวมถึงอาจเห็น warning เรื่อง Supabase client ถูกสร้างหลายตัว
 
 ### File
 
 ```text
-src/app/issues/page.tsx
+app/issues/page.tsx
 ```
 
 ### ตำแหน่งที่แก้
 
-ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `src/app/issues/page.tsx` จาก placeholder ของ Day 2
+ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `app/issues/page.tsx` จาก placeholder ของ Day 2
 
 ### Code
 
@@ -293,51 +400,112 @@ export default async function IssuesPage() {
 }
 ```
 
-Server Component สามารถ `await getIssues()` ได้โดยตรง
+หน้า `page.tsx` ส่งให้ `IssueList` แค่ข้อมูล `issues` ซึ่งส่งจาก Server Component ไป Client Component ได้
 
 ---
 
-## Slide 9: ปรับ `IssueList` ให้เป็น Server-friendly
+## Slide 9: ใช้ `IssueList` เดิมกับข้อมูลจาก Supabase
 
 ### File
 
 ```text
-src/components/IssueList.tsx
+components/IssueList.tsx
 ```
 
 ### ตำแหน่งที่แก้
 
-แก้ props ของ `IssueList` ให้เหลือเฉพาะ `issues` ชั่วคราว ถ้ายังมี props จาก Day 3 เช่น `onUpdateStatus` หรือ `onCloseIssue` ให้ถอดออกก่อนสำหรับ server-rendered list ในชั่วโมงนี้
+`IssueList` จาก Day 3 มีปุ่มและ `onClick` อยู่แล้ว จึงคงเป็น Client Component ต่อไป ไม่ต้องสร้าง component ใหม่และไม่ต้องเปลี่ยนไปเป็น Server Component
 
-### Props สำหรับตอนนี้
+เราปรับเพียงครั้งเดียวให้ callback เป็น optional: ถ้ามี callback ก็แสดงปุ่มจัดการ, ถ้าไม่มี callback ก็แสดงเฉพาะรายการ issue
 
-```ts
-type IssueListProps = {
-  issues: Issue[];
-};
+ในตัวอย่างด้านล่าง บรรทัดพื้นหลังสีเขียวอ่อนพร้อมเครื่องหมาย `+` คือโค้ดที่เพิ่มหรือแก้จาก Day 3 ส่วนบรรทัดที่ไม่มี highlight ให้คงไว้ตามเดิม
+
+### ทำไม callback ต้องเป็น optional
+
+ใน Day 3 `IssueList` ต้องรับ function สำหรับจัดการ issue จึงเขียน props แบบจำเป็น:
+
+```tsx
+onUpdateStatus: (id: string, status: IssueStatus) => void;
+onCloseIssue: (id: string) => void;
 ```
 
-### สำคัญ
+แต่ใน Day 4 Hour 2 เราอ่านข้อมูลจาก Supabase อย่างเดียว หน้า `page.tsx` จึงส่งมาแค่:
 
-ถ้า `IssueList` ไม่มี `useState`, `useEffect`, `onClick` หรือ `onChange` ไม่ต้องใส่ `"use client"`
+```tsx
+<IssueList issues={issues} />
+```
 
-Day 4 เราเริ่มย้ายจาก client state กลับมาใช้ server-rendered data จาก database
+เครื่องหมาย `?` ทำให้ prop เป็น optional หมายความว่าอาจมีหรือไม่มีก็ได้ ถ้าไม่ใส่ `?` TypeScript จะบังคับให้ทุกหน้าต้องส่ง callback มาด้วย และบรรทัดด้านบนจะเกิด error ว่า props ไม่ครบ
+
+ดังนั้น component เดิมจึงใช้ได้สองแบบ:
+
+- Day 3 ส่ง callback มา ปุ่มจัดการจึงทำงานได้
+- Day 4 ไม่ส่ง callback มา เพราะชั่วโมงนี้แสดงข้อมูลอย่างเดียว
+
+### 1. ใส่ `"use client"` บนสุดของไฟล์
+
+<CodeChange code='"use client";' highlightLines="1" />
+
+ต้องอยู่ก่อน import ทุกบรรทัด เพราะไฟล์นี้มี event handler เช่น `onClick`
+
+### 2. ปรับ props และ function
+
+<CodeChange code='import type { Issue, IssueStatus } from "@/types/issue";\n\ntype IssueListProps = {\n  issues: Issue[];\n  onUpdateStatus?: (id: string, status: IssueStatus) => void;\n  onCloseIssue?: (id: string) => void;\n};\n\nexport function IssueList({\n  issues,\n  onUpdateStatus,\n  onCloseIssue,\n}: IssueListProps) {\n  const showActions = Boolean(onUpdateStatus || onCloseIssue);\n\n  // ส่วนแสดงผลเดิมของ component\n}' highlightLines="5,6,9,10,11,12,13,14" />
+
+### ทำไมต้องมี `showActions`
+
+`onUpdateStatus || onCloseIssue` ตรวจว่ามี callback อย่างน้อยหนึ่งตัวหรือไม่:
+
+- ถ้ามี callback อย่างน้อยหนึ่งตัว ผลลัพธ์จะเป็น function และ `Boolean(...)` แปลงเป็น `true`
+- ถ้าไม่มี callback ทั้งคู่ ผลลัพธ์จะเป็น `undefined` และ `Boolean(...)` แปลงเป็น `false`
+
+จากนั้นเราใช้ `showActions` เป็นเงื่อนไขครอบคอลัมน์ `จัดการ` และปุ่มทั้งหมด ถ้าเป็น `true` จึงแสดงปุ่ม แต่ถ้าเป็น `false` จะแสดงเฉพาะรายการ issue
+
+เหตุผลสำคัญคือ Day 4 ไม่ได้ส่ง function มาจาก Server Component ถ้าแสดงปุ่มต่อไป ผู้ใช้กดแล้วอาจเรียก function ที่ไม่มีค่าและเกิด error ได้
+
+### 3. แสดงคอลัมน์จัดการเมื่อมี callback เท่านั้น
+
+แทน `<th>` เดิมที่เขียนว่า `จัดการ` ให้ใช้:
+
+<CodeChange code='{showActions && (\n  <th className="px-3 py-3 font-semibold">จัดการ</th>\n)}' highlightLines="1,2,3" />
+
+และแทน `<td>` เดิมที่มีปุ่มทั้งหมด ให้ใช้:
+
+<CodeChange code='{showActions && (\n  <td className="px-3 py-4">\n    <div className="flex flex-wrap gap-2">\n      {onUpdateStatus &&\n        statuses.map((status) => (\n          <button\n            key={status}\n            type="button"\n            disabled={issue.status === status}\n            onClick={() => onUpdateStatus(issue.id, status)}\n            className="rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold disabled:bg-slate-100 disabled:text-slate-400"\n          >\n            {status}\n          </button>\n        ))}\n\n      {onCloseIssue && (\n        <button\n          type="button"\n          disabled={issue.status === "DONE"}\n          onClick={() => onCloseIssue(issue.id)}\n          className="rounded-md border border-slate-300 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-400"\n        >\n          ปิดงาน\n        </button>\n      )}\n    </div>\n  </td>\n)}' highlightLines="1,4,17,30,31,32" />
+
+### ใช้ component เดิมต่ออย่างไร
+
+Day 3 ให้ `IssueBoard` ส่ง `onUpdateStatus` และ `onCloseIssue` มา ปุ่มจัดการจึงแสดงและใช้งานได้
+
+Day 4 Hour 2 หน้า `page.tsx` ส่งแค่ข้อมูล:
+
+```tsx
+<IssueList issues={issues} />
+```
+
+จึงแสดงรายการจาก Supabase แบบไม่มีปุ่มจัดการ และไม่ส่ง function ข้ามจาก Server Component ไปยัง Client Component
 
 ---
 
-## Slide 10: เพิ่ม Link ไป Detail
+## Slide 10: ตรวจสอบ Link ไป Detail
 
 ### File
 
 ```text
-src/components/IssueList.tsx
+components/IssueList.tsx
 ```
 
-### ตำแหน่งที่วาง
+### ตำแหน่งที่ตรวจสอบ
 
-วาง `import Link from "next/link";` บนสุดของไฟล์ แล้วใช้ `<Link>` นี้แทน `<a>` หรือข้อความ `ดูรายละเอียด` ภายใน `<td>` ของแต่ละ row
+เราเพิ่ม Link ไปหน้า Detail ไว้แล้วใน Day 3 ดังนั้น Slide นี้ไม่ต้องเขียนโค้ดเพิ่ม ให้เปิดไฟล์ `components/IssueList.tsx` เพื่อตรวจสอบว่าโค้ดเดิมยังอยู่ครบ:
 
-### Code
+- มี `import Link from "next/link";` อยู่บนสุดของไฟล์
+- ใช้ `<Link>` ภายใน row ของแต่ละ issue
+- `href` ใช้ `issue.id` เพื่อไปยัง `/issues/[id]`
+
+ถ้าโค้ดส่วนนี้ยังอยู่ แปลว่าเราใช้ Link เดิมต่อกับข้อมูลจาก Supabase ได้เลย เพราะ `issue.id` มาจาก row ที่อ่านจาก database และถูกนำไปสร้าง dynamic route
+
+### Code ที่ควรมีอยู่แล้ว
 
 ```tsx
 import Link from "next/link";
@@ -354,17 +522,32 @@ import Link from "next/link";
 
 ---
 
-## Slide 11: Query Issue by ID
+## Slide 11: ดึง Issue รายการเดียวด้วย `id`
 
 ### File
 
 ```text
-src/lib/issues.ts
+lib/issues.ts
 ```
 
-### ตำแหน่งที่วาง
+### หน้าที่ของ `getIssueById`
 
-วาง function `getIssueById` ต่อจาก `getIssues` ในไฟล์เดียวกัน เพราะใช้ `createSupabaseServerClient` และ `mapIssue` ร่วมกัน
+เมื่อผู้ใช้กด Link จาก Slide 10 เราจะไปที่ URL เช่น `/issues/abc123` โดย `abc123` คือ `id` ของ issue ที่ต้องการดู
+
+หน้า Detail จะส่ง `id` นี้ให้ function `getIssueById(id)` เพื่อค้นหา issue เพียงรายการเดียวจาก Supabase แล้วนำข้อมูลไปแสดงผล
+
+ลำดับการทำงาน:
+
+```text
+กดดูรายละเอียด
+-> ไปที่ /issues/[id]
+-> อ่าน id จาก URL
+-> เรียก getIssueById(id)
+-> Supabase ค้นหา issue ที่ id ตรงกัน
+-> แสดงข้อมูลในหน้า Detail
+```
+
+วาง function นี้ต่อจาก `getIssues` ในไฟล์เดียวกัน เพราะใช้ `createSupabaseServerClient` และ `mapIssue` ร่วมกัน
 
 ### Code
 
@@ -386,19 +569,38 @@ export async function getIssueById(id: string): Promise<Issue | null> {
 }
 ```
 
+### อธิบายคำสั่งสำคัญ
+
+- `id: string` รับรหัส issue จาก URL โดยรหัสนี้เป็นข้อความ
+- `.from("issues")` ระบุว่าจะค้นหาจาก table `issues`
+- `.select("*")` ขอข้อมูลทุก column
+- `.eq("id", id)` กรองให้เหลือ row ที่ column `id` ตรงกับค่าที่รับเข้ามา
+- `.maybeSingle()` บอกว่าเราคาดว่าจะได้ข้อมูล 0 หรือ 1 row ถ้าไม่พบจะได้ `null` แทนการเกิด error
+- `if (error)` ตรวจสอบว่า query ล้มเหลวหรือไม่ ถ้าล้มเหลว `throw new Error(...)` จะหยุด function และส่งรายละเอียดของปัญหาออกไป
+- `mapIssue(...)` แปลงชื่อ field จาก database แบบ `snake_case` ให้เป็นรูปแบบที่ UI ใช้
+- `Issue | null` หมายความว่า function อาจคืน issue หนึ่งรายการ หรือไม่พบข้อมูลก็ได้
+
 ---
 
-## Slide 12: หน้า `/issues/[id]`
+## Slide 12: ให้หน้า Detail อ่าน `id` จาก URL
 
 ### File
 
 ```text
-src/app/issues/[id]/page.tsx
+app/issues/[id]/page.tsx
 ```
 
-### ตำแหน่งที่แก้
+### หน้าที่ของหน้านี้
 
-ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `src/app/issues/[id]/page.tsx` จาก placeholder ของ Day 2
+folder `[id]` คือ dynamic route หมายความว่า URL เช่น `/issues/abc123` จะถูกส่งมายังไฟล์ `app/issues/[id]/page.tsx` และค่า `abc123` จะอยู่ใน `params.id`
+
+หน้านี้ทำงานต่อจาก Slide 11 โดยอ่าน `id` จาก URL แล้วส่งให้ `getIssueById(id)` เพื่อดึงข้อมูล issue รายการนั้นมาแสดงผล
+
+- `await params` รอและอ่านค่าพารามิเตอร์จาก URL
+- `getIssueById(id)` ค้นหา issue จาก Supabase
+- `notFound()` แสดงหน้า 404 เมื่อไม่พบ issue ที่มี `id` นี้
+
+ใช้ Server Component เพราะหน้านี้อ่านข้อมูลจาก Supabase และยังไม่มี event handler ที่ต้องทำงานใน browser
 
 ### Code
 
@@ -436,7 +638,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
 ### File
 
 ```text
-src/app/issues/[id]/page.tsx
+app/issues/[id]/page.tsx
 ```
 
 ### ตำแหน่งที่วาง
@@ -460,82 +662,41 @@ src/app/issues/[id]/page.tsx
 
 ---
 
-## Slide 14: Error Handling เบื้องต้น
+## Slide 14: โค้ดสุดท้ายของ Read Flow จาก Supabase
 
-### ถ้า query error
-
-```ts
-if (error) {
-  throw new Error(`Failed to fetch issues: ${error.message}`);
-}
-```
-
-### ใน development
-
-Next.js จะแสดง error overlay หรือ error page
-
-### ใน production
-
-ควรมี:
-
-- error boundary
-- logging
-- user-friendly error message
-
-อย่า ignore database error เงียบ ๆ เพราะจะ debug ยากมาก
-
----
-
-## Slide 15: Restart Dev Server หลังแก้ Env
-
-### ถ้าเจอ error env missing
-
-ตรวจ:
-
-```text
-.env.local
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-```
-
-จากนั้น restart:
-
-```bash
-npm run dev
-```
-
-Next.js มักต้อง restart dev server เมื่อเพิ่ม env var ใหม่
-
----
-
-## Slide 16: Read from Supabase
-
-### ขั้นตอน
-
-1. ติดตั้ง `@supabase/supabase-js`
-2. สร้าง `src/lib/supabase/server.ts`
-3. สร้าง `src/lib/issues.ts`
-4. เขียน `getIssues()`
-5. ปรับ `/issues` ให้ใช้ข้อมูลจาก Supabase
-6. เพิ่ม link ไป `/issues/[id]`
-7. เขียน `getIssueById()`
-8. แสดง issue detail จาก database
-
-### ผลลัพธ์
-
-หน้า `/issues` แสดงข้อมูลจาก Supabase จริง และเปิด detail ได้
-
----
-
-## Slide 17: โค้ดสุดท้ายของ Read Flow จาก Supabase
-
-### `src/lib/issues.ts`
+### `lib/issues.ts`
 
 ไฟล์นี้เป็นจุดรวมการอ่านข้อมูล issue จาก Supabase:
 
 ```ts
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Issue } from "@/types/issue";
+import type { Issue, IssueStatus } from "@/types/issue";
+import { createSupabaseServerClient } from "./supabase/server";
+
+type DbIssue = {
+  id: string;
+  reporter_name: string;
+  reporter_email: string;
+  title: string;
+  description: string;
+  status: IssueStatus;
+  admin_comment: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+function mapIssue(row: DbIssue): Issue {
+  return {
+    id: row.id,
+    reporterName: row.reporter_name,
+    reporterEmail: row.reporter_email,
+    title: row.title,
+    description: row.description,
+    status: row.status,
+    adminComment: row.admin_comment ?? undefined,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
 
 export async function getIssues(): Promise<Issue[]> {
   const supabase = createSupabaseServerClient();
@@ -572,8 +733,8 @@ export async function getIssueById(id: string): Promise<Issue | null> {
 ### หน้า list และ detail ใช้ function คนละตัว
 
 ```text
-src/app/issues/page.tsx      -> await getIssues()
-src/app/issues/[id]/page.tsx -> await getIssueById(id)
+app/issues/page.tsx      -> await getIssues()
+app/issues/[id]/page.tsx -> await getIssueById(id)
 ```
 
 ### ภาพรวม
@@ -587,7 +748,7 @@ Supabase rows
 
 ---
 
-## Slide 18: Common Mistakes
+## Slide 15: Common Mistakes
 
 ### ข้อผิดพลาดที่พบบ่อย
 
@@ -596,13 +757,15 @@ Supabase rows
 - ลืม restart dev server
 - query table ผิดชื่อ เช่น `issue` แทน `issues`
 - ลืม map snake_case เป็น camelCase
-- `IssueList` ยังเป็น Client Component ที่ต้องการ handler จาก Day 3
+- `IssueList` มี event handler แต่ลืมใส่ `"use client"`
+- ส่ง function props จาก Server Component แทนที่จะส่งเฉพาะข้อมูล `issues`
+- ลืม `GRANT` ให้ role `anon` เช่น `grant select on public.issues to anon;`
 - RLS policy ไม่อนุญาต select
 - ใช้ `single()` แล้ว data ไม่เจอจน error แทนที่จะใช้ `maybeSingle()`
 
 ---
 
-## Slide 19: Recap ชั่วโมงที่สองของ Day 4
+## Slide 16: Recap ชั่วโมงที่สองของ Day 4
 
 ### สิ่งที่ได้เรียน
 

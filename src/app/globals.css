@@ -925,6 +925,35 @@ code {
   background: var(--accent-soft);
 }
 
+.lesson-prose .lesson-code-change {
+  margin: 1.5rem 0;
+}
+
+.lesson-prose .lesson-code-change code {
+  display: grid;
+  min-width: max-content;
+}
+
+.lesson-code-change__line {
+  display: grid;
+  grid-template-columns: 1.25rem max-content;
+  min-width: 100%;
+}
+
+.lesson-code-change__marker {
+  color: transparent;
+  user-select: none;
+}
+
+.lesson-code-change__line--added {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+}
+
+.lesson-code-change__line--added .lesson-code-change__marker {
+  color: var(--success);
+  font-weight: 700;
+}
+
 .lesson-prose :not(pre) > code {
   border: 1px solid var(--border);
   border-radius: 6px;
