@@ -10,11 +10,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ### Workflow
 
+- ก่อนแก้บทเรียน ให้อ่าน `COURSE_PROGRESS.md` เพื่อดูสถานะล่าสุดของหลักสูตรและ project
 - แก้ slide และเนื้อหาบทเรียนโดยตรง
 - ห้ามใช้ brainstorming, Superpowers, design spec หรือ implementation plan
 - ไม่ต้องสร้างเอกสารประกอบก่อนแก้เนื้อหา
 - ถ้าคำขอชัดเจน ให้ลงมือแก้ทันทีโดยไม่ถามยืนยันซ้ำ
 - เมื่อผู้ใช้ส่งโค้ดปัจจุบันมา ให้ถือว่าโค้ดนั้นเป็น source of truth
+- หลังแก้เนื้อหาชุดใหญ่หรือเปลี่ยน flow ของ project ให้อัปเดต `COURSE_PROGRESS.md` เฉพาะข้อมูลที่จำเป็นสำหรับงานรอบถัดไป
+- ไม่ต้องบันทึกรายละเอียดทุกการแก้ slide ลง `COURSE_PROGRESS.md`; ใช้ Git history สำหรับรายละเอียดที่เสร็จแล้ว
 
 ### Content Consistency
 
