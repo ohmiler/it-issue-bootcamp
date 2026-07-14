@@ -31,7 +31,7 @@ source: "day-4-hour-1-supabase-setup-and-schema.md"
 ```text
 .env.local
 .env.example
-src/types/issue.ts
+types/issue.ts
 ```
 
 SQL ให้รันใน Supabase SQL Editor
@@ -61,7 +61,6 @@ SQL ให้รันใน Supabase SQL Editor
 - validate input ฝั่ง frontend
 - update status แบบ mock
 - เห็นภาพ delete/close แบบ mock
-- filter issue ตาม status
 
 ### ปัญหาของ mock state
 
@@ -333,6 +332,8 @@ Supabase SQL Editor
 รันหลังจากสร้าง table `public.issues` สำเร็จแล้ว และก่อนเริ่มเรียกข้อมูลจาก Next.js
 
 ```sql
+grant select, insert, update on public.issues to anon;
+
 alter table public.issues enable row level security;
 
 create policy "demo_select_issues"
@@ -357,6 +358,7 @@ create policy "demo_update_issues"
 
 ### อ่านคำสั่งชุดนี้
 
+- `grant select, insert, update on public.issues to anon;` ให้ role `anon` มีสิทธิ์อ่าน เพิ่ม และแก้ไขข้อมูลใน table ระดับ table ก่อน จากนั้น RLS policy จะเป็นตัวกำหนดว่าทำกับ row ไหนได้บ้าง
 - `alter table public.issues enable row level security;` คือเปิด RLS ให้ table `issues`
 - `create policy "..."` คือสร้างกติกาการเข้าถึงข้อมูล 1 ชุด
 - `on public.issues` คือ policy นี้ใช้กับ table `issues`
@@ -371,7 +373,7 @@ create policy "demo_update_issues"
 
 ### สรุปสั้น ๆ
 
-การเปิด RLS คือการบอก database ว่า “อย่าให้ใครเข้าถึงข้อมูลได้เองจนกว่าจะมี policy อนุญาต” ทำให้เราคุมได้ว่าใครอ่าน เพิ่ม หรือแก้ไข row ไหนได้บ้าง
+`GRANT` กับ RLS ทำงานคนละชั้นกัน: `GRANT` ให้สิทธิ์เข้าถึง table ส่วน RLS policy คุมสิทธิ์ระดับ row ทั้งสองส่วนต้องตั้งค่าให้ครบ
 
 ### Day 5 จะเปลี่ยนอะไร
 
@@ -460,7 +462,7 @@ order by created_at desc;
 
 ### ตำแหน่งที่วาง
 
-สร้างไฟล์ `.env.local` ที่ project root ระดับเดียวกับ `package.json` ไม่ใช่ใน `src/`
+สร้างไฟล์ `.env.local` ที่ project root ระดับเดียวกับ `package.json` ไม่ใช่ในโฟลเดอร์ย่อย
 
 ### Environment Variables คืออะไร
 
@@ -543,12 +545,12 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ### File
 
 ```text
-src/types/issue.ts
+types/issue.ts
 ```
 
 ### ตำแหน่งที่แก้
 
-ใช้ type ชุดนี้แทน type `IssueStatus` และ `Issue` เดิมในไฟล์ `src/types/issue.ts`
+ใช้ type ชุดนี้แทน type `IssueStatus` และ `Issue` เดิมในไฟล์ `types/issue.ts`
 
 ### ทำไมต้องแก้ type
 
@@ -582,7 +584,7 @@ export type Issue = {
 
 หลังเพิ่ม `updatedAt` แล้ว function ที่สร้าง issue จาก form ต้องใส่ field นี้ด้วย ไม่อย่างนั้น object ที่ return จะยังไม่ครบตาม type `Issue`
 
-ให้ไปที่ `src/app/components/IssueForm.tsx` แล้วเติม `updatedAt` ใน object ที่ return จาก `createIssueFormInput`
+ให้ไปที่ `components/IssueForm.tsx` แล้วเติม `updatedAt` ใน object ที่ return จาก `createIssueFormInput`
 
 ```ts
 function createIssueFormInput(input: NewIssueInput): Issue {
@@ -603,6 +605,29 @@ function createIssueFormInput(input: NewIssueInput): Issue {
 
 ใช้ตัวแปร `now` ร่วมกันเพื่อให้ `createdAt` และ `updatedAt` เป็นเวลาเดียวกันตอนสร้าง issue ใหม่
 
+### ถ้า `data/issue.ts` error
+
+ข้อมูลจำลองใน `data/issue.ts` ก็ประกาศเป็น `Issue[]` เช่นกัน ดังนั้นทุก object ต้องมี `updatedAt` ให้ครบตาม type ใหม่
+
+ให้เติม `updatedAt` ต่อจาก `createdAt` ใน issue ทุกตัว โดยใช้ค่าเดียวกับ `createdAt` ได้ เพราะข้อมูลจำลองยังไม่เคยถูกแก้ไข
+
+```ts
+export const issues: Issue[] = [
+  {
+    id: "001",
+    reporterName: "Anan",
+    reporterEmail: "anan@example.com",
+    title: "เข้าสู่ระบบไม่ได้",
+    description: "กรอกรหัสผ่านแล้วระบบแจ้งว่าไม่ถูกต้อง",
+    status: "OPEN",
+    createdAt: "2026-07-14T09:00:00.000Z",
+    updatedAt: "2026-07-14T09:00:00.000Z",
+  },
+];
+```
+
+ถ้าในไฟล์มีหลาย issue ต้องเติม `updatedAt` ให้ครบทุกตัว ไม่เช่นนั้น `npm run build` จะยังไม่ผ่าน
+
 ---
 
 ## Slide 16: โค้ดสุดท้ายของ Supabase Setup
@@ -616,7 +641,7 @@ function createIssueFormInput(input: NewIssueInput): Issue {
 5. seed data 3 rows
 6. สร้าง `.env.local`
 7. สร้าง `.env.example`
-8. update `src/types/issue.ts`
+8. update `types/issue.ts`
 
 ### ผลลัพธ์
 

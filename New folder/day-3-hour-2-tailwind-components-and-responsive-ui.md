@@ -494,6 +494,26 @@ components/IssueForm.tsx
 
 หน้าเว็บยังทำงานเหมือนเดิม แต่ component แต่ละส่วนดูเป็นระบบและ responsive มากขึ้น
 
+## Cleanup CSS เดิม
+
+หลังจากแปลง component ไหนเป็น Tailwind แล้ว ให้กลับไปที่ `app/globals.css` แล้วลบ CSS เดิมของ component นั้นออกด้วย
+
+ลบได้หลังจบชั่วโมงนี้:
+
+- CSS ของ `StatusBadge` เดิม
+- `.status`, `.status-open`, `.status-progress`, `.status-done` ถ้า `StatusBadge` ใช้ Tailwind class แล้ว
+- `.table-wrapper` ถ้าเปลี่ยนเป็น `<div className="mt-4 overflow-x-auto">` แล้ว
+- style ของ table เดิม เช่น `table`, `thead`, `tbody`, `th`, `td` ถ้า table ใช้ Tailwind class แล้ว
+- `section + section` ถ้า `<main>` ใช้ `grid gap-6` จัดระยะห่างแล้ว
+
+ยังเก็บไว้ชั่วคราว:
+
+- `.form-row` ถ้า `IssueForm` ยังใช้ `<div className="form-row">`
+- CSS ของ `fieldset`, `legend`, `.form-group` ถ้า form ส่วนนั้นยังไม่ได้ย้ายเป็น Tailwind ครบ
+- global style ที่ยังใช้จริง เช่น `@import "tailwindcss";`, `body`
+
+หลักคือย้ายส่วนไหนแล้วลบ CSS เดิมของส่วนนั้นทันที แต่ไม่ลบ selector ที่ component อื่นยังพึ่งอยู่
+
 ## ตัวอย่างภาพรวม `app/page.tsx`
 
 ```tsx
@@ -521,7 +541,7 @@ export default function Home() {
         <IssueList issues={issues} />
       </main>
 
-      <footer>
+      <footer className="px-6 py-8 text-center text-sm text-slate-500">
         <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
       </footer>
     </>

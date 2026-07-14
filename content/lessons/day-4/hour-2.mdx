@@ -402,6 +402,57 @@ export default async function IssuesPage() {
 
 หน้า `page.tsx` ส่งให้ `IssueList` แค่ข้อมูล `issues` ซึ่งส่งจาก Server Component ไป Client Component ได้
 
+### ปรับหน้าแรกให้ไม่ใช้ Mock Data
+
+หน้าแรก `app/page.tsx` จาก Day 3 ยังใช้ `IssueBoard` และข้อมูลจาก `data/issue.ts` จึงยังแสดง mock data อยู่ ให้ลบส่วนดังกล่าวออกและคงหน้า Home แบบง่ายไว้ ส่วนรายการข้อมูลจริงให้แสดงเฉพาะที่ `/issues`
+
+ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `app/page.tsx`:
+
+```tsx
+import Link from "next/link";
+
+export default function Home() {
+  return (
+    <>
+      <header className="bg-teal-800 px-6 py-8 text-white">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="text-3xl font-bold">ระบบแจ้งปัญหา IT</h1>
+          <p className="mt-2 text-teal-100">
+            แจ้งและติดตามปัญหาการใช้งานระบบภายใน
+          </p>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-6 py-12">
+        <h2 className="text-2xl font-semibold">จัดการปัญหาการใช้งานระบบ</h2>
+        <p className="mt-2 text-slate-600">
+          ดูรายการปัญหาที่แจ้งเข้ามาและติดตามสถานะการดำเนินงาน
+        </p>
+        <Link
+          href="/issues"
+          className="mt-6 inline-block rounded-md bg-teal-700 px-4 py-2 font-semibold text-white hover:bg-teal-800"
+        >
+          ดูรายการปัญหา
+        </Link>
+      </main>
+
+      <footer className="px-6 py-8 text-center text-sm text-slate-500">
+        <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
+      </footer>
+    </>
+  );
+}
+```
+
+หลังแก้แล้ว import `IssueBoard`, `IssueForm`, `IssueList`, `issues` และ `Image` เดิมจะไม่ใช้ในหน้าแรก จึงต้องลบออกทั้งหมด
+
+ตอนนี้แต่ละหน้ามีหน้าที่ชัดเจน:
+
+```text
+/        -> หน้า Home และลิงก์เข้าสู่ระบบ
+/issues  -> แสดงรายการข้อมูลจริงจาก Supabase
+```
+
 ---
 
 ## Slide 9: ใช้ `IssueList` เดิมกับข้อมูลจาก Supabase

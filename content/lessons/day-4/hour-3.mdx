@@ -489,7 +489,7 @@ function handleCreateIssue(issue: Issue) {
 <IssueForm onCreateIssue={handleCreateIssue} />
 ```
 
-ให้เก็บ state สำหรับ filter, `handleUpdateStatus`, `handleCloseIssue` และ `<IssueList />` ไว้ตามเดิม เพราะไม่ได้เกี่ยวกับ error นี้
+ให้เก็บ `handleUpdateStatus`, `handleCloseIssue` และ `<IssueList />` ไว้ตามเดิม เพราะไม่ได้เกี่ยวกับ error นี้
 
 แม้หน้า `/issues` จะไม่ได้เรียก `IssueBoard` แล้ว TypeScript ยังตรวจไฟล์ที่อยู่ใน project จึงต้องแก้ reference เก่านี้ให้ถูกต้อง
 
