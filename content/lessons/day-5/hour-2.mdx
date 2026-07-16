@@ -77,8 +77,6 @@ admin@example.com  role ADMIN
 - อ่าน user ฝั่ง server
 - protected page
 
-### Key Message
-
 วันนี้เราไม่ทำ Google OAuth และไม่ทำ register flow เป็น core เพื่อให้เวลาอยู่กับ auth flow ที่จำเป็นจริง ๆ
 
 ---
@@ -100,8 +98,6 @@ admin@example.com
 - ต้องจัดการ email confirmation
 - ผู้เรียนอาจติดปัญหา inbox/spam
 - เป้าหมายวันนี้คือ login, session, role และ protected page
-
-### Key Message
 
 ระบบจริงควรมี register/invite flow ที่เหมาะสม แต่สำหรับ bootcamp ให้ใช้ prepared accounts เพื่อควบคุมเวลา
 
@@ -243,8 +239,6 @@ export async function signInAction(formData: FormData) {
 }
 ```
 
-### Key Message
-
 Login action อยู่ฝั่ง server และ Supabase จะ set session cookie ผ่าน SSR client ที่ตั้งไว้ในชั่วโมงแรก
 
 ---
@@ -323,8 +317,6 @@ export async function requireUser() {
 }
 ```
 
-### Key Message
-
 ทุกหน้าหรือ action ที่ต้อง login ต้องตรวจฝั่ง server ไม่ใช่ตรวจแค่ใน UI
 
 ---
@@ -357,8 +349,6 @@ export default async function NewIssuePage() {
   );
 }
 ```
-
-### Key Message
 
 Protected page ต้องตรวจฝั่ง server ไม่ใช่ซ่อน link อย่างเดียว
 

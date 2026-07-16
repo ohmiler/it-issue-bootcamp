@@ -12,26 +12,22 @@ source: "day-5-hour-1-auth-flow-and-supabase-ssr.md"
 
 ### เป้าหมายของชั่วโมงนี้
 
-หลังจบชั่วโมงแรกของ Day 5 ผู้เรียนควรสามารถ:
+หลังจบชั่วโมงนี้ ผู้เรียนจะสามารถ:
 
 1. อธิบายความต่างระหว่าง authentication และ authorization ได้
-2. เข้าใจ login/session/cookie/JWT ในระดับ workflow
-3. เข้าใจว่าทำไม Next.js App Router ต้องใช้ cookie-based auth สำหรับ SSR
-4. ติดตั้งและตั้งค่า `@supabase/ssr` ได้
-5. สร้าง Supabase browser client และ server client ได้
-6. เพิ่ม proxy สำหรับ refresh auth session ได้
-7. เข้าใจว่า Day 5 จะเปลี่ยนระบบจาก demo-public CRUD เป็น authenticated CRUD
+2. อธิบายหน้าที่ของ session, cookie และ token ใน auth flow ได้
+3. สร้าง Supabase client สำหรับ browser และ server ได้
+4. เพิ่ม Proxy สำหรับดูแล session cookie ได้
+5. ปรับ database query เดิมให้ใช้ SSR-aware client ได้
 
 ### ไฟล์ที่ใช้ในชั่วโมงนี้
 
-ติดตั้ง package ที่ project root
-
-สร้างหรือแก้ไฟล์:
+รันคำสั่งและสร้างหรือแก้ไฟล์เหล่านี้ที่ project root:
 
 ```text
-src/lib/supabase/client.ts
-src/lib/supabase/server.ts
-src/lib/supabase/proxy.ts
+lib/supabase/client.ts
+lib/supabase/server.ts
+lib/supabase/proxy.ts
 proxy.ts
 .env.local
 .env.example
@@ -43,235 +39,202 @@ proxy.ts
 
 | เวลา | หัวข้อ | รูปแบบ |
 |---|---|---|
-| 0-10 นาที | Recap Day 4 และปัญหา demo policy | Explain |
-| 10-25 นาที | Authentication flow | Diagram |
-| 25-35 นาที | Supabase SSR Auth setup | Live coding |
-| 35-50 นาที | สร้าง browser/server client และ proxy | Live coding |
-| 50-60 นาที | Recap และตรวจรายการสำคัญ | สรุป |
+| 0-10 นาที | ปัญหาจาก demo policy | อธิบาย |
+| 10-20 นาที | Authentication, authorization และ session | อธิบายจากภาพ |
+| 20-45 นาที | สร้าง browser client, server client และ Proxy | Live coding |
+| 45-55 นาที | ปรับ query เดิมจาก Day 4 | Live coding |
+| 55-60 นาที | ทดสอบและสรุป | ตรวจผล |
 
 ---
 
-## Slide 1: Recap จาก Day 4
+## Slide 1: จาก Public Demo สู่ระบบที่รู้จักผู้ใช้
 
-### Day 4 เราทำอะไรได้แล้ว
+### สิ่งที่มีหลังจบ Day 4
 
-- CRUD กับ Supabase database
-- Server Actions สำหรับ create และ update status
-- Deploy ไป Vercel
-- มี production URL
+- อ่านและสร้าง issue จาก Supabase
+- เปลี่ยน status ผ่าน Server Action
+- deploy แอปไป Vercel
 
-### แต่ยังมีปัญหาใหญ่
+### ปัญหาที่ยังเหลือ
 
-Day 4 ใช้ demo policy:
+Day 4 ยังเปิด demo policy ให้ผู้ใช้ที่ไม่ login อ่านและแก้ข้อมูลได้:
 
 ```text
 anon can select/insert/update
 ```
 
-### ทำไมไม่ปลอดภัย
+Day 5 จะเพิ่มคำตอบให้ระบบ 2 เรื่อง:
 
-ใครก็ตามที่เรียก API ได้ อาจอ่านหรือแก้ข้อมูลได้
-
-### Key Message
-
-Day 5 คือวันที่เราทำให้ระบบรู้ว่า “ใครคือผู้ใช้” และ “ผู้ใช้นี้มีสิทธิ์ทำอะไร”
+1. คนที่กำลังใช้งานคือใคร
+2. คนนี้ได้รับอนุญาตให้ทำอะไร
 
 ---
 
-## Slide 2: Authentication vs Authorization
+## Slide 2: รู้จัก Authentication และ Authorization
 
-### Authentication
+สองคำนี้มักใช้คู่กัน แต่ทำหน้าที่คนละขั้น
 
-การตรวจสอบว่า user คือใคร
+### Authentication: ผู้ใช้คือใคร
 
-ตัวอย่าง:
+เป็นขั้นตอนตรวจสอบตัวตน เช่น ตรวจ email และ password ตอน login
 
 ```text
-Login ด้วย email/password
+Login สำเร็จ → ระบบรู้ว่าเป็น user คนไหน
 ```
 
-### Authorization
+### Authorization: ผู้ใช้ทำอะไรได้
 
-การตรวจสอบว่า user มีสิทธิ์ทำอะไร
-
-ตัวอย่าง:
+หลังจากรู้แล้วว่าเป็นใคร ระบบจะตรวจต่อว่า user คนนั้นมีสิทธิ์ทำอะไร
 
 ```text
 USER สร้าง issue ได้
 ADMIN เปลี่ยน status ได้
 ```
 
-### Key Message
-
-Login สำเร็จไม่ได้แปลว่าทำได้ทุกอย่าง ต้องมี authorization ต่อเสมอ
+สรุปคือ Authentication ตรวจตัวตนก่อน ส่วน Authorization ตรวจสิทธิ์หลังจากนั้น
 
 ---
 
-## Slide 3: Auth Flow แบบภาพรวม
+## Slide 3: Auth Flow ทำงานอย่างไร
 
-```text
-User
-  |
-  v
-Login Page
-  |
-  v
-Supabase Auth
-  |
-  v
-Session Cookie
-  |
-  v
-Next.js Server Component / Server Action
-  |
-  v
-RLS Policy
-  |
-  v
-Database
-```
+### 1. ผู้ใช้ Login
 
-### Key Message
+หน้า Login ส่ง email และ password ไปให้ Supabase Auth ตรวจสอบ
 
-Auth ไม่ได้อยู่แค่หน้า login แต่เกี่ยวข้องกับ server action และ database policy ด้วย
+### 2. ระบบสร้าง Session
+
+ถ้าข้อมูลถูกต้อง Supabase จะสร้าง session และเก็บ token ไว้ใน cookie
+
+### 3. ผู้ใช้เปิดหน้าหรือสั่งทำงาน
+
+Browser ส่ง cookie มากับ request ทำให้ Server Component และ Server Action รู้ว่าเป็น user คนไหน
+
+### 4. RLS ตรวจสิทธิ์ก่อนเข้าถึงข้อมูล
+
+Supabase ใช้ตัวตนของ user ตรวจ RLS Policy ก่อนอนุญาตให้อ่านหรือแก้ database
+
+Auth จึงไม่ได้จบแค่หน้า Login แต่ทำงานต่อไปจนถึงชั้น database
 
 ---
 
-## Slide 4: Session คืออะไร
+## Slide 4: รู้จัก Session, Token และ Cookie
 
-### Session
+### Session: ระบบจำว่า Login แล้ว
 
-ข้อมูลที่บอกว่าผู้ใช้ login แล้ว
+หลังจาก login สำเร็จ ผู้ใช้ไม่ควรต้องกรอก password ใหม่ทุกครั้งที่เปิดหน้า ระบบจึงสร้าง session เพื่อจำสถานะการ login
 
-ใน Supabase Auth จะเกี่ยวข้องกับ:
+### Token: ข้อมูลสำหรับยืนยันตัวตน
 
-- access token
-- refresh token
-- cookie สำหรับ SSR
-- user id
-- email
+- `access token` ใช้ยืนยันตัวตนกับ request ปัจจุบัน
+- `refresh token` ใช้ขอ access token ใหม่เมื่อชุดเดิมหมดอายุ
 
-### ทำไมต้อง cookie
+### Cookie: ส่ง Token ไปกับ Request
 
-เพราะ Server Component และ Server Action ต้องรู้ว่า request นี้มาจาก user คนไหน
+Browser ส่ง cookie มาให้ Next.js อัตโนมัติ ทำให้ Server Component และ Server Action รู้ว่า request นี้มาจาก user คนไหน
 
----
-
-## Slide 5: ทำไมต้องใช้ `@supabase/ssr`
-
-### ปัญหา
-
-ถ้าเก็บ session เฉพาะใน localStorage ฝั่ง browser:
-
-```text
-Server Component อ่าน session ไม่ได้
-Server Action ไม่รู้ว่า user เป็นใคร
-RLS ใช้ auth.uid() ไม่ได้ตามที่คาด
-```
-
-### `@supabase/ssr` ช่วยอะไร
-
-- เก็บ session ใน cookies
-- สร้าง browser client
-- สร้าง server client
-- refresh session ผ่าน proxy
-
-### Key Message
-
-ถ้าใช้ Next.js App Router + Supabase Auth ควรตั้งค่า SSR auth ให้ถูกตั้งแต่ต้น
+สรุปคือ session บอกสถานะการ login, token ใช้ยืนยันตัวตน และ cookie ช่วยส่ง token ระหว่าง browser กับ server
 
 ---
 
-## Slide 6: ติดตั้ง Package
+## Slide 5: รู้จัก `@supabase/ssr`
 
-### Run in terminal at project root
+`@supabase/ssr` คือ package ที่ช่วยให้ Supabase Auth ทำงานร่วมกับเว็บที่ render ทั้งฝั่ง browser และ server เช่น Next.js App Router
+
+### ทำไมเราต้องใช้
+
+ถ้าเก็บ session ไว้เฉพาะใน `localStorage` ฝั่ง browser จะรู้ว่าใคร login แต่ Server Component และ Server Action จะอ่าน session นั้นไม่ได้
+
+`@supabase/ssr` จึงย้ายการจัดการ session มาใช้ cookies ทำให้ browser และ server อ่านข้อมูลการ login ชุดเดียวกันได้
+
+### Package นี้ช่วยอะไร
+
+- สร้าง browser client สำหรับ Client Component
+- สร้าง server client สำหรับ Server Component และ Server Action
+- ทำงานร่วมกับ Proxy เพื่อดูแล token ให้พร้อมใช้งาน
+
+ผลลัพธ์คือไม่ว่า code จะทำงานฝั่งไหน ระบบก็รู้ว่า request มาจาก user คนใด
+
+---
+
+## Slide 6: เตรียมโปรเจกต์สำหรับ Supabase SSR
+
+ก่อนสร้าง Supabase client ให้เตรียมโปรเจกต์ 2 เรื่อง
+
+### 1. ติดตั้ง Package
+
+รันคำสั่งนี้ที่ project root:
 
 ```bash
-npm install @supabase/supabase-js @supabase/ssr
+npm install @supabase/ssr
 ```
 
-### หมายเหตุ
+โปรเจกต์มี `@supabase/supabase-js` อยู่แล้วจาก Day 4 จึงติดตั้งเฉพาะ `@supabase/ssr` ที่เพิ่มเข้ามาในชั่วโมงนี้
 
-Day 4 อาจติดตั้ง `@supabase/supabase-js` ไปแล้ว แต่รันคำสั่งนี้ซ้ำได้เพื่อเพิ่ม `@supabase/ssr`
+### 2. ตรวจ Environment Variables
 
----
-
-## Slide 7: Environment Variables
-
-### File
-
-```text
-.env.local
-```
-
-### ตำแหน่งที่วาง
-
-ตรวจไฟล์ `.env.local` ที่ project root ระดับเดียวกับ `package.json`; ถ้ามีจาก Day 4 แล้วให้แก้ค่าเดิม ไม่ต้องสร้างซ้ำ
-
-### ต้องมี
+เปิด `.env.local` จาก Day 4 แล้วตรวจว่ามีสองค่านี้:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 ```
 
-### `.env.example`
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-```
-
-### Key Message
-
-Auth และ database ใช้ project URL/key ชุดเดียวกัน แต่ห้ามใส่ secret ลง GitHub
+ใช้ URL และ publishable key ชุดเดิม ไม่ต้องสร้าง Supabase project หรือ key ใหม่ จากนั้น restart dev server หนึ่งครั้ง
 
 ---
 
-## Slide 8: Browser Client
+## Slide 7: รู้จัก Supabase Client สองแบบ
 
-### File
+Next.js มี code ที่ทำงานทั้งใน browser และ server เราจึงต้องสร้าง Supabase client แยกกันสองแบบ
 
-```text
-src/lib/supabase/client.ts
-```
+### Browser Client
 
-### ตำแหน่งที่วาง
+ใช้ใน Client Component และอ่าน session จาก cookies ฝั่ง browser
 
-สร้างไฟล์ใหม่ `src/lib/supabase/client.ts` แล้วใส่ code นี้เป็นเนื้อหาทั้งไฟล์ ใช้สำหรับ client-side auth เท่านั้น
+ไฟล์: `lib/supabase/client.ts`
 
-### Code
+### Server Client
+
+ใช้ใน Server Component, Server Action และ Route Handler โดยอ่าน session จาก cookies ของ request
+
+ไฟล์: `lib/supabase/server.ts`
+
+หลักจำง่าย ๆ คือ ดูว่า code ทำงานฝั่งไหน แล้วเลือก client ของฝั่งนั้น
+
+---
+
+## Slide 8: สร้าง Browser Client
+
+### ไฟล์ใหม่: `lib/supabase/client.ts`
+
+สร้างไฟล์ใหม่และใช้ code นี้เป็นเนื้อหาทั้งไฟล์:
 
 ```ts
 import { createBrowserClient } from "@supabase/ssr";
 
 export function createClient() {
   return createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
   );
 }
 ```
 
-### ใช้เมื่อไร
+### อ่านโค้ดนี้
 
-ใช้ใน Client Component ถ้าต้องต่อยอด auth ฝั่ง browser ในอนาคต
+- `createBrowserClient` มาจาก package `@supabase/ssr`
+- environment variables สองค่าใช้เชื่อมต่อ Supabase project เดิม
+- function `createClient()` ทำให้ Client Component เรียกสร้าง client ได้เมื่อต้องการ
+
+ไฟล์นี้ใช้เฉพาะ code ที่ทำงานใน browser เท่านั้น
 
 ---
 
-## Slide 9: Server Client
+## Slide 9: สร้าง Server Client ที่อ่าน Cookie ได้
 
-### File
+### แทนทั้งไฟล์: `lib/supabase/server.ts`
 
-```text
-src/lib/supabase/server.ts
-```
-
-### ตำแหน่งที่แก้
-
-ใช้ code นี้แทนเนื้อหาเดิมของ `src/lib/supabase/server.ts` จาก Day 4 เพราะ Day 5 ต้องใช้ SSR-aware client ที่อ่าน session cookie ได้
-
-### Code
+Server client เดิมจาก Day 4 เชื่อม database ได้ แต่ยังไม่รู้ว่า user คนไหนส่ง request มา จึงต้องแทนด้วย code นี้:
 
 ```ts
 import { createServerClient } from "@supabase/ssr";
@@ -281,160 +244,53 @@ export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-  {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet, _headers) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Server Component เขียน cookie ไม่ได้ในบางจังหวะ
+            // Proxy จะเป็นผู้ refresh และบันทึก cookie แทน
+          }
+        },
       },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        } catch {
-          // Server Components cannot always set cookies.
-        }
-      },
-    },
-  }
+    }
   );
 }
 ```
 
-### ใช้เมื่อไร
+### ส่วนสำคัญ
 
-ใช้ใน Server Component, Server Action, Route Handler
+- `cookies()` อ่าน cookies ของ request ปัจจุบัน
+- `getAll()` ส่ง cookies ที่มีอยู่ให้ Supabase อ่าน session
+- `setAll()` บันทึก token ชุดใหม่เมื่อ session ถูก refresh
+- `catch` ปล่อยผ่านกรณีที่ Server Component เขียน cookie ไม่ได้ เพราะ Proxy ดูแลงานนี้แทน
 
----
+Server Component, Server Action และ Route Handler จะใช้ client จากไฟล์นี้
 
-## Slide 10: Proxy สำหรับ Refresh Session
-
-### File
-
-```text
-src/lib/supabase/proxy.ts
-```
-
-### ตำแหน่งที่วาง
-
-สร้างไฟล์ใหม่ `src/lib/supabase/proxy.ts` แล้วใส่ code นี้เป็นเนื้อหาทั้งไฟล์
-
-### Code
-
-```ts
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
-
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
-
-  const supabase = createServerClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-  {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value)
-        );
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options)
-        );
-      },
-    },
-  }
-  );
-
-  await supabase.auth.getClaims();
-
-  return response;
-}
-```
+หลังแทนไฟล์ อาจเห็น error ว่า `createSupabaseServerClient` ไม่มีอยู่แล้ว เพราะ `lib/issues.ts` ยัง import ชื่อเดิมอยู่ เป็น error ที่คาดไว้และจะแก้ทันทีใน Slide 10
 
 ---
 
-## Slide 11: Root Proxy File
+## Slide 10: แก้ Error หลังเปลี่ยน Server Client
 
-### File
+### แก้บางส่วน: `lib/issues.ts`
 
-```text
-proxy.ts
-```
-
-### ตำแหน่งที่วาง
-
-สร้างไฟล์ `proxy.ts` ที่ project root ระดับเดียวกับ `package.json` และ `next.config.*` ไม่ใช่ใน `src/app`
-
-### Code
-
-```ts
-import { type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/proxy";
-
-export async function proxy(request: NextRequest) {
-  return await updateSession(request);
-}
-
-export const config = {
-  matcher: [
-  "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
-};
-```
-
-### Key Message
-
-Proxy ช่วยให้ session cookie สดใหม่ก่อน Server Component และ Server Action อ่าน user
-
----
-
-## Slide 12: ปรับ Supabase Client จาก Day 4
-
-### Day 4
-
-เราใช้ client แบบง่าย:
-
-```text
-src/lib/supabase/server.ts
-createSupabaseServerClient()
-```
-
-### Day 5
-
-เราจะใช้ SSR-aware client:
-
-```text
-src/lib/supabase/server.ts
-createClient()
-```
-
-### สิ่งที่ต้องทำ
-
-ไฟล์ที่ import `createSupabaseServerClient` ต้องเปลี่ยนมาใช้ `createClient`
-
----
-
-## Slide 13: ตัวอย่างปรับ `src/lib/issues.ts`
-
-### File
-
-```text
-src/lib/issues.ts
-```
-
-### ตำแหน่งที่แก้
-
-แก้ import ด้านบนของไฟล์จาก `createSupabaseServerClient` เป็น `createClient` แล้วในทุก function ที่เคยมี `const supabase = createSupabaseServerClient();` ให้เปลี่ยนเป็น `const supabase = await createClient();`
+Error เกิดจาก `server.ts` เปลี่ยนชื่อ export แล้ว แต่ `lib/issues.ts` ยังเรียกชื่อเดิม
 
 ### ก่อน
 
 ```ts
+import { createSupabaseServerClient } from "./supabase/server";
+
 const supabase = createSupabaseServerClient();
 ```
 
@@ -446,135 +302,190 @@ import { createClient } from "@/lib/supabase/server";
 const supabase = await createClient();
 ```
 
-### Key Message
+### ถ้า `.from()` ขึ้น Error
 
-ตั้งแต่ Day 5 query database ควรใช้ client ที่รู้จัก session ของผู้ใช้
+ข้อความ `Property 'from' does not exist on type 'Promise'` หมายความว่าลืมใส่ `await` หน้า `createClient()`
 
----
-
-## Slide 14: Auth Scope สำหรับ Bootcamp
-
-### Core สำหรับนักศึกษา
-
-ใช้ Supabase Auth แบบ email/password และ account ที่ผู้สอนเตรียมไว้ เพื่อให้ทุกคนเริ่มใช้งานได้ง่าย
-
-### ไม่ทำเป็น core
-
-ไม่ทำ Google OAuth และ register flow ในคอร์สหลัก
-
-เหตุผล:
-
-- ต้องตั้งค่าเพิ่ม
-- ใช้เวลามากกว่าการทำ auth concept
-- เสี่ยงหลุดจากเป้าหมายเรื่อง login, session, role และ RLS
-
-### Key Message
-
-เรียน flow auth ให้เข้าใจก่อน แล้วค่อยต่อยอด register/OAuth หลัง bootcamp ได้
+แก้ทั้ง `getIssues()`, `getIssueById()`, `createIssue()` และ `updateIssueStatus()` ทุก function ต้องมี `await createClient()` แล้วตรวจว่า error หายก่อนทำขั้นต่อไป
 
 ---
 
-## Slide 15: Supabase SSR Setup
+## Slide 11: รู้จัก Next.js Proxy
 
-### ขั้นตอน
+Proxy คือ function ที่ทำงานหลังจาก request เข้ามา แต่ก่อน Next.js เปิดหน้าหรือเรียก Server Action
 
-1. ติดตั้ง `@supabase/ssr`
-2. สร้าง `src/lib/supabase/client.ts`
-3. ปรับ `src/lib/supabase/server.ts`
-4. สร้าง `src/lib/supabase/proxy.ts`
-5. สร้าง `proxy.ts`
-6. ปรับ `src/lib/issues.ts` ให้ใช้ `await createClient()`
-7. restart dev server
-8. เปิด `/issues` ตรวจว่ายังอ่านข้อมูลได้
+### ทำไม Auth ต้องใช้ Proxy
+
+Server Component อ่าน cookie ได้ แต่เขียน cookie ใหม่ไม่ได้ในบางจังหวะ Proxy จึงเข้ามาช่วยดูแล session ก่อน request ไปถึงหน้าเว็บ
+
+### Proxy ทำอะไรบ้าง
+
+1. อ่าน token จาก cookies ของ request
+2. ตรวจ token และ refresh เมื่อจำเป็น
+3. ส่ง cookies ชุดใหม่ให้ทั้ง server และ browser
+4. ปล่อยให้ request ทำงานต่อ
+
+Proxy ดูแล session เท่านั้น ส่วนการตรวจว่าผู้ใช้มีสิทธิ์เปิดหน้าหรือทำ action หรือไม่ ต้องตรวจในหน้าและ Server Action อีกครั้ง
 
 ---
 
-## Slide 16: โค้ดสุดท้ายของ Supabase SSR Setup
+## Slide 12: สร้าง Helper สำหรับดูแล Session
 
-### ไฟล์ที่ควรมีหลังจบชั่วโมงนี้
+### ไฟล์ใหม่: `lib/supabase/proxy.ts`
 
-```text
-src/lib/supabase/client.ts
-src/lib/supabase/server.ts
-src/lib/supabase/proxy.ts
-proxy.ts
-```
+ไฟล์นี้รวม logic ที่ Proxy จะเรียกใช้กับทุก request โดย function `updateSession()` รับ request เข้ามา ตรวจ session แล้วส่ง response กลับไป
 
-### `src/lib/supabase/server.ts`
-
-ทุก Server Component และ Server Action ควรใช้ client ตัวนี้:
+เริ่มด้วยโครงไฟล์นี้ก่อน:
 
 ```ts
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { NextResponse, type NextRequest } from "next/server";
 
-export async function createClient() {
-  const cookieStore = await cookies();
+export async function updateSession(request: NextRequest) {
+  let response = NextResponse.next({ request });
 
-  return createServerClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-  {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet, headers) {
+          // Slide 13 จะเติมส่วนส่ง cookies ชุดใหม่
+        },
       },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        } catch {}
-      },
-    },
-  }
+    }
   );
+
+  await supabase.auth.getClaims();
+
+  return response;
 }
 ```
 
-### `src/lib/issues.ts`
+ตอนนี้ helper อ่าน cookies ด้วย `getAll()` และตรวจ token ด้วย `getClaims()` แล้ว แต่ยังไม่ได้เขียน cookies ชุดใหม่กลับไป ขั้นนั้นจะเติมใน Slide 13
 
-function ที่ query Supabase ต้องเปลี่ยนมาใช้:
+---
+
+## Slide 13: ส่ง Cookies ชุดใหม่ให้ Server และ Browser
+
+### แก้บางส่วน: `lib/supabase/proxy.ts`
+
+เมื่อ Supabase refresh token จะส่งรายการ `cookiesToSet` เข้ามา เราต้องอัปเดต cookie ทั้งใน request และ response เพื่อให้ server กับ browser ใช้ session ชุดเดียวกัน
+
+แทน comment `// Slide 13 จะเติมส่วนส่ง cookies ชุดใหม่` ด้วย code นี้:
 
 ```ts
-import { createClient } from "@/lib/supabase/server";
+cookiesToSet.forEach(({ name, value }) =>
+  request.cookies.set(name, value)
+);
 
-const supabase = await createClient();
+response = NextResponse.next({ request });
+
+cookiesToSet.forEach(({ name, value, options }) =>
+  response.cookies.set(name, value, options)
+);
+
+Object.entries(headers).forEach(([key, value]) =>
+  response.headers.set(key, value)
+);
 ```
 
----
+### อ่านตามลำดับ
 
-## Slide 17: Common Mistakes
-
-### ข้อผิดพลาดที่พบบ่อย
-
-- ลืมติดตั้ง `@supabase/ssr`
-- ใช้ server client ใน Client Component
-- ใช้ browser client ใน Server Action
-- ลืม `await createClient()`
-- proxy matcher เขียนผิด
-- env var ไม่ตรงกับ key ใหม่ของ Supabase
-- คิดว่า login แล้วไม่ต้องมี RLS
+1. `request.cookies` ทำให้ code ฝั่ง server เห็น token ชุดใหม่ทันที
+2. `NextResponse.next({ request })` สร้าง response จาก request ที่อัปเดตแล้ว
+3. `response.cookies` ส่ง token ชุดใหม่กลับไปเก็บใน browser
+4. `response.headers` ป้องกัน response ที่มี session ถูก cache แล้วส่งผิด user
 
 ---
 
-## Slide 18: Recap ชั่วโมงแรกของ Day 5
+## Slide 14: เปิดใช้งาน Helper ด้วย Root Proxy
 
-### สิ่งที่ได้เรียน
+ไฟล์ `lib/supabase/proxy.ts` เป็นเพียง helper และ Next.js จะยังไม่เรียกใช้เอง เราต้องสร้าง `proxy.ts` เป็น entry point ที่ project root
 
-- Authentication คือรู้ว่า user คือใคร
-- Authorization คือรู้ว่า user ทำอะไรได้
-- Next.js App Router ควรใช้ cookie-based auth สำหรับ SSR
-- Supabase Auth ใช้ร่วมกับ `@supabase/ssr`
-- ต้องมี browser client, server client และ proxy
-- Day 5 จะค่อย ๆ เปลี่ยน demo-public CRUD เป็น authenticated CRUD
+### ไฟล์ใหม่: `proxy.ts`
+
+สร้างไฟล์ระดับเดียวกับ `app/` และ `package.json` แล้วใช้ code นี้เป็นเนื้อหาทั้งไฟล์:
+
+```ts
+import { type NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/proxy";
+
+export async function proxy(request: NextRequest) {
+  return await updateSession(request);
+}
+
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};
+```
+
+- function `proxy()` ส่ง request ต่อให้ `updateSession()` ที่สร้างไว้
+- `matcher` ให้ Proxy ทำงานกับหน้าเว็บ แต่ข้ามไฟล์ static และรูปภาพที่ไม่ใช้ session
+
+ไม่ต้องจำ regular expression ใน `matcher` ให้คัดลอกตามตัวอย่างและเข้าใจหน้าที่โดยรวมก่อน
+
+---
+
+## Slide 15: ตรวจว่า Setup สำเร็จ
+
+### 1. ตรวจไฟล์
+
+```text
+project-root/
+├─ lib/
+│  └─ supabase/
+│     ├─ client.ts
+│     ├─ server.ts
+│     └─ proxy.ts
+├─ proxy.ts
+└─ package.json
+```
+
+### 2. ทดสอบระบบเดิม
+
+1. restart dev server
+2. เปิด `/issues` และตรวจว่ารายการยังแสดง
+3. เปิด `/issues/[id]` และตรวจว่ารายละเอียดยังแสดง
+4. refresh หน้าและตรวจว่าไม่มี error ใน terminal
+
+ผลลัพธ์ที่ต้องการคือระบบจาก Day 4 ยังทำงานเหมือนเดิม แต่เปลี่ยนมาใช้ client ที่พร้อมอ่าน session แล้ว
+
+---
+
+## Slide 16: Error ที่อาจเจอและวิธีแก้
+
+### อ่านข้อความ Error ก่อนแก้
+
+- `Cannot find module '@supabase/ssr'` → รัน `npm install @supabase/ssr`
+- `Export createSupabaseServerClient doesn't exist` → เปลี่ยน import เป็น `createClient`
+- `Property 'from' does not exist on type 'Promise'` → เติม `await createClient()`
+- `Supabase environment variables are missing` → ตรวจ `.env.local` แล้ว restart dev server
+- `Failed to fetch issues` → ตรวจ env และ demo policy จาก Day 4
+
+แก้ error แรกให้หายก่อน แล้วจึงตรวจ error ถัดไป เพราะ error หลังอาจเกิดตามมาจากสาเหตุเดียวกัน
+
+---
+
+## Slide 17: สิ่งที่ได้หลังจบ Hour 1
+
+### ตอนนี้โปรเจกต์มี
+
+- Browser Client สำหรับ code ฝั่ง browser
+- Server Client ที่อ่าน session จาก request cookies
+- Proxy ที่ตรวจและ refresh token เมื่อจำเป็น
+- database query ที่ใช้ `await createClient()`
+
+Hour 1 ยังไม่มีหน้า login แต่โครงสร้างสำหรับเก็บและอ่าน session พร้อมแล้ว
 
 ### ต่อไป
 
-เราจะสร้าง login/logout และ protect route สำคัญ เช่น `/issues/new`
-
----
-
+Hour 2 จะใช้ account ที่ผู้สอนเตรียมไว้เพื่อสร้าง login, logout และป้องกันหน้า `/issues/new`
 
 ---
 

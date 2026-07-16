@@ -16,7 +16,7 @@
 | Day 2 | รอตรวจใหม่ | ตรวจ file structure, routing และ component flow |
 | Day 3 | รอตรวจใหม่ | ตัด status filter ออกแล้ว แต่จะตรวจทั้งวันอีกครั้งหลัง Day 5 |
 | Day 4 | ปรับและตรวจแล้ว | Supabase, Read, Create, Update และ Deploy ใช้ flow ปัจจุบัน |
-| Day 5 | กำลังปรับ | ตรวจ Authentication, Authorization, RLS และ security ให้ต่อจาก Day 4 |
+| Day 5 | กำลังปรับ | Hour 1 ปรับและตรวจแล้ว; รอบถัดไปเริ่ม Hour 2 แล้วตรวจ Authorization, RLS และ security ต่อ |
 
 ## สถานะ Project เมื่อจบ Day 4
 

@@ -66,8 +66,6 @@ src/app/admin/issues/page.tsx
 ใครมีสิทธิ์ทำอะไร
 ```
 
-### Key Message
-
 Authentication ตอบว่า user คือใคร ส่วน authorization ตอบว่า user ทำอะไรได้
 
 ---
@@ -92,8 +90,6 @@ ADMIN
 - ดู issue ทั้งหมด
 - update status
 - ปิดงานด้วย status `DONE`
-
-### Key Message
 
 คอร์สนี้ไม่ทำ admin comment และ hard delete เป็น core เพื่อให้ระบบเล็กพอดีกับเวลา
 
@@ -147,8 +143,6 @@ create table if not exists public.profiles (
 );
 ```
 
-### Key Message
-
 `auth.users` เก็บตัวตน ส่วน `profiles` เก็บข้อมูลของ app เช่น role
 
 ---
@@ -182,8 +176,6 @@ set role = 'ADMIN'
 where email = 'admin@example.com';
 ```
 
-### Key Message
-
 ในห้องเรียนให้ใช้ account ที่เตรียมไว้ เช่น `user@example.com` และ `admin@example.com` เพื่อไม่ต้องเสียเวลาทำ register flow
 
 ---
@@ -216,8 +208,6 @@ to authenticated
 using (id = (select auth.uid()));
 ```
 
-### Key Message
-
 `profiles` มี role ของผู้ใช้ จึงไม่ควรปล่อยให้ทุกคนอ่าน role ของทุกคนได้
 
 ---
@@ -241,8 +231,6 @@ drop policy if exists "demo_select_issues" on public.issues;
 drop policy if exists "demo_insert_issues" on public.issues;
 drop policy if exists "demo_update_issues" on public.issues;
 ```
-
-### Key Message
 
 ถ้า demo policy ยังอยู่ policy ใหม่อาจไม่ได้ช่วยป้องกันอะไร
 
@@ -309,8 +297,6 @@ using (
 );
 ```
 
-### Key Message
-
 USER เห็นของตัวเอง ส่วน ADMIN เห็นทั้งหมด
 
 ---
@@ -336,8 +322,6 @@ with check (
   created_by = (select auth.uid())
 );
 ```
-
-### Key Message
 
 เวลาสร้าง issue ต้องบังคับให้ `created_by` ตรงกับ user ที่ login
 
@@ -365,8 +349,6 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 ```
-
-### Key Message
 
 คอร์สนี้ให้ admin update status เป็น core ส่วน delete จริงเป็น production discussion
 
@@ -542,8 +524,6 @@ export async function updateIssueStatusAction(formData: FormData) {
 }
 ```
 
-### Key Message
-
 Admin action ต้องตรวจทั้งใน server action และ RLS เพื่อ defense in depth
 
 ---
@@ -584,8 +564,6 @@ export default async function AdminIssuesPage() {
   );
 }
 ```
-
-### Key Message
 
 หน้า admin แยกออกมาช่วยให้ผู้เรียนเห็นชัดว่า user page กับ admin page ต่างกันอย่างไร
 
@@ -711,8 +689,6 @@ export default async function AdminIssuesPage() {
 - เปิด `/admin/issues` ได้
 - เห็น issue ทั้งหมด
 - update status ได้
-
-### Key Message
 
 การ test auth ต้อง test มากกว่าหนึ่ง role เสมอ
 
