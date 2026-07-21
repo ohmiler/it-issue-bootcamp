@@ -16,7 +16,7 @@
 | Day 2 | รอตรวจใหม่ | ตรวจ file structure, routing และ component flow |
 | Day 3 | รอตรวจใหม่ | ตัด status filter ออกแล้ว แต่จะตรวจทั้งวันอีกครั้งหลัง Day 5 |
 | Day 4 | ปรับและตรวจแล้ว | Supabase, Read, Create, Update และ Deploy ใช้ flow ปัจจุบัน |
-| Day 5 | กำลังปรับ | Hour 1-2 ปรับแล้ว; Hour 2 ต่อ login/logout, protected page/action และเพิ่ม policy ชั่วคราวสำหรับ `authenticated`; รอบถัดไปตรวจ Hour 3 เรื่อง Authorization, roles และ RLS |
+| Day 5 | กำลังปรับ | Hour 1-3 ปรับแล้ว; Hour 3 เพิ่ม `profiles`, USER/ADMIN, `created_by`, ปิดสิทธิ์ `anon` และใช้ Page guard + Server Action + RLS; รอบถัดไปตรวจ Hour 4 และ final security flow |
 
 ## สถานะ Project เมื่อจบ Day 4
 
