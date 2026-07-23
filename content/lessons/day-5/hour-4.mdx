@@ -8,417 +8,243 @@ source: "day-5-hour-4-security-llm-safe-and-final-demo.md"
 
 # Security, LLM-Safe Coding, and Final Demo
 
-## Day 5 - ชั่วโมงที่ 4: Security, LLM-safe Coding, จุดตรวจ Deploy, and Final Demo
+## Day 5 - ชั่วโมงที่ 4: ตรวจความปลอดภัยและเตรียม Final Demo
 
 ### เป้าหมายของชั่วโมงนี้
 
-หลังจบชั่วโมงสุดท้าย ผู้เรียนควรสามารถ:
+หลังเรียนจบ คุณจะสามารถ:
 
-1. เข้าใจ OWASP Top 10 ที่เกี่ยวข้องกับโปรเจกต์นี้
-2. ตรวจรายการ security ของ Next.js + Supabase app ได้
-3. ใช้ LLM ช่วยเขียน code อย่างมีวิจารณญาณ
-4. ตรวจ deploy settings ก่อนส่งงานได้
-5. นำเสนอ final demo แบบอธิบาย flow ได้
-6. เห็นเส้นทางต่อยอดหลัง bootcamp
+1. อธิบายได้ว่า request เดินทางจากหน้าเว็บไปถึง database อย่างไร
+2. เชื่อมความเสี่ยงจาก OWASP กับ Issue Tracker ได้
+3. ตรวจโค้ดจาก AI ก่อนนำมาใช้จริงได้
+4. ตรวจระบบบน Production ด้วย USER และ ADMIN ได้
+5. สาธิต project พร้อมอธิบายเหตุผลของ code ที่เขียนได้
 
-### ไฟล์ที่ใช้ในชั่วโมงนี้
-
-แก้หรือเพิ่มเอกสาร:
+### สิ่งที่ใช้
 
 ```text
-README.md
-.env.example
-SECURITY_CHECKLIST.md
-```
-
-ตรวจ config:
-
-```text
+โค้ด Issue Tracker ที่ทำเสร็จแล้ว
 Supabase Dashboard
-Vercel Dashboard
-GitHub Repository
+Vercel Dashboard และ Production URL
 ```
 
----
-
-## โครงสร้างเวลา 60 นาที
-
-| เวลา | หัวข้อ | รูปแบบ |
-|---|---|---|
-| 0-10 นาที | Recap ระบบที่สร้างมา | Explain |
-| 10-25 นาที | OWASP ที่เกี่ยวข้อง | Explain |
-| 25-35 นาที | LLM-safe coding workflow | Discussion |
-| 35-45 นาที | จุดตรวจ deploy/security | ทำทีละขั้นตอน |
-| 45-60 นาที | Final demo และ wrap-up | Demo |
+ชั่วโมงนี้จะไม่เพิ่ม feature ใหม่ แต่จะตรวจว่าระบบที่สร้างมาทำงานครบและปลอดภัยตามขอบเขตของ project
 
 ---
 
-## Slide 1: เราสร้างอะไรมาตลอด 5 วัน
+## Slide 1: ทบทวนสิ่งที่ทำใน Hour 3
 
-### จาก Day 1 ถึง Day 5
+ชั่วโมงที่แล้วเราเพิ่ม **Authorization** เพื่อให้ผู้ใช้แต่ละคนทำสิ่งต่างกันตาม role:
+
+| ส่วนที่เพิ่ม | หน้าที่ |
+|---|---|
+| `profiles` | เก็บ role `USER` และ `ADMIN` |
+| `created_by` | บอกว่า issue เป็นของผู้ใช้คนใด |
+| RLS Policies | ให้ USER เห็นและสร้าง issue ของตัวเอง ส่วน ADMIN เห็นทั้งหมดและเปลี่ยน status ได้ |
+| `requireUser()` | ป้องกันหน้าที่ต้อง Login |
+| `requireAdmin()` | ป้องกันหน้าและ Server Action สำหรับ ADMIN |
+| `canManage` | แสดงเครื่องมือจัดการเฉพาะหน้าที่อนุญาต |
+
+ตอนนี้ระบบจึงไม่ได้รู้แค่ว่า **ใคร Login อยู่** แต่รู้ด้วยว่า **คนนั้นทำอะไรกับข้อมูลใดได้บ้าง**
+
+ใน Hour 4 เราจะนำระบบที่ทำงานแล้วมาตรวจอีกครั้งว่าแต่ละชั้นปลอดภัย ใช้งานบน Production ได้ และพร้อมสำหรับ Final Demo
+
+---
+
+## Slide 2: ระบบทำงานได้ ยังไม่แปลว่าปลอดภัย
+
+ก่อนให้ request ทำงานต่อ ระบบควรตอบคำถามเหล่านี้:
 
 ```text
-Day 1: Static prototype
-Day 2: Next.js app
-Day 3: Tailwind + frontend CRUD prototype
-Day 4: Supabase database + deploy
-Day 5: Auth + RLS + security
+ใครกำลังใช้งาน?          → Authentication
+เขาทำสิ่งนี้ได้หรือไม่?   → Authorization
+ข้อมูลมีรูปแบบถูกต้องไหม? → Validation
+เขาเข้าถึง row นี้ได้ไหม? → RLS
+ถ้าล้มเหลว เรารู้สาเหตุไหม? → Error handling และ Logs
 ```
 
-### ระบบตอนนี้มี
+ตัวอย่าง: USER ไม่เห็นปุ่มเปลี่ยน status ไม่ได้แปลว่าปลอดภัย เพราะผู้ใช้อาจส่ง request เองได้
 
-- Issue form
-- Issue list
-- Issue detail
-- Create/read/update status
-- Supabase database
-- Server Actions
-- Login/logout
-- Role USER/ADMIN
-- RLS policies
-- Vercel deployment
+ระบบจึงต้องตรวจ `requireAdmin()` ใน Server Action และให้ RLS ตรวจสิทธิ์ซ้ำที่ database
 
 ---
 
-## Slide 2: Security Mindset
+## Slide 3: รู้จัก OWASP ผ่าน Issue Tracker
 
-### คำถามสำคัญ
+OWASP Top 10 คือรายการความเสี่ยงสำคัญของเว็บ ใช้เป็นแนวทางช่วยตั้งคำถามกับระบบ ไม่ใช่สิ่งที่ต้องท่องจำทุกข้อ
 
-1. ใครกำลังใช้งานระบบ
-2. เขามีสิทธิ์ทำ action นี้ไหม
-3. ข้อมูลที่ส่งเข้ามาถูกต้องไหม
-4. database ป้องกันซ้ำหรือไม่
-5. secret รั่วหรือเปล่า
-6. ถ้า LLM สร้าง code นี้มา เราเข้าใจมันไหม
+| ความเสี่ยง | ถ้าเกิดใน Issue Tracker จะเป็นอย่างไร |
+|---|---|
+| Broken Access Control | USER เปิดหน้า Admin หรือแก้ issue ของคนอื่นได้ |
+| Security Misconfiguration | ยังมี demo policy หรือเปิดสิทธิ์ `anon` ทิ้งไว้ |
+| Software Supply Chain Failures | ติดตั้ง package ที่ไม่รู้จักหรือล้าสมัย |
+| Injection | นำข้อความจากผู้ใช้ไปต่อเป็น SQL string โดยตรง |
+| Authentication Failures | เชื่อว่า Login แล้วทุกคนเป็น ADMIN |
+| Mishandling of Exceptional Conditions | กลืน error หรือแสดงรายละเอียดระบบบนหน้าเว็บ |
 
-ระบบที่ run ได้ยังไม่เท่ากับระบบที่ปลอดภัย
-
----
-
-## Slide 3: OWASP Top 10 ที่เกี่ยวข้อง
-
-### หัวข้อที่ควรเน้น
-
-- Broken Access Control
-- Injection
-- Identification and Authentication Failures
-- Security Misconfiguration
-- Cryptographic Failures
-- Vulnerable and Outdated Components
-
-ไม่ต้องจำ OWASP ทั้งหมด แต่ต้องรู้ว่าจุดเสี่ยงของระบบตัวเองอยู่ตรงไหน
+เวลา review code ให้ถามว่า “ผู้ใช้ควบคุมค่าอะไรได้ และระบบตรวจค่านั้นที่ชั้นไหน”
 
 ---
 
-## Slide 4: Broken Access Control
+## Slide 4: ทำไมต้องป้องกัน Broken Access Control หลายชั้น
 
-### ตัวอย่างในโปรเจกต์นี้
-
-- user ธรรมดา update status ได้
-- หน้า admin ซ่อนปุ่มแต่ server action ยังเรียกได้
-- RLS policy เปิดกว้างเกินไป
-
-### วิธีป้องกัน
-
-- ตรวจ role ใน server action
-- ใช้ RLS policy
-- แยก USER/ADMIN
-- test ด้วย user หลาย role
-
----
-
-## Slide 5: Injection
-
-### ตัวอย่าง
-
-ผู้ใช้ส่ง input แปลก ๆ เข้ามา เช่น:
+Broken Access Control คือการที่ผู้ใช้ทำสิ่งที่ตัวเองไม่มีสิทธิ์ แม้จะ Login สำเร็จแล้วก็ตาม
 
 ```text
-<script>alert("xss")</script>
+UI            → ซ่อนลิงก์ Admin และปุ่มเปลี่ยน status จาก USER
+Page Guard    → ป้องกันการพิมพ์ /admin/issues โดยตรง
+Server Action → ป้องกัน request ที่สร้างขึ้นเอง
+RLS           → ป้องกัน operation และ row ที่ database
 ```
 
-หรือพยายามส่ง query ที่ไม่ควรส่ง
+### ลองตรวจด้วย USER
 
-### วิธีป้องกัน
+1. เปิด `/admin/issues` โดยตรง → ต้องกลับไป `/issues`
+2. เปิด issue ของคนอื่น → ต้องไม่เห็นข้อมูล
+3. ส่ง update request เอง → Server Action หรือ RLS ต้องปฏิเสธ
 
-- ใช้ Supabase client/parameterized query
-- validate input
-- จำกัด enum
-- ไม่สร้าง SQL จาก string user input เอง
-- escape/encode output ตาม context
+การทดสอบว่า ADMIN ใช้งานได้อย่างเดียวไม่พอ ต้องพิสูจน์ด้วยว่า USER ทำสิ่งที่ไม่ได้รับอนุญาตไม่ได้
 
 ---
 
-## Slide 6: Auth Failures
+## Slide 5: Validation กับการป้องกัน Injection ต่างกันอย่างไร
 
-### ตัวอย่าง
-
-- เชื่อว่า login แล้วเป็น admin ทุกคน
-- session หมดอายุแต่ยังทำ action ได้
-- redirect URL ตั้งผิด
-- prepared account ตั้ง role ผิด
-
-### วิธีป้องกัน
-
-- ตรวจ user ใน server action
-- ตรวจ role
-- ตั้ง redirect URL เฉพาะ domain ที่ใช้จริงถ้ามี auth redirect flow
-- logout ให้ clear session
-- RLS policy ต้องทำงานแม้ UI พลาด
-
----
-
-## Slide 7: Security Misconfiguration
-
-### ตัวอย่าง
-
-- `.env.local` ถูก commit
-- Vercel env vars ขาด
-- demo RLS policy ยังอยู่
-- Supabase project เปิด public กว้างเกินไป
-- error message เปิดเผยข้อมูลมากเกินไป
-
-### จุดที่ต้องตรวจ
-
-- ลบ demo policy
-- ตรวจ `.gitignore`
-- ตรวจ env vars
-- ตรวจ Supabase Auth URL config
-- ตรวจ Vercel deploy settings
-
----
-
-## Slide 8: LLM-safe Coding
-
-### ใช้ LLM อย่างไรให้ปลอดภัยขึ้น
-
-ให้ LLM ช่วย:
-
-- อธิบาย flow
-- ช่วยเขียน boilerplate
-- review code
-- หา edge cases
-- สรุป docs
-
-อย่าให้ LLM:
-
-- รับ API key หรือ secret
-- ตัดสิน security policy แทนเราโดยไม่ review
-- generate auth code แล้วเอาไปใช้ทันทีโดยไม่เข้าใจ
-
----
-
-## Slide 9: Prompt ที่ดีสำหรับ Security Review
+### Validation ตรวจว่าข้อมูลเหมาะกับระบบหรือไม่
 
 ```text
-ช่วย review server action นี้ในมุม broken access control:
-- action นี้ตรวจ user หรือยัง
-- ตรวจ role หรือยัง
-- RLS policy ที่ควรมีคืออะไร
-- มี field ไหนที่ user ไม่ควรแก้เอง
+title ต้องยาวอย่างน้อย 5 ตัวอักษร
+description ต้องยาวอย่างน้อย 10 ตัวอักษร
+status ต้องเป็น OPEN, IN_PROGRESS หรือ DONE
 ```
+
+### การป้องกัน Injection แยก code ออกจากข้อมูล
+
+- ใช้ Supabase client ส่งค่าผ่าน method เช่น `.eq()` และ `.insert()`
+- อย่านำ input มาต่อเป็น SQL string เอง
+- React แสดงข้อความเป็น text ตามปกติ อย่าใช้ `dangerouslySetInnerHTML` กับข้อมูลจากผู้ใช้โดยไม่จำเป็น
+
+Browser validation ช่วยให้กรอก form ง่ายขึ้น แต่ Server Action ยังต้อง validate ซ้ำ เพราะผู้ใช้ส่ง request โดยไม่ผ่าน form ได้
+
+เมื่อเกิด error ให้เก็บรายละเอียดที่จำเป็นไว้ใน server log และแสดงข้อความที่เข้าใจง่ายบนหน้าเว็บ โดยไม่เปิดเผย password, token หรือ secret
+
+---
+
+## Slide 6: ค่าไหนเปิดเผยได้ และค่าไหนต้องเป็น Secret
 
 ```text
-ช่วยอธิบาย auth flow ของ Supabase + Next.js code นี้ทีละขั้น
-และบอกว่าจุดไหนเกี่ยวกับ cookie, session และ RLS
+NEXT_PUBLIC_SUPABASE_URL             → ใช้ใน browser ได้
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY → ใช้ใน browser ได้
+service_role key                     → ห้ามส่งไป browser
 ```
 
----
+Publishable key บอกว่าแอปกำลังเชื่อม Supabase project ใด แต่ไม่ได้ให้สิทธิ์ข้าม RLS ความปลอดภัยของข้อมูลจึงขึ้นอยู่กับ GRANT และ policies ที่เราเขียน
 
-## Slide 10: จุดตรวจ Deploy
+### ก่อน Push Code
 
-### Vercel
+- `.env.local` ต้องอยู่ใน `.gitignore`
+- `.env.example` มีเฉพาะชื่อ variable และไม่มีค่าจริง
+- ตรวจ `git status` ก่อน commit
+- ห้ามใส่ password, token หรือ service role key ใน README
 
-- build ผ่าน
-- env vars ครบ
-- production URL ถูกต้อง
-- redeploy หลังแก้ env
-
-### Supabase
-
-- Site URL ถูกต้อง
-- Auth settings ถูกต้อง
-- RLS enabled
-- ไม่มี demo policy เหลืออยู่
-- admin role ตั้งถูกคน
-
-### GitHub
-
-- ไม่มี `.env.local`
-- README อัปเดต
-- commit message อ่านรู้เรื่อง
+ติดตั้งเฉพาะ package ที่รู้ว่าใช้ทำอะไร และตรวจชื่อ package จาก documentation ทางการก่อนรันคำสั่งที่ AI แนะนำ
 
 ---
 
-## Slide 11: สร้าง `SECURITY_CHECKLIST.md`
+## Slide 7: ใช้ AI ช่วยเขียน Code โดยไม่เชื่อทันที
 
-### File
+มอง code จาก AI เหมือน code ที่คัดลอกจากอินเทอร์เน็ต: ใช้เป็นจุดเริ่มต้นได้ แต่ต้องตรวจเองก่อน
 
 ```text
-SECURITY_CHECKLIST.md
+1. ให้ AI อธิบายว่า code เปลี่ยนอะไรและทำงานฝั่งไหน
+2. เทียบ API กับ documentation ของ version ที่ project ใช้
+3. อ่าน diff และตรวจทุกไฟล์ที่เปลี่ยน
+4. รัน build และทดสอบ flow จริง
+5. ทดสอบข้อมูลผิด, ไม่มี session และไม่มีสิทธิ์
 ```
 
-### ตำแหน่งที่วาง
+อย่าส่ง `.env.local`, password, token, API secret หรือข้อมูลส่วนบุคคลให้ AI
 
-สร้างไฟล์ `SECURITY_CHECKLIST.md` ที่ project root ระดับเดียวกับ `README.md` และ `package.json`
+ก่อนใช้ code ที่เกี่ยวกับสิทธิ์ ต้องตอบให้ได้ว่า:
 
-### ตัวอย่าง
+- user และ role ถูกตรวจที่ไหน
+- field ใดมาจาก browser และ field ใดมาจาก session
+- database มี RLS policy รองรับ operation นี้หรือไม่
 
-```md
-# Security Checklist
-
-- [ ] `.env.local` ไม่ถูก commit
-- [ ] Server Actions ตรวจ user
-- [ ] Admin actions ตรวจ role
-- [ ] RLS enabled
-- [ ] Demo policies ถูกลบแล้ว
-- [ ] Supabase Auth settings ถูกต้อง
-- [ ] Validation มีทั้ง frontend และ server
-- [ ] ไม่มี service role key ใน frontend
-```
+ถ้ายังอธิบายไม่ได้ แปลว่ายังไม่ควรนำ code นั้นไปใช้จริง
 
 ---
 
-## Slide 12: README Final
+## Slide 8: ตรวจ Supabase ก่อนทดสอบ Production
 
-### File
+### Table `issues`
+
+- เปิด RLS
+- มี SELECT, INSERT และ UPDATE policies สำหรับ `authenticated`
+- ไม่มี demo policy ที่ใช้ `using (true)` หรือ `with check (true)`
+- ไม่มีสิทธิ์ `anon` สำหรับอ่านหรือแก้ข้อมูล
+
+### Table `profiles`
+
+- เปิด RLS
+- USER อ่านได้เฉพาะ profile ของตัวเอง
+- `user@example.com` มี role `USER`
+- `admin@example.com` มี role `ADMIN`
+
+สร้าง issue ใหม่ด้วย USER แล้วตรวจว่า `created_by` ตรงกับ id ของ account นั้น
+
+Table Editor ใช้สิทธิ์ผู้ดูแลและอาจเห็นข้อมูลที่หน้าเว็บมองไม่เห็น ดังนั้นการเห็น row ใน Table Editor ยังไม่ยืนยันว่า SELECT policy ของ USER ทำงานถูกต้อง
+
+---
+
+## Slide 9: Deploy Code ล่าสุดและทดสอบของจริง
+
+ท้าย Hour 3 เรา push code ระบบ Auth และ Authorization แล้ว หาก GitHub เชื่อมกับ Vercel จะเกิด Production Deployment ใหม่
 
 ```text
-README.md
+1. เปิด Vercel และตรวจว่า deployment มาจาก commit ล่าสุด
+2. รอให้ build สำเร็จ
+3. ตรวจ Environment Variables ของ Production
+4. เปิด Production URL และทดสอบ USER/ADMIN
+5. หากแก้ env vars ต้อง redeploy เพื่อให้ deployment ใหม่อ่านค่า
 ```
 
-### ตำแหน่งที่แก้
+### Flow ที่ต้องผ่านบน Production
 
-เพิ่มหัวข้อเหล่านี้ต่อท้าย `README.md` หรือจัดรวมกับหัวข้อเดิมที่มีอยู่แล้ว โดยไม่ต้องลบเนื้อหาที่ผู้เรียนเขียนไว้ก่อนหน้า
+- USER Login → สร้าง issue → เห็นเฉพาะ issue ของตัวเอง
+- USER เปิด `/admin/issues` → ถูกส่งกลับ `/issues`
+- ADMIN Login → เห็น issue ทั้งหมด → เปลี่ยน status ได้
+- Logout → protected pages ส่งไป `/login`
 
-### ควรมีหัวข้อ
-
-- Project overview
-- Tech stack
-- Features
-- Routes
-- Database schema
-- Environment variables
-- Auth flow
-- Role/permission
-- Deploy steps
-- Security notes
-
-README ที่ดีทำให้คนอื่นรับช่วงดูแลระบบต่อได้ง่ายขึ้น
+ก่อนส่ง project ให้เพิ่ม Production URL, วิธีรัน และชื่อ environment variables ที่ต้องใช้ไว้ใน README โดยไม่ใส่ค่าจริงหรือ password
 
 ---
 
-## Slide 13: Final Demo Format
+## Slide 10: เมื่อระบบมีปัญหา ให้หาว่าเสียที่ชั้นไหน
 
-### ผู้สอนพาไล่ final demo 5-10 นาที
+อย่าแก้หลายไฟล์พร้อมกัน ให้เริ่มจากอาการแล้วตรวจชั้นที่เกี่ยวข้อง:
 
-ควรอธิบาย:
+```text
+ปุ่มหรือข้อมูลบนหน้าผิด       → ตรวจ props และ conditional UI
+กด form แล้วไม่ทำงาน         → ตรวจ Server Action และ server logs
+อ่าน/เขียน table ไม่ได้       → ตรวจ Supabase error, GRANT และ RLS
+ข้อมูลเข้าแต่หน้า list ว่าง    → ตรวจ created_by, session และ SELECT policy
+Local ใช้ได้ Production ไม่ได้ → ตรวจ env vars, deployment และ Supabase project
+```
 
-1. ระบบทำอะไร
-2. User flow เป็นอย่างไร
-3. CRUD อยู่ตรงไหน
-4. Auth flow เป็นอย่างไร
-5. USER/ADMIN ต่างกันอย่างไร
-6. RLS ป้องกันอะไร
-7. Deploy URL คืออะไร
-8. สิ่งที่อยากต่อยอด
+### หลังจากนี้คุณสามารถต่อยอดได้
 
----
+- เพิ่ม automated tests สำหรับ USER และ ADMIN
+- เพิ่ม error states ที่ช่วยให้ผู้ใช้แก้ปัญหาได้
+- เพิ่ม pagination และ search เมื่อข้อมูลมากขึ้น
+- เพิ่ม audit log และ monitoring สำหรับการใช้งานจริง
 
-## Slide 14: จุดตรวจ Demo
-
-### ระหว่าง demo ต้องโชว์
-
-- login
-- create issue
-- view issue list
-- view issue detail
-- admin update status
-- admin close issue ด้วย status `DONE`
-- logout
-- production URL
-
-### ถ้ามีปัญหา
-
-อธิบาย debugging path ให้เห็นเป็นลำดับ:
-
-- ดู browser console
-- ดู terminal
-- ดู Vercel logs
-- ดู Supabase logs/Table Editor
+เป้าหมายของหลักสูตรไม่ใช่จำทุก syntax แต่คืออ่าน flow ออก รู้ว่าควรตรวจชั้นไหน และอธิบายเหตุผลของ code ที่นำไปใช้ได้
 
 ---
 
-## Slide 15: สิ่งที่ควรต่อยอดหลัง Bootcamp
+## อ้างอิง
 
-### Technical
-
-- Supabase Storage สำหรับ image upload จริง
-- Email/Line notification
-- Pagination
-- Search
-- Audit log
-- Soft delete
-- Better error handling
-- `useActionState`
-- Testing
-
-### Security
-
-- Rate limiting
-- Admin invitation flow
-- Fine-grained RLS
-- Monitoring/logging
-- Backup policy
-
----
-
-## Slide 16: Final Cleanup
-
-### ขั้นตอน
-
-1. ตรวจ README
-2. สร้าง `SECURITY_CHECKLIST.md`
-3. ตรวจ Supabase RLS
-4. ตรวจ Vercel env vars
-5. ทดสอบ production URL
-6. commit final changes
-7. เตรียม demo 5 นาที
-
----
-
-## Slide 17: Common Mistakes
-
-### ข้อผิดพลาดที่พบบ่อย
-
-- demo ด้วย local URL แทน production URL
-- ลืม logout แล้ว test role ผิด
-- admin policy ใช้ไม่ได้เพราะยังไม่ได้ตั้ง role
-- Vercel env ไม่ตรงกับ local
-- redirect URL ใช้ localhost ใน production
-- README ไม่มีขั้นตอน deploy
-- LLM สร้าง policy แล้วไม่ได้อ่านเอง
-
----
-
-## Slide 18: Wrap-up
-
-### ผู้เรียนควรกลับไปทำอะไรต่อได้
-
-- อ่าน codebase Next.js ได้
-- แก้ UI และ form ได้
-- เข้าใจ CRUD flow
-- เชื่อม Supabase database ได้
-- deploy ขึ้น Vercel ได้
-- เข้าใจ auth/session/RLS concept
-- ใช้ LLM ช่วย coding ได้อย่างระวังขึ้น
-
-เป้าหมายของ bootcamp ไม่ใช่จำทุก syntax แต่คือเห็นภาพระบบเว็บจริงและรู้ว่าจะตรวจอะไรเมื่อระบบต้องใช้งานจริง
-
----
-
-## อ้างอิงสำหรับผู้สอน
-
-- [OWASP Top 10](https://owasp.org/Top10/2021/)
+- [OWASP Top 10:2025](https://owasp.org/Top10/)
+- [Supabase Production Checklist](https://supabase.com/docs/guides/deployment/going-into-prod)
 - [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
-- [Supabase Auth with Next.js](https://supabase.com/docs/guides/auth/quickstarts/nextjs)
+- [Vercel Environment Variables](https://vercel.com/docs/environment-variables)

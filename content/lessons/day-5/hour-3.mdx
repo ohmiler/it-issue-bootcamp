@@ -864,34 +864,28 @@ ADMIN เข้าไม่ได้                  → ตรวจ email, ro
 
 ---
 
-## Slide 20: Authorization ที่สมบูรณ์ต้องทำงานร่วมกัน
+## Slide 20: Commit และ Push โปรเจกต์
 
-แต่ละชั้นตอบคำถามต่างกัน และต้องใช้กฎเดียวกันตลอดทาง
+เมื่อทดสอบ USER, ADMIN และ Logout ผ่านแล้ว ให้ตรวจ build และบันทึก code ชุดนี้ขึ้น GitHub
 
-```text
-Request
-  ↓
-Page / UI        → แสดงสิ่งที่เหมาะกับผู้ใช้
-  ↓
-Server Action    → ตรวจ session, role และ input
-  ↓
-Supabase RLS     → จำกัด operation และ row ที่ database
+```bash
+npm run build
+git status
+git add .
+git status
+git commit -m "Add authentication and role-based authorization"
+git push origin main
 ```
 
-UI ทำให้ผู้ใช้เห็นเฉพาะสิ่งที่เกี่ยวข้อง Server Action ไม่เชื่อ request จาก browser และ RLS เป็นด่านสุดท้ายที่ป้องกันข้อมูลใน database
+### ตรวจให้ดีก่อน Commit
 
-### สิ่งที่ได้ในชั่วโมงนี้
+- `npm run build` ต้องผ่าน
+- ตรวจ `git status` ก่อนและหลัง `git add .`
+- `.env.local` ต้องไม่ปรากฏใน staged files
+- อย่า commit password, token หรือ secret
+- SQL policies อยู่ใน Supabase และไม่ได้ถูกบันทึกขึ้น GitHub อัตโนมัติ
 
-- `created_by` ผูก issue กับเจ้าของ
-- `profiles` เก็บ role ของแอป
-- USER เห็นและสร้างข้อมูลของตัวเอง
-- ADMIN เห็นทั้งหมดและเปลี่ยน status
-- demo access ของ `anon` ถูกปิด
-- UI, Server Action และ RLS ใช้กฎเดียวกัน
-
-### ชั่วโมงถัดไป
-
-เราจะตรวจระบบด้วยแนวคิด OWASP, ทบทวนความเสี่ยงจาก LLM-generated code และเตรียม final demo บน production
+หาก GitHub repository เชื่อมกับ Vercel อยู่ การ push ไป `main` จะเริ่ม Production Deployment ใหม่ รอให้ deployment สำเร็จแล้วค่อยทดสอบ Production ใน Hour 4
 
 ---
 
