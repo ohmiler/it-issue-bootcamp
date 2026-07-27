@@ -51,178 +51,117 @@ File: index.html
 
 ---
 
-## Slide 1: Recap จากชั่วโมงแรก
+## Slide 1: จาก Flow สู่หน้าเว็บแรก
 
-### Key Message
+ชั่วโมงที่แล้วเราเห็นว่า Frontend เป็นส่วนที่ผู้ใช้มองเห็นและโต้ตอบด้วย
 
-ชั่วโมงที่แล้วเราเห็น flow ของระบบแล้ว ชั่วโมงนี้เราจะเริ่มสร้างส่วนแรกที่ user เห็นและใช้งานจริง นั่นคือ HTML
-
-### Speaker Notes
-
-ใช้ช่วงนี้ทวนภาพรวมด้วย diagram สั้น ๆ ก่อนเข้า HTML โดยไม่ต้องใช้เป็นช่วงถามยาว
-
----
-
-## Slide 2: HTML คืออะไร
-
-### HTML ย่อมาจาก
-
-**HyperText Markup Language**
-
-### HTML ทำหน้าที่อะไร
-
-HTML ใช้กำหนดโครงสร้างและความหมายของเนื้อหาบนหน้าเว็บ เช่น:
-
-- หัวข้อและย่อหน้า
-- รายการ ลิงก์ และรูปภาพ
-- ตาราง แบบฟอร์ม และปุ่ม
-
-### เทียบกับ CSS และ TypeScript
-
-- HTML ตอบว่า **บนหน้านี้มีอะไร และแต่ละอย่างคืออะไร**
-- CSS ตอบว่า **แต่ละอย่างหน้าตาเป็นอย่างไร และจัดวางตรงไหน**
-- TypeScript ตอบว่า **เมื่อ user โต้ตอบแล้วระบบต้องทำอะไรกับข้อมูล**
-
-### Key Message
-
-HTML ไม่ได้มีหน้าที่ทำให้เว็บสวย แต่มีหน้าที่บอกว่าแต่ละส่วนของหน้าเว็บคืออะไร
-
-### Speaker Notes
-
-ย้ำว่าในชั่วโมงนี้เราจะสนใจเฉพาะ HTML ก่อน ยังไม่ต้องทำให้สวย และยังไม่ต้องเขียน logic ซับซ้อน
-
----
-
-## Slide 3: โครงสร้างพื้นฐานของ HTML Document
-
-### File
+ชั่วโมงนี้เราจะเริ่มสร้าง Frontend ส่วนแรกของระบบแจ้งปัญหาด้วยไฟล์:
 
 ```text
 index.html
 ```
 
-### ตำแหน่งที่วาง
-
-ใช้ code นี้เป็นโครงเริ่มต้นของไฟล์ `index.html` ทั้งไฟล์
-
-```html
-<!doctype html>
-<html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ระบบแจ้งปัญหา IT</title>
-  </head>
-  <body>
-    <h1>ระบบแจ้งปัญหา IT</h1>
-  </body>
-</html>
-```
-
-{/* slide-break: โครงสร้าง HTML แต่ละส่วนทำหน้าที่อะไร */}
-
-### อธิบายแต่ละส่วน
-
-- `<!doctype html>` บอก browser ว่าเป็น HTML เวอร์ชันปัจจุบัน
-- `<html>` คือ root ของเอกสาร
-- `<head>` เก็บข้อมูลเกี่ยวกับหน้าเว็บ
-- `<meta charset="UTF-8">` รองรับภาษาไทย
-- `<meta name="viewport">` ช่วยให้แสดงผลบนมือถือได้ดี
-- `<title>` ชื่อที่แสดงบน browser tab
-- `<body>` เนื้อหาที่ผู้ใช้เห็น
-
-```html
-<!doctype html>
-<html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ระบบแจ้งปัญหา IT</title>
-  </head>
-  <body>
-    <h1>ระบบแจ้งปัญหา IT</h1>
-  </body>
-</html>
-```
+เมื่อจบชั่วโมง เราจะมีหน้าเว็บที่ประกอบด้วยส่วนหัว Form แจ้งปัญหา และส่วนท้าย โดยยังไม่เน้นความสวยงามหรือการบันทึกข้อมูล
 
 ---
 
-## Slide 4: Element, Tag และ Attribute
+## Slide 2: HTML ทำหน้าที่อะไร
 
-เวลาอ่าน HTML ให้แยก 3 คำนี้ให้ออก:
+HTML ย่อมาจาก **HyperText Markup Language** ใช้กำหนดโครงสร้างและความหมายของเนื้อหาบนหน้าเว็บ
 
-- **Element** คือส่วนประกอบทั้งชิ้น ตั้งแต่ tag เปิดจนถึง tag ปิด หรือ tag เดี่ยวทั้งตัว
-- **Tag** คือชื่อคำสั่งในวงเล็บมุม เช่น `<label>`, `<input>`, `<button>`
-- **Attribute** คือข้อมูลเสริมที่ใส่ใน tag เปิด เพื่อบอก browser ว่า element นี้ทำงานอย่างไร
+| เทคโนโลยี | หน้าที่ |
+|---|---|
+| HTML | สร้างโครงสร้างและบอกความหมายของเนื้อหา เช่น หัวข้อ Form, Input และ Button |
+| CSS | ตกแต่งหน้าตาและจัดวาง Element เช่น สี ระยะห่าง ขนาด และ Responsive Layout |
+| JavaScript / TypeScript | เพิ่มพฤติกรรมและ Logic เช่น ตรวจข้อมูล รับเหตุการณ์จากผู้ใช้ ส่ง Form และเปลี่ยนสิ่งที่แสดงบนหน้า |
+
+ทั้งสามส่วนทำงานร่วมกัน แต่ในชั่วโมงนี้เราจะเริ่มจาก HTML เพื่อสร้างโครงสร้างให้ถูกต้องก่อน แล้วจึงเพิ่ม CSS และ Logic ในชั่วโมงถัดไป
+
+---
+
+## Slide 3: สร้างโครงเริ่มต้นของ `index.html`
+
+สร้างไฟล์ใหม่ทั้งไฟล์: `index.html`
+
+```html
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ระบบแจ้งปัญหา IT</title>
+  </head>
+  <body>
+    <h1>ระบบแจ้งปัญหา IT</h1>
+  </body>
+</html>
+```
+
+เปิดไฟล์นี้ด้วย Browser แล้วควรเห็นหัวข้อ “ระบบแจ้งปัญหา IT”
+
+---
+
+## Slide 4: อ่านโครงสร้าง HTML ทีละส่วน
+
+- `<!doctype html>` บอก Browser ว่าเอกสารนี้ใช้ HTML เวอร์ชันปัจจุบัน
+- `<html lang="th">` คือจุดเริ่มต้นของเอกสารและระบุว่าภาษาหลักคือภาษาไทย
+- `<head>` เก็บข้อมูลเกี่ยวกับหน้าเว็บ
+- `<meta charset="UTF-8">` ทำให้แสดงภาษาไทยได้ถูกต้อง
+- `<meta name="viewport">` ช่วยให้หน้าเว็บปรับตามขนาดหน้าจอ
+- `<title>` คือชื่อบน Browser tab
+- `<body>` คือเนื้อหาที่ผู้ใช้มองเห็น
+
+HTML ส่วนใหญ่ใช้ Tag เปิดและ Tag ปิดเพื่อบอกขอบเขตของเนื้อหา
+
+---
+
+## Slide 5: Element, Tag และ Attribute
 
 | คำ | ตัวอย่าง | ความหมาย |
 |---|---|---|
-| Element | `<h1>ระบบแจ้งปัญหา IT</h1>` | ส่วนประกอบหนึ่งชิ้นของ HTML |
-| Tag | `<h1>` และ `</h1>` | คำสั่งเปิดและปิด element |
-| Attribute | `id="title"` | ข้อมูลเพิ่มเติมของ element |
+| Element | `<h1>ระบบแจ้งปัญหา IT</h1>` | ส่วนประกอบ HTML หนึ่งชิ้น |
+| Tag | `<h1>` และ `</h1>` | จุดเปิดและปิด Element |
+| Attribute | `id="title"` | ข้อมูลเพิ่มเติมของ Element |
 
 ```html
 <label for="title">หัวข้อปัญหา</label>
 <input id="title" name="title" type="text" required />
 ```
 
-ในตัวอย่างนี้ `<label>...</label>` คือ element ที่มี tag เปิดและ tag ปิด ส่วน `<input ... />` เป็น element เดี่ยวที่มี attributes หลายตัว เช่น `id`, `name`, `type` และ `required`
-
-{/* slide-break: Attribute ที่เห็นบ่อย */}
-
-### Attribute ที่เห็นบ่อย
-
-- `id`
-- `class`
-- `name`
-- `type`
-- `href`
-- `src`
-- `alt`
-- `required`
-- `placeholder`
+`input` เป็น Element ที่ไม่มีเนื้อหาด้านใน ส่วน `id`, `name`, `type` และ `required` คือ Attributes ที่กำหนดพฤติกรรมของมัน
 
 ---
 
-## Slide 5: Semantic HTML คืออะไร
+## Slide 6: Semantic HTML ช่วยบอกหน้าที่ของเนื้อหา
 
-Semantic HTML คือการใช้ tag ที่สื่อความหมายตามหน้าที่จริงของเนื้อหา
+Semantic HTML คือการเลือก Tag ให้ตรงกับความหมายของส่วนที่กำลังสร้าง
 
-### Key Message
-
-ใช้ tag ให้ตรงความหมาย ช่วยให้ code อ่านง่ายขึ้น และช่วยเรื่อง accessibility
-
-### ตัวอย่าง Tag ที่ควรรู้
-
-| Tag | ใช้ทำอะไร |
+| Tag | ใช้สำหรับ |
 |---|---|
 | `header` | ส่วนหัวของหน้า |
-| `nav` | เมนูนำทาง |
 | `main` | เนื้อหาหลัก |
-| `section` | กลุ่มเนื้อหา |
-| `article` | เนื้อหาหนึ่งรายการ |
-| `aside` | เนื้อหาด้านข้าง |
-| `footer` | ส่วนท้าย |
+| `section` | กลุ่มเนื้อหาที่เกี่ยวข้องกัน |
+| `footer` | ส่วนท้ายของหน้า |
+
+การใช้ Tag ที่สื่อความหมายช่วยให้คนอ่าน Code และเครื่องมือช่วยการเข้าถึงเข้าใจโครงสร้างของหน้าได้ง่ายขึ้น
 
 ---
 
-## Slide 6: ตัวอย่างโครงหน้าเว็บด้วย Semantic HTML
+## Slide 7: สร้างโครงหน้าระบบแจ้งปัญหา
 
-File: `index.html`
-
-แทนที่เนื้อหาใน `<body>...</body>` เดิมด้วยโครง `header`, `main`, `footer` นี้
+แก้บางส่วน: แทนเนื้อหาเดิมภายใน `<body>...</body>` ของ `index.html`
 
 ```html
 <body>
   <header>
     <h1>ระบบแจ้งปัญหา IT</h1>
-    <p>สำหรับแจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
+    <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
   </header>
 
   <main>
     <section>
       <h2>แจ้งปัญหาใหม่</h2>
-      <!-- form will be here -->
+      <!-- เพิ่ม form ตรงนี้ -->
     </section>
   </main>
 
@@ -232,351 +171,143 @@ File: `index.html`
 </body>
 ```
 
-### Speaker Notes
-
-เปรียบเทียบให้เห็นว่าใช้ `div` อย่างเดียวก็ทำได้ แต่ semantic tag ทำให้เราและคนอื่นอ่าน code แล้วเข้าใจเจตนาเร็วขึ้น
-
 ---
 
-## Slide 7: Form คือจุดเริ่มต้นของ Web Application
+## Slide 8: Form คือจุดรับข้อมูลจากผู้ใช้
 
-### Form ใช้ทำอะไร
-
-Form คือส่วนที่ให้ user กรอกข้อมูลและส่งเข้าสู่ระบบ
-
-ตัวอย่าง:
-
-- login form
-- register form
-- issue report form
-- search form
-- upload form
-
-### Key Message
-
-ในระบบ CRUD ส่วนใหญ่ การสร้างข้อมูลใหม่มักเริ่มจาก form
-
-### ตัวอย่าง form ง่าย ๆ
+Form รวบรวมข้อมูลที่ผู้ใช้กรอกและเตรียมส่งเข้าสู่ระบบ
 
 ```html
 <form>
   <label for="title">หัวข้อปัญหา</label>
-  <input id="title" name="title" type="text" />
+  <input id="title" name="title" type="text" required />
 
   <button type="submit">ส่งข้อมูล</button>
 </form>
 ```
 
+ตอนนี้ Form ยังไม่บันทึกข้อมูล เพราะเรายังไม่มี Backend แต่ Browser สามารถตรวจ `required` และเริ่มกระบวนการ Submit ได้
+
 ---
 
-## Slide 8: Label และ Input
-
-### ทำไมต้องใช้ Label
-
-`label` ช่วยบอกว่า input นี้ใช้กรอกข้อมูลอะไร และช่วยให้ผู้ใช้คลิกชื่อ field เพื่อ focus input ได้
-
-### ตัวอย่างที่ดี
+## Slide 9: `label`, `id` และ `name` ต้องเชื่อมกัน
 
 ```html
-<label for="title">หัวข้อปัญหา</label>
-<input id="title" name="title" type="text" required />
+<label for="reporterEmail">อีเมลผู้แจ้ง</label>
+<input
+  id="reporterEmail"
+  name="reporterEmail"
+  type="email"
+  required
+/>
 ```
 
-### จุดสำคัญ
-
-- `for` ของ label ต้องตรงกับ `id` ของ input
-- `name` คือชื่อ field ที่จะถูกส่งไป backend
-- `required` บอก browser ว่าห้ามเว้นว่าง
-
-### Speaker Notes
-
-เน้นว่า `name` สำคัญมาก เพราะเวลา form ถูกส่งไป server backend จะอ่านข้อมูลจากชื่อ field เหล่านี้
+- `for` ของ Label ต้องตรงกับ `id` ของ Input
+- `id` ใช้ระบุ Element บนหน้าเว็บ
+- `name` คือชื่อข้อมูลที่จะถูกส่งจาก Form
+- `type="email"` ช่วยให้ Browser ตรวจรูปแบบอีเมลเบื้องต้น
+- `required` ป้องกันการส่ง Field ว่าง
 
 ---
 
-## Slide 9: Input Types ที่ใช้บ่อย
-
-| Type | ใช้ทำอะไร |
-|---|---|
-| `text` | ข้อความสั้น |
-| `email` | อีเมล |
-| `password` | รหัสผ่าน |
-| `number` | ตัวเลข |
-| `date` | วันที่ |
-| `checkbox` | เลือก/ไม่เลือก |
-| `radio` | เลือกหนึ่งตัวเลือก |
-
-### ตัวอย่าง
+## Slide 10: เลือก Control ให้เหมาะกับข้อมูล
 
 ```html
-<input type="email" name="email" required />
-<input type="date" name="requestedDate" />
-```
+<!-- ข้อความสั้น -->
+<input name="title" type="text" />
 
-### Key Message
+<!-- อีเมล -->
+<input name="reporterEmail" type="email" />
 
-เลือก input type ให้ตรงกับข้อมูล จะช่วยให้ browser ตรวจสอบและแสดง keyboard ที่เหมาะสมบนมือถือ
+<!-- ข้อความยาว -->
+<textarea name="description" rows="5"></textarea>
 
----
-
-## Slide 10: Textarea
-
-### Textarea
-
-ใช้สำหรับข้อความยาว เช่น รายละเอียดปัญหา
-
-```html
-<label for="description">รายละเอียดปัญหา</label>
-<textarea id="description" name="description" rows="5" required></textarea>
-```
-
-### Key Message
-
-ใช้ `input` กับข้อมูลสั้น และใช้ `textarea` กับข้อความยาว
-
----
-
-## Slide 11: Button Types
-
-### Button ที่ใช้บ่อย
-
-```html
+<!-- ส่ง Form -->
 <button type="submit">ส่งข้อมูล</button>
-<button type="reset">ล้างข้อมูล</button>
-<button type="button">เปิด modal</button>
 ```
 
-### ความแตกต่าง
-
-- `submit` ส่ง form
-- `reset` ล้างค่าใน form
-- `button` เป็นปุ่มธรรมดา ต้องมี logic เพิ่ม
-
-### Key Message
-
-ใน form ควรกำหนด `type` ของ button ให้ชัดเจน เพื่อลดพฤติกรรมที่ไม่คาดคิด
+Project นี้ใช้เฉพาะ Control ที่จำเป็นต่อ Form แจ้งปัญหา ส่วน Input Type อื่นสามารถเรียนเพิ่มเมื่อ Project ต้องใช้จริง
 
 ---
 
-## Slide 12: Accessibility เบื้องต้น
+## Slide 11: HTML ที่ดีต้องใช้งานได้กับคนหลากหลาย
 
-Accessibility คือการทำให้เว็บใช้งานได้กับคนหลากหลายกลุ่ม ไม่ใช่เฉพาะคนที่มองเห็นชัด ใช้ mouse ถนัด หรืออ่านหน้าจอได้แบบเดียวกับเรา
+พื้นฐาน Accessibility ที่ใช้กับหน้านี้:
 
-ใน HTML จุดเริ่มต้นคือการเขียนโครงสร้างให้ browser และ assistive technology เช่น screen reader เข้าใจความหมายของเนื้อหา
+- เรียง Heading จาก `h1` ไป `h2`
+- Input ทุกช่องมี Label ที่เชื่อมด้วย `for` และ `id`
+- ปุ่มมีข้อความที่บอกการทำงานชัดเจน
+- ใช้ Semantic Tag เพื่อบอกโครงสร้าง
+- ไม่ใช้ Placeholder แทน Label
 
-### สิ่งที่ควรทำ
-
-- ใช้ heading ตามลำดับ เช่น `h1`, `h2`, `h3`
-- input ควรมี label
-- รูปภาพควรมี `alt`
-- ปุ่มควรมีข้อความที่เข้าใจได้
-- form error ควรบอกชัดเจน
-- อย่าใช้สีเพียงอย่างเดียวในการสื่อความหมาย
-
-### ตัวอย่าง
-
-```html
-<img src="example.png" alt="ตัวอย่างหน้าจอ error ของระบบ login" />
-```
-
-### Key Message
-
-เว็บที่ดีไม่ใช่แค่คนส่วนใหญ่ใช้ได้ แต่ควรช่วยให้คนหลากหลายกลุ่มใช้งานได้ดีขึ้น
+โครงสร้างที่ชัดช่วยทั้งผู้ใช้ Keyboard, Screen Reader และผู้พัฒนาที่ต้องอ่าน Code ต่อจากเรา
 
 ---
 
-## Slide 13: สร้าง Issue Report Form
+## Slide 12: เพิ่มข้อมูลผู้แจ้งใน Form
 
-### Field ที่ต้องมี
-
-- ชื่อผู้แจ้ง
-- อีเมลผู้แจ้ง
-- หัวข้อปัญหา
-- รายละเอียดปัญหา
-
-{/* slide-break: Code ตัวอย่าง Issue Report Form */}
-
-File: `index.html`
-
-ตำแหน่ง: วาง `<form>...</form>` นี้แทนที่ `<!-- form will be here -->`
+แก้บางส่วน: วาง Code นี้แทน `<!-- เพิ่ม form ตรงนี้ -->` ใน `index.html`
 
 ```html
 <form>
   <fieldset>
     <legend>ข้อมูลปัญหา</legend>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label for="reporterName">ชื่อผู้แจ้ง</label>
-        <input id="reporterName" name="reporterName" type="text" required />
-      </div>
-
-      <div class="form-group">
-        <label for="reporterEmail">อีเมลผู้แจ้ง</label>
-        <input id="reporterEmail" name="reporterEmail" type="email" required />
-      </div>
+    <div class="form-group">
+      <label for="reporterName">ชื่อผู้แจ้ง</label>
+      <input id="reporterName" name="reporterName" type="text" required />
     </div>
 
     <div class="form-group">
-      <label for="title">หัวข้อปัญหา</label>
-      <input id="title" name="title" type="text" required />
+      <label for="reporterEmail">อีเมลผู้แจ้ง</label>
+      <input id="reporterEmail" name="reporterEmail" type="email" required />
     </div>
 
-    <div class="form-group">
-      <label for="description">รายละเอียดปัญหา</label>
-      <textarea id="description" name="description" rows="5" required></textarea>
-    </div>
-
-    <button type="submit">ส่งข้อมูล</button>
+    <!-- เพิ่มข้อมูลปัญหาต่อจากนี้ -->
   </fieldset>
 </form>
 ```
 
-### Speaker Notes
+`fieldset` ใช้รวม Field ที่เกี่ยวข้องกันเป็นกลุ่ม ส่วน `legend` คือชื่อที่อธิบายว่ากลุ่มนี้เก็บข้อมูลอะไร
 
-ใช้ `fieldset` และ `legend` เพื่อจัดกลุ่มข้อมูลใน form ถึงแม้หน้าตายังไม่สวย แต่โครงสร้างจะถูกต้องและพร้อมเอาไป style ต่อในชั่วโมงที่ 3
-
-`class="form-group"` และ `class="form-row"` ใส่ไว้ตั้งแต่ชั่วโมงนี้เพื่อเป็น hook ให้ CSS ในชั่วโมงถัดไป ยังไม่ต้องอธิบาย CSS ลึกในจุดนี้
+`form-group` เตรียมไว้ให้ CSS จัด Label และ Input ในชั่วโมงถัดไป
 
 ---
 
-## Slide 14: ชื่อ Field ต้องคิดเผื่อ Day 2 และ Database
+## Slide 13: เพิ่มข้อมูลปัญหาและปุ่ม Submit
 
-### ทำไม `name` สำคัญ
-
-ใน HTML form ค่า `name` คือชื่อข้อมูลที่จะถูกส่งออกจาก form
+แก้บางส่วน: แทน Comment `<!-- เพิ่มข้อมูลปัญหาต่อจากนี้ -->`
 
 ```html
-<input id="title" name="title" type="text" required />
+<div class="form-group">
+  <label for="title">หัวข้อปัญหา</label>
+  <input id="title" name="title" type="text" required />
+</div>
+
+<div class="form-group">
+  <label for="description">รายละเอียดปัญหา</label>
+  <textarea id="description" name="description" rows="5" required></textarea>
+</div>
+
+<button type="submit">ส่งข้อมูล</button>
 ```
 
-ในวันถัดไป ชื่อเหล่านี้จะกลายเป็น field ใน TypeScript:
-
-```ts
-type Issue = {
-  reporterName: string;
-  reporterEmail: string;
-  title: string;
-  description: string;
-};
-```
-
-### Mapping ที่ควรใช้ให้ตรงกัน
-
-| HTML `name` | ความหมาย | ใช้ต่อใน Day 2 |
-|---|---|---|
-| `reporterName` | ชื่อผู้แจ้ง | `issue.reporterName` |
-| `reporterEmail` | อีเมลผู้แจ้ง | `issue.reporterEmail` |
-| `title` | หัวข้อปัญหา | `issue.title` |
-| `description` | รายละเอียดปัญหา | `issue.description` |
-
-### Key Message
-
-ตั้งชื่อ field ให้สื่อความหมายตั้งแต่ HTML จะช่วยให้ตอนย้ายไป Next.js, TypeScript และ database ไม่สับสน
+ลองกด Submit โดยไม่กรอกข้อมูล Browser ควรแจ้งให้กรอก Field ที่มี `required`
 
 ---
 
-## Slide 15: โค้ดสุดท้ายของ `index.html` หลังชั่วโมงนี้
+## Slide 14: ตรวจผลลัพธ์ก่อนเริ่ม CSS
 
-File: `index.html`
+ชื่อ Field ทั้ง 4 ต้องตรงกันตั้งแต่ HTML จนถึง TypeScript ในวันถัดไป:
 
-ใช้เป็นภาพรวมหลังเขียนโค้ดครบทั้งไฟล์
+| HTML `name` | ข้อมูล |
+|---|---|
+| `reporterName` | ชื่อผู้แจ้ง |
+| `reporterEmail` | อีเมลผู้แจ้ง |
+| `title` | หัวข้อปัญหา |
+| `description` | รายละเอียดปัญหา |
 
-```html
-<!doctype html>
-<html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ระบบแจ้งปัญหา IT</title>
-  </head>
-  <body>
-    <header>
-      <h1>ระบบแจ้งปัญหา IT</h1>
-      <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
-    </header>
+เปิด `index.html` แล้วตรวจว่าเห็นส่วนหัว Form ทั้ง 4 Field ปุ่ม Submit และส่วนท้ายครบ
 
-    <main>
-      <section>
-        <h2>แจ้งปัญหาใหม่</h2>
-
-        <form>
-          <fieldset>
-            <legend>ข้อมูลปัญหา</legend>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="reporterName">ชื่อผู้แจ้ง</label>
-                <input id="reporterName" name="reporterName" type="text" required />
-              </div>
-
-              <div class="form-group">
-                <label for="reporterEmail">อีเมลผู้แจ้ง</label>
-                <input id="reporterEmail" name="reporterEmail" type="email" required />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="title">หัวข้อปัญหา</label>
-              <input id="title" name="title" type="text" required />
-            </div>
-
-            <div class="form-group">
-              <label for="description">รายละเอียดปัญหา</label>
-              <textarea
-                id="description"
-                name="description"
-                rows="5"
-                required
-              ></textarea>
-            </div>
-
-            <button type="submit">ส่งข้อมูล</button>
-          </fieldset>
-        </form>
-      </section>
-    </main>
-
-    <footer>
-      <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
-    </footer>
-  </body>
-</html>
-```
-
----
-
-## Slide 16: Common Mistakes ของ HTML Form
-
-### ข้อผิดพลาดที่พบบ่อย
-
-- ลืมใส่ `name` ให้ input
-- ตั้งชื่อ `name` ไม่ตรงกับข้อมูลที่จะใช้ต่อ เช่น ใช้ `problem_name` วันนี้ แต่ Day 2 ใช้ `title`
-- label ไม่ผูกกับ input
-- ใช้ placeholder แทน label
-- ใช้ `div` ทุกอย่างโดยไม่ใช้ semantic tag
-- ใช้ button โดยไม่กำหนด `type`
-- ไม่กำหนด `required` ใน field สำคัญ
-- ใช้ heading ข้ามลำดับ เช่น จาก `h1` ไป `h4`
-
-### Speaker Notes
-
-อธิบายว่าบางข้อเว็บยังเปิดได้ แต่จะมีผลต่อ maintainability, accessibility และการส่งข้อมูลไป backend ในอนาคต
-
----
-
-## Slide 17: Recap ชั่วโมงที่สอง
-
-### สิ่งที่ได้เรียน
-
-- HTML ใช้กำหนดโครงสร้างและความหมายของหน้าเว็บ
-- Semantic HTML ทำให้ code อ่านง่ายและเหมาะกับ accessibility
-- Form คือจุดเริ่มต้นของการรับข้อมูลจากผู้ใช้
-- `label`, `input`, `textarea`, `button` เป็น element สำคัญสำหรับระบบ CRUD
-- `name` ของ input สำคัญต่อการส่งข้อมูลไป backend
-- ชื่อ field ที่ตั้งวันนี้จะถูกใช้ต่อใน TypeScript data model และ database
-
-### ต่อไปในชั่วโมงที่ 3
-
-เราจะใช้ CSS เพื่อจัด layout และทำให้หน้าแจ้งปัญหาอ่านง่าย ใช้งานง่าย และรองรับหน้าจอหลายขนาด
+ชั่วโมงถัดไปเราจะสร้าง `style.css` และใช้ `form-group` จัดหน้า Form ให้อ่านง่ายขึ้น
 
