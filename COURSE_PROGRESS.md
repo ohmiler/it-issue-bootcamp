@@ -12,7 +12,7 @@
 
 | Day | สถานะ | หมายเหตุ |
 |---|---|---|
-| Day 1 | กำลังปรับ | Hour 1 เหลือ 13 slides และ Hour 2 เหลือ 14 slides; จัด flow พื้นฐานและการสร้าง HTML Form ใหม่แล้ว รอตรวจร่วมกันก่อนทำ Hour 3-4 |
+| Day 1 | กำลังปรับ | Hour 1 เหลือ 13 slides, Hour 2 เหลือ 14 slides และ Hour 3 เหลือ 15 slides; ปรับ flow พื้นฐาน HTML และ CSS แล้ว รอตรวจร่วมกันก่อนทำ Hour 4 |
 | Day 2 | รอตรวจใหม่ | ตรวจ file structure, routing และ component flow |
 | Day 3 | รอตรวจใหม่ | ตัด status filter ออกแล้ว แต่จะตรวจทั้งวันอีกครั้งหลัง Day 5 |
 | Day 4 | ปรับและตรวจแล้ว | Supabase, Read, Create, Update และ Deploy ใช้ flow ปัจจุบัน |
