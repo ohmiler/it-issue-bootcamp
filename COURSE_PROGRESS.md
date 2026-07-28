@@ -12,7 +12,7 @@
 
 | Day | สถานะ | หมายเหตุ |
 |---|---|---|
-| Day 1 | กำลังปรับ | Hour 1 เหลือ 13 slides, Hour 2 เหลือ 14 slides และ Hour 3 เหลือ 15 slides; ปรับ flow พื้นฐาน HTML และ CSS แล้ว รอตรวจร่วมกันก่อนทำ Hour 4 |
+| Day 1 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 ใช้ flow จากภาพรวมระบบ ไปสู่ HTML Form, CSS, Static Issue List และ Git/GitHub; Hour 4 ลดเหลือ 17 slides และแก้คำอธิบายให้ชัดว่า Form/List ยังเป็น Static Prototype |
 | Day 2 | รอตรวจใหม่ | ตรวจ file structure, routing และ component flow |
 | Day 3 | รอตรวจใหม่ | ตัด status filter ออกแล้ว แต่จะตรวจทั้งวันอีกครั้งหลัง Day 5 |
 | Day 4 | ปรับและตรวจแล้ว | Supabase, Read, Create, Update และ Deploy ใช้ flow ปัจจุบัน |
