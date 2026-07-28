@@ -13,7 +13,7 @@
 | Day | สถานะ | หมายเหตุ |
 |---|---|---|
 | Day 1 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 ใช้ flow จากภาพรวมระบบ ไปสู่ HTML Form, CSS, Static Issue List และ Git/GitHub; Hour 4 ลดเหลือ 17 slides และแก้คำอธิบายให้ชัดว่า Form/List ยังเป็น Static Prototype |
-| Day 2 | รอตรวจใหม่ | ตรวจ file structure, routing และ component flow |
+| Day 2 | กำลังปรับ | Hour 1 เหลือ 15 slides; สร้าง Next.js 16 Project แบบ root-level `app/` และอธิบายเฉพาะไฟล์พื้นฐานก่อนย้าย Static Prototype ใน Hour 2 |
 | Day 3 | รอตรวจใหม่ | ตัด status filter ออกแล้ว แต่จะตรวจทั้งวันอีกครั้งหลัง Day 5 |
 | Day 4 | ปรับและตรวจแล้ว | Supabase, Read, Create, Update และ Deploy ใช้ flow ปัจจุบัน |
 | Day 5 | ปรับครบแล้ว รอตรวจภาพรวม | Hour 1-4 ใช้ Auth แบบ SSR, USER/ADMIN, Page guard, Server Action และ RLS; Hour 4 ปิดหลักสูตรด้วย OWASP 2025, AI code review, production verification และ final demo |

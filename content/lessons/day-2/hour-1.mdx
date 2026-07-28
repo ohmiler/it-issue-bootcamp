@@ -8,25 +8,19 @@ source: "day-2-hour-1-nextjs-setup.md"
 
 # Next.js Setup
 
-Day 2 - ชั่วโมงที่ 1: From Static HTML to Next.js Project
+## Day 2 - ชั่วโมงที่ 1: สร้าง Next.js Project
 
 ### เป้าหมายของชั่วโมงนี้
 
 หลังจบชั่วโมงแรกของ Day 2 ผู้เรียนควรสามารถ:
 
-1. เข้าใจว่า Next.js คืออะไร และทำไมจึงใช้ต่อจาก HTML/CSS static prototype
-2. เห็นภาพว่า `index.html` จาก Day 1 จะถูกย้ายไปเป็น `app/page.tsx`
-3. สร้าง Next.js project ด้วย TypeScript ได้
-4. เข้าใจโครงสร้างไฟล์พื้นฐานของ Next.js App Router
-5. เปิด development server และดูหน้าเว็บใน browser ได้
-6. แก้ไขหน้าแรกของ Next.js ได้เล็กน้อย
-7. เข้าใจว่า HTML, CSS และ TypeScript จะเข้าไปอยู่ตรงไหนใน Next.js project
+1. อธิบายได้ว่าทำไม Project ต้องขยับจาก Static HTML/CSS ไปเป็น Next.js
+2. สร้าง Next.js Project ที่ใช้ TypeScript และ App Router ได้
+3. เปิด Development Server และดูหน้าเว็บใน Browser ได้
+4. เข้าใจหน้าที่ของ `app/page.tsx`, `app/layout.tsx` และ `app/globals.css`
+5. แก้หน้าแรกของ Project และเห็นผลลัพธ์ได้
 
 ### ไฟล์ที่ใช้ในชั่วโมงนี้
-
-คำสั่งสร้าง project ให้รันใน terminal
-
-ไฟล์หลักที่แตะในชั่วโมงนี้:
 
 ```text
 app/page.tsx
@@ -35,267 +29,146 @@ app/globals.css
 package.json
 ```
 
-ถ้า slide เป็นหน้าแรก ให้ระบุ:
-
-```text
-File: app/page.tsx
-```
-
 ---
 
-  โครงสร้างเวลา 60 นาที
+## โครงสร้างเวลา 60 นาที
 
 | เวลา | หัวข้อ | รูปแบบ |
 |---|---|---|
-| 0-10 นาที | Recap Day 1 และเชื่อมเข้า Next.js | Explain |
-| 10-20 นาที | Next.js คืออะไร | Explain + diagram |
-| 20-35 นาที | สร้าง Next.js project | Live coding |
-| 35-45 นาที | อธิบาย project structure | Code walkthrough |
-| 45-55 นาที | แก้หน้าแรกและรัน dev server | ทำทีละขั้นตอน |
-| 55-60 นาที | Recap และเตรียมย้าย static prototype | สรุป |
+| 0-10 นาที | เชื่อม Static Prototype เข้ากับ Next.js | อธิบาย |
+| 10-25 นาที | ตรวจเครื่องมือและสร้าง Project | ทำทีละขั้นตอน |
+| 25-40 นาที | เปิด Dev Server และอ่านโครงสร้างไฟล์ | ทำทีละขั้นตอน |
+| 40-55 นาที | แก้หน้าแรกและตรวจผลลัพธ์ | ทำทีละขั้นตอน |
+| 55-60 นาที | เตรียมย้ายงาน Day 1 | ตรวจความพร้อม |
 
 ---
 
-## Slide 1: Recap จาก Day 1
+## Slide 1: จาก Static Prototype สู่ Web Application
 
-### Day 1 เราสร้างอะไร
+Day 1 เราสร้างหน้า Static ที่มี:
 
-- Static HTML page
-- Form สำหรับแจ้งปัญหา IT
-- Static issue list
-- Status badge
-- CSS layout และ responsive เบื้องต้น
-- GitHub repository
+- Form แจ้งปัญหา
+- Issue List และ Status Badge
+- Responsive CSS
+- Source Code บน GitHub
 
-### สิ่งที่ Day 1 ยังไม่มี
+แต่ข้อมูลยังเขียนอยู่ใน HTML โดยตรง และเมื่อ Submit แล้วรายการยังไม่เปลี่ยน
 
-- ข้อมูลยังเขียนอยู่ใน HTML โดยตรง
-- ยังไม่มี component
-- ยังไม่มี routing แบบ web application
-- ยังไม่มี TypeScript data model
-- ยังไม่มี backend
-- ยังไม่มี database
-
-### Key Message
-
-Day 1 คือ static prototype ส่วน Day 2 เราจะเริ่มย้าย prototype นี้เข้า framework ที่ใช้สร้าง web application จริง
+Day 2 เราจะเริ่มย้ายหน้าเดิมเข้า Next.js เพื่อเตรียมเพิ่ม TypeScript, Component, หลาย Route และข้อมูลที่เปลี่ยนแปลงได้
 
 ---
 
-## Slide 2: ทำไมไม่หยุดที่ HTML/CSS
+## Slide 2: ทำไมไม่ใช้ `index.html` ต่อไป
 
-### HTML/CSS เพียงพอสำหรับ
+Static HTML/CSS เหมาะกับหน้าที่เนื้อหาเปลี่ยนไม่บ่อย แต่ระบบแจ้งปัญหาของเราต้องเพิ่มความสามารถอีกหลายส่วน:
 
-- หน้าแนะนำหน่วยงาน
-- หน้าเอกสารประกาศ
-- หน้า contact
-- หน้า static content
+| สิ่งที่จะเพิ่ม | ตัวอย่างใน Project |
+|---|---|
+| หลายหน้า | รายการปัญหา, สร้างปัญหา, รายละเอียด |
+| Component | Form, Table, Status Badge |
+| TypeScript | กำหนดรูปแบบข้อมูล Issue |
+| Logic | ตรวจ Form และเปลี่ยนสถานะ |
+| Server และ Database | บันทึกและอ่านข้อมูลจริง |
 
-### แต่ระบบของฝ่าย IT ต้องการมากกว่านั้น
-
-- มีหลายหน้า
-- มีข้อมูลหลายรายการ
-- มี form ที่ต้องบันทึกข้อมูล
-- มี role user/admin
-- มี login
-- มี database
-- มี logic เช่น filter, validate, update status
-
-### Key Message
-
-เมื่อเว็บเริ่มมีข้อมูลและ workflow เราควรย้ายจาก static page ไปเป็น web application
+Next.js ช่วยวางโครงให้ความสามารถเหล่านี้ทำงานร่วมกันเป็น Application เดียว
 
 ---
 
 ## Slide 3: Next.js คืออะไร
 
-### Next.js คือ Framework สำหรับสร้าง Web Application
+Next.js คือ Framework ที่สร้างอยู่บน React สำหรับพัฒนา Web Application
 
-Next.js สร้างอยู่บน React และช่วยให้เราทำสิ่งเหล่านี้ได้ง่ายขึ้น:
+สิ่งที่ Next.js เตรียมให้เรา เช่น:
 
-- Routing
-- Page layout
-- Component
-- Server-side rendering
-- API หรือ server actions
-- เชื่อมต่อ database
-- Authentication
-- Deployment
+- สร้างหน้าจาก Folder และ File
+- ใช้ Component ร่วมกันหลายหน้า
+- เขียน UI ด้วย React และ TypeScript
+- ทำงานฝั่ง Server ได้
+- เตรียม Project สำหรับ Build และ Deploy
 
-### ภาพจำง่าย ๆ
-
-```text
-HTML/CSS static page
-  |
-  v
-React component
-  |
-  v
-Next.js application
-```
-
-### Key Message
-
-Next.js ไม่ได้มาแทน HTML/CSS แต่เอา HTML/CSS/TypeScript มาใช้ในรูปแบบที่เหมาะกับ application มากขึ้น
+Next.js ไม่ได้ทำให้ HTML และ CSS หายไป แต่เปลี่ยนวิธีจัดวาง Code ให้รองรับ Application ที่ใหญ่ขึ้น
 
 ---
 
-## Slide 4: จาก `index.html` ไปเป็น `page.tsx`
+## Slide 4: ไฟล์จาก Day 1 จะย้ายไปที่ไหน
 
-### Day 1
+| Day 1 | Day 2 | หน้าที่ |
+|---|---|---|
+| `index.html` | `app/page.tsx` | เนื้อหาหน้าแรก |
+| `<html>` และ `<body>` | `app/layout.tsx` | กรอบหลักของ Application |
+| `style.css` | `app/globals.css` | Style ที่ใช้ร่วมกัน |
 
-```text
-index.html
-style.css
-```
-
-### Day 2
-
-```text {5}
-app/
-  favicon.ico
-  globals.css
-  layout.tsx
-  page.tsx
-```
-
-### แนวคิด
-
-```text
-HTML structure เดิม -> JSX ใน app/page.tsx
-CSS เดิม            -> app/globals.css ก่อน แล้วค่อยไป Tailwind ใน Day 3
-ข้อมูล static       -> TypeScript array
-ส่วนที่ซ้ำ          -> Component
-```
-
-### Speaker Notes
-
-ผู้เรียนไม่จำเป็นต้องเข้าใจ React ลึกทันที แต่ต้องเห็นว่า syntax หน้าตาคล้าย HTML มาก เพียงแต่ตอนนี้เราเขียนอยู่ในไฟล์ `.tsx`
+Hour นี้เราจะสร้าง Project และทำความรู้จักไฟล์ก่อน ส่วน Hour ถัดไปจึงค่อยย้าย Form, Issue List และ CSS เดิมเข้ามา
 
 ---
 
-## Slide 5: JSX และ TSX คืออะไร
+## Slide 5: ตรวจ Node.js และ npm
 
-### JSX
-
-Syntax ที่ให้เราเขียน UI คล้าย HTML ใน JavaScript
-
-### TSX
-
-JSX ที่ใช้ร่วมกับ TypeScript
-
-ตัวอย่าง:
-
-```tsx
-export default function Home() {
-  return (
-  <main>
-    <h1>ระบบแจ้งปัญหา IT</h1>
-    <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
-  </main>
-  );
-}
-```
-
-### จุดที่ต่างจาก HTML
-
-- ใช้ `className` แทน `class`
-- tag ส่วนใหญ่ยังคล้าย HTML
-- ต้อง return UI จาก function
-- ใช้ `{}` เพื่อแทรก JavaScript/TypeScript expression
-
----
-
-## Slide 6: เตรียมสร้าง Next.js Project
-
-### Software ที่ควรมี
-
-- Node.js LTS
-- npm
-- VS Code
-- Git
-- Browser
-
-### ตรวจ version
+เปิด Terminal แล้วรัน:
 
 ```bash
 node -v
 npm -v
-git --version
 ```
+
+- Node.js คือ Runtime ที่ใช้รันเครื่องมือและ Server ของ Next.js
+- npm ใช้ติดตั้ง Package และเรียกคำสั่งของ Project
+
+Next.js เวอร์ชันที่ใช้ในคอร์สต้องการ Node.js อย่างน้อย `20.9` หากคำสั่งไม่แสดง Version หรือ Version ต่ำกว่านี้ ให้ติดตั้ง Node.js LTS ก่อนสร้าง Project
 
 ---
 
-## Slide 7: สร้าง Next.js Project
+## Slide 6: สร้าง Next.js Project ใหม่
 
-### ตำแหน่งที่รันคำสั่ง
+สร้าง Folder ว่างชื่อ `it-issue-nextjs` แยกจาก Static Project ของ Day 1 แล้วเปิด Folder ใหม่นี้ใน VS Code
 
-รันใน folder ว่างที่ต้องการใช้เป็น Next.js project เช่น `it-issue-nextjs` ไม่ต้องรันใน project เดิมของ Day 1
+เมื่อ Terminal อยู่ภายใน Folder `it-issue-nextjs` ให้รัน:
 
 ```bash
-npx create-next-app@latest
+npx create-next-app@latest .
 ```
 
-### Prompt ปัจจุบัน
+`.` หมายถึงให้สร้าง Project ลงใน Folder ปัจจุบัน จึงไม่สร้าง Folder ซ้อนเพิ่มอีกชั้น
 
-```text {2-4}
-? Would you like to use the recommended Next.js defaults?
-> Yes, use recommended defaults
-  TypeScript, ESLint, No React Compiler, Tailwind CSS,
-  No src/ directory, App Router, AGENTS.md
-  No, reuse previous settings
-  No, customize settings
-```
+เมื่อมีคำถาม ให้เลือก **Yes, use recommended defaults** เพื่อสร้าง Project พร้อม:
 
-### คำแนะนำสำหรับคอร์สนี้
+- TypeScript
+- ESLint
+- Tailwind CSS
+- App Router
+- โครงสร้าง `app/` ที่อยู่ระดับ Root โดยไม่มี `src/`
 
-สำหรับ flow นี้ แนะนำเลือก:
-
-```text
-Yes, use recommended defaults
-```
-
-เพราะจะได้ TypeScript, ESLint, App Router และโครงสร้างแบบ `app/` ที่ไม่มี `src/` ตรงกับ slide ก่อนหน้า แม้ project จะมี Tailwind CSS ติดมา แต่ Day 2 ยังโฟกัส `app/page.tsx` และ `app/globals.css` ก่อน
+ระหว่างทำงาน npm จะดาวน์โหลด Package จึงต้องเชื่อมต่อ Internet
 
 ---
 
-## Slide 8: เข้า Project และเปิด Dev Server
+## Slide 7: เปิด Dev Server
 
-### ตำแหน่งที่รันคำสั่ง
-
-รันต่อจาก Slide 7 หลังสร้าง project เสร็จ โดยเข้าไปใน folder project ก่อน
+เราอยู่ใน Folder Project แล้ว จึงเปิด Development Server ได้ทันที:
 
 ```bash
-cd it-issue-nextjs
 npm run dev
 ```
 
-จากนั้นเปิด browser:
+เปิด URL ที่ Terminal แสดง โดยปกติคือ:
 
 ```text
 http://localhost:3000
 ```
 
-### สิ่งที่ควรเห็น
+เมื่อ Dev Server ทำงาน Terminal จะยังไม่กลับมาเป็นช่องรับคำสั่ง หากต้องการหยุด Server ให้กด `Ctrl + C`
 
-- หน้าเริ่มต้นของ Next.js
-- terminal แสดงว่า dev server ทำงานอยู่
-- เมื่อแก้ code หน้าเว็บ refresh ได้
-
-### Speaker Notes
-
-ถ้า port 3000 ถูกใช้แล้ว Next.js อาจเสนอ port อื่น เช่น 3001 ให้ผู้เรียนดู output ใน terminal เสมอ
+หาก Port `3000` ถูกใช้งานอยู่ ให้เปิด Port อื่นที่ Next.js แสดงใน Terminal
 
 ---
 
-## Slide 9: โครงสร้างไฟล์หลังสร้าง Project
+## Slide 8: โครงสร้างที่ต้องรู้ในวันนี้
 
-ตัวอย่าง:
+หลังสร้าง Project จะเห็นไฟล์และ Folder ประมาณนี้:
 
 ```text
 it-issue-nextjs/
   app/
-    favicon.ico
     globals.css
     layout.tsx
     page.tsx
@@ -305,76 +178,33 @@ it-issue-nextjs/
   next.config.ts
 ```
 
-### ไฟล์ที่ควรรู้วันนี้
-
-- `app/page.tsx`
-- `app/layout.tsx`
-- `app/globals.css`
-- `package.json`
-- `tsconfig.json`
+วันนี้เราจะอ่านเฉพาะ `page.tsx`, `layout.tsx`, `globals.css` และ `package.json` ส่วน Folder และ Config อื่นเก็บไว้ใช้เมื่อ Project ต้องการ
 
 ---
 
-## Slide 10: `page.tsx` คืออะไร
+## Slide 9: `app/page.tsx` คือหน้า `/`
 
-### `page.tsx`
-
-คือไฟล์ที่สร้างหน้าเว็บของ route หนึ่ง ๆ
+ใน App Router ไฟล์ `page.tsx` ใช้สร้างหน้าที่ผู้ใช้เปิดดูได้
 
 ```text
-app/page.tsx -> /
+app/page.tsx  →  http://localhost:3000/
 ```
 
-### ตัวอย่าง
-
-### File
-
-```text
-app/page.tsx
-```
-
-### ตำแหน่งที่แก้
-
-ตัวอย่างนี้คือเนื้อหาของ function หน้าแรก ไม่ใช่ code ที่ต้องเพิ่มต่อท้ายไฟล์
+Code ในไฟล์นี้เป็น React Component ที่ `return` UI ของหน้าแรก
 
 ```tsx
 export default function Home() {
-  return (
-  <main>
-    <h1>ระบบแจ้งปัญหา IT</h1>
-    <p>หน้าแรกของระบบแจ้งปัญหา</p>
-  </main>
-  );
+  return <h1>ระบบแจ้งปัญหา IT</h1>;
 }
 ```
 
-### Key Message
-
-ใน App Router ของ Next.js ไฟล์ชื่อ `page.tsx` คือหน้าที่ผู้ใช้เปิดดูได้
+Folder จะเป็นตัวกำหนดส่วนของ URL ส่วนไฟล์ชื่อ `page.tsx` ทำให้ URL นั้นเปิดเป็นหน้าเว็บได้
 
 ---
 
-## Slide 11: `layout.tsx` คืออะไร
+## Slide 10: `app/layout.tsx` คือกรอบที่ครอบทุกหน้า
 
-### `layout.tsx`
-
-คือไฟล์ที่เป็นกรอบร่วมของหน้าเว็บ
-
-คิดภาพง่าย ๆ:
-
-- `page.tsx` คือเนื้อหาของหน้า
-- `layout.tsx` คือกรอบที่ครอบเนื้อหานั้น
-- `children` คือจุดที่ Next.js เอาเนื้อหาจาก `page.tsx` มาใส่
-
-### File
-
-```text
-app/layout.tsx
-```
-
-### ส่วนที่ควรสังเกต
-
-ใน `app/layout.tsx` ให้ดู function `RootLayout` เป็นหลัก โค้ดนี้คือโครงเดิมที่ Next.js สร้างมาให้ ใช้เพื่อดูว่า layout ครอบ page อย่างไร
+Root Layout เป็นไฟล์ที่ Next.js ต้องมี และต้องประกอบด้วย `<html>` กับ `<body>`
 
 ```tsx
 export default function RootLayout({
@@ -383,304 +213,99 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   );
 }
 ```
 
-### ใช้ทำอะไร
+`children` คือตำแหน่งที่ Next.js นำเนื้อหาจาก `page.tsx` มาแสดง
 
-- `<html>` ตั้งค่าพื้นฐานของทั้ง application
-- `<body>` เป็นพื้นที่หลักของหน้าเว็บ
-- `{children}` คือเนื้อหาจาก `page.tsx` ที่ถูกนำมาแสดง
-- ส่วนที่ใช้ร่วมกันทุกหน้า เช่น font, layout หรือ navigation มักวางที่นี่
-
-### Speaker Notes
-
-อธิบายด้วยภาพ mental model: `layout.tsx` เหมือนกรอบบ้าน ส่วน `page.tsx` คือของที่อยู่ข้างในบ้าน ยังไม่ต้องลงรายละเอียด TypeScript ลึก บอกแค่ว่า `React.ReactNode` คือชนิดข้อมูลของสิ่งที่ React render ได้
+ตอนนี้ให้ทำความเข้าใจโครงสร้างก่อน ยังไม่ต้องแทน Code ทั้งไฟล์ เพราะไฟล์ที่สร้างมามีการตั้งค่า Font และ Import CSS อยู่แล้ว
 
 ---
 
-## Slide 12: `globals.css` คืออะไร
+## Slide 11: `app/globals.css` คือ Style ที่ใช้ร่วมกัน
 
-### `globals.css`
+`globals.css` ถูก Import จาก `app/layout.tsx` ทำให้ Style ภายในไฟล์มีผลกับทุกหน้าที่ Layout ครอบอยู่
 
-คือไฟล์ CSS กลางของทั้ง application
-
-### File
-
-```text
-app/globals.css
+```tsx
+import "./globals.css";
 ```
 
-### ภาพรวม
-
-เมื่อสร้าง project แบบ recommended defaults ไฟล์นี้จะถูกสร้างมาให้แล้ว และถูก import จาก `app/layout.tsx`
-
-### ตัวอย่างจาก create-next-app ปัจจุบัน
+Project ที่สร้างพร้อม Tailwind จะมีบรรทัดนี้ใน `app/globals.css`:
 
 ```css
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
 ```
 
-### อ่านไฟล์นี้อย่างไร
-
-- `@import "tailwindcss";` เปิดให้ใช้ Tailwind class ได้
-- `:root` เก็บค่าสีกลางของเว็บ เช่น background และ foreground
-- `@theme inline` เชื่อมค่า CSS variables ให้ Tailwind ใช้ต่อได้
-- `@media (prefers-color-scheme: dark)` เปลี่ยนค่าสีเมื่อเครื่องผู้ใช้เปิด dark mode
-- `body` คือ style พื้นฐานที่ครอบทุกหน้า
-
-### Key Message
-
-ชั่วโมงนี้ให้เข้าใจก่อนว่า `globals.css` คือที่เก็บ style ระดับทั้งแอป ส่วนรายละเอียด Tailwind และ theme จะค่อยต่อยอดใน Day 3
+Hour ถัดไปเราจะนำ CSS จาก `style.css` ของ Day 1 มาปรับและวางในไฟล์นี้
 
 ---
 
-## Slide 13: `package.json` คืออะไร
+## Slide 12: `package.json` เก็บคำสั่งของ Project
 
-### `package.json`
-
-ไฟล์ที่บอกว่า project นี้ชื่ออะไร ใช้คำสั่งอะไร และต้องติดตั้ง package อะไรบ้าง
-
-### ตัวอย่างจาก create-next-app ปัจจุบัน
+เปิด `package.json` แล้วมองหาส่วน `scripts`:
 
 ```json
 {
-  "name": "it-issue-nextjs",
-  "version": "0.1.0",
-  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
-  },
-  "dependencies": {
-    "next": "16.2.9",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.9",
-    "tailwindcss": "^4",
-    "typescript": "^5"
   }
 }
 ```
 
-### อ่านไฟล์นี้อย่างไร
+เมื่อรัน `npm run dev` npm จะค้นชื่อ `dev` ในไฟล์นี้ แล้วเรียก `next dev` เพื่อเปิด Development Server
 
-- `name` คือชื่อ project
-- `scripts` คือคำสั่งที่เราเรียกผ่าน `npm run ...`
-- `dependencies` คือ package ที่ app ต้องใช้ตอนทำงาน
-- `devDependencies` คือ package ที่ช่วยตอนพัฒนา เช่น TypeScript, ESLint, Tailwind
-
-### Key Message
-
-เวลาเห็นคำสั่ง `npm run dev` หรือ `npm run build` ให้กลับมาดูที่ `scripts` ใน `package.json`
+`dependencies` และ `devDependencies` ในไฟล์เดียวกันเก็บรายชื่อ Package ที่ Project ต้องใช้ จึงไม่ควรแก้ Version แบบสุ่ม
 
 ---
 
-## Slide 14: แก้หน้าแรกของ Next.js
+## Slide 13: เปลี่ยนหน้าเริ่มต้นของ Next.js
 
-### เปิดไฟล์
-
-```text
-app/page.tsx
-```
-
-### แทนที่เนื้อหาเดิมด้วย
-
-ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `app/page.tsx` ในขั้นตอนแรก
+แก้ทั้งไฟล์: `app/page.tsx`
 
 ```tsx
 export default function Home() {
   return (
-  <main>
-    <h1>ระบบแจ้งปัญหา IT</h1>
-    <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
-  </main>
+    <main>
+      <h1>ระบบแจ้งปัญหา IT</h1>
+      <p>Next.js Project พร้อมใช้งานแล้ว</p>
+    </main>
   );
 }
 ```
 
-### ตรวจใน browser
-
-หลังบันทึกไฟล์ หน้าเว็บควรเปลี่ยนทันที
+หลังบันทึกไฟล์ Browser ควรแสดงเนื้อหาใหม่โดยไม่ต้องปิดและเปิด `npm run dev` อีกครั้ง
 
 ---
 
-## Slide 15: จุดต่างสำคัญระหว่าง HTML กับ TSX
+## Slide 14: อ่าน TSX ชุดแรก
 
-### `class` ต้องเปลี่ยนเป็น `className`
+จาก Code ใน Slide ก่อนหน้า:
 
-HTML:
+- `function Home()` สร้าง Component ชื่อ `Home`
+- `export default` ทำให้ Next.js นำ Component นี้ไปใช้เป็นหน้าได้
+- `return (...)` ระบุ UI ที่ Component ต้องแสดง
+- Code ที่มีหน้าตาคล้าย HTML ภายใน TypeScript เรียกว่า TSX
+- TSX ต้องมี Element หลักหนึ่งตัวครอบเนื้อหาที่ Return ในตัวอย่างนี้คือ `<main>`
 
-```html
-<section class="panel">
-```
-
-TSX:
-
-```tsx
-<section className="panel">
-```
-
-### Inline style เป็น object
-
-HTML:
-
-```html
-<main style="padding: 24px;">
-```
-
-TSX:
-
-```tsx
-<main style={{ padding: "24px" }}>
-```
-
-### ต้องปิด tag ให้ครบ
-
-```tsx
-<input name="title" />
-```
+Hour ถัดไปเราจะเรียนความต่างระหว่าง HTML กับ TSX เพิ่มเติม เช่น `className` และ `htmlFor` ระหว่างย้ายหน้าเดิม
 
 ---
 
-## Slide 16: โค้ดสุดท้ายของ `app/page.tsx` หลังชั่วโมงนี้
+## Slide 15: ตรวจความพร้อมก่อนย้าย Static Prototype
 
-### File
+ก่อนจบ Hour นี้ ให้ตรวจว่า:
 
-```text
-app/page.tsx
-```
+- `npm run dev` ทำงานโดยไม่มี Error
+- Browser เปิดหน้าแรกของ Project ได้
+- หน้าแสดง “ระบบแจ้งปัญหา IT”
+- แก้ `app/page.tsx` แล้ว Browser อัปเดตตาม
+- Project ใช้ Folder `app/` ที่ระดับ Root และไม่มี `src/`
 
-### ตำแหน่งที่แก้
-
-ใช้ตัวอย่างนี้แทน function `Home` จาก Slide 14 เพื่อเพิ่ม section placeholder สำหรับ form
-
-```tsx
-export default function Home() {
-  return (
-  <main>
-    <h1>ระบบแจ้งปัญหา IT</h1>
-    <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
-
-    <section>
-      <h2>แจ้งปัญหาใหม่</h2>
-      <p>เราจะย้าย form จาก Day 1 มายังส่วนนี้</p>
-    </section>
-  </main>
-  );
-}
-```
-
----
-
-## Slide 17: ถ้าเจอ Error ต้องดูตรงไหน
-
-### จุดที่ควรตรวจ
-
-- terminal ที่รัน `npm run dev`
-- browser error overlay
-- ชื่อไฟล์และตำแหน่งบรรทัด
-- tag ปิดครบไหม
-- ใช้ `class` แทน `className` หรือไม่
-- return JSX ครอบด้วย element เดียวหรือไม่
-
-### ตัวอย่างปัญหาที่พบบ่อย
-
-```tsx
-export default function Home() {
-  return (
-  <h1>ระบบแจ้งปัญหา IT</h1>
-  <p>แจ้งปัญหา</p>
-  );
-}
-```
-
-ต้องครอบด้วย element เดียว:
-
-```tsx
-export default function Home() {
-  return (
-  <main>
-    <h1>ระบบแจ้งปัญหา IT</h1>
-    <p>แจ้งปัญหา</p>
-  </main>
-  );
-}
-```
-
----
-
-## Slide 19: สิ่งที่จะทำในชั่วโมงถัดไป
-
-### ชั่วโมงที่ 2
-
-เราจะย้าย static prototype จาก Day 1 เข้า Next.js:
-
-- Header
-- Form แจ้งปัญหา
-- Issue list
-- Status badge
-- CSS จาก `style.css` ไป `globals.css`
-
-### เป้าหมาย
-
-หน้า Next.js ควรมีหน้าตาใกล้เคียงกับ static page เดิม
-
----
-
-## Slide 20: Recap ชั่วโมงแรกของ Day 2
-
-### สิ่งที่ได้เรียน
-
-- Next.js คือ framework สำหรับสร้าง web application
-- Static HTML สามารถย้ายเป็น TSX ได้
-- `page.tsx` คือหน้าเว็บของ route
-- `layout.tsx` คือ layout หลัก
-- `globals.css` คือ global style
-- `package.json` เก็บ scripts ของ project
-- `npm run dev` ใช้เปิด development server
-
-### ต่อไป
-
-เราจะ convert งาน Day 1 จาก HTML/CSS static prototype เข้า Next.js project ที่เพิ่งสร้าง
+Hour ถัดไปเราจะย้าย Header, Form, Issue List, Status Badge และ Footer จาก Day 1 เข้า `app/page.tsx` พร้อมย้าย CSS เข้า `app/globals.css`
