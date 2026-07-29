@@ -8,109 +8,22 @@ source: "day-2-hour-4-components-and-routing.md"
 
 # Components and Routing
 
-## Day 2 - ชั่วโมงที่ 4: แยกไฟล์ Component จริงใน Next.js
+## Day 2 - ชั่วโมงที่ 4: แยก Component และสร้างหน้าใหม่
 
 ### เป้าหมายของชั่วโมงนี้
 
-หลังจบชั่วโมงที่สี่ของ Day 2 ผู้เรียนควรสามารถ:
+หลังจบชั่วโมงนี้ ผู้เรียนจะสามารถ:
 
-1. เห็นปัญหาของการเก็บ form, table, badge, type และ mock data ทั้งหมดไว้ใน `app/page.tsx`
-2. แยก UI ออกเป็นไฟล์ component จริงใน `components/`
-3. สร้าง `StatusBadge.tsx`, `IssueList.tsx` และ `IssueForm.tsx` ได้
-4. ใช้ `export` และ `import` เพื่อเรียก component ข้ามไฟล์ได้
-5. ส่งข้อมูลเข้า component ผ่าน props ได้
-6. แยก `types` และ `data` เป็นไฟล์กลางเพื่อให้ component หลายตัวใช้ร่วมกันได้
-7. ใช้ component ที่แยกแล้วซ้ำใน route `/`, `/issues` และ `/issues/new`
+1. อธิบายได้ว่าทำไมไม่ควรเก็บ Type, Data และ UI ทั้งหมดไว้ใน `page.tsx`
+2. แยก `IssueForm`, `IssueList` และ `StatusBadge` เป็น Component ได้
+3. ส่งข้อมูลเข้า Component ผ่าน Props ได้
+4. ย้าย Type และ Mock Data ไปไว้ในไฟล์กลางได้
+5. สร้าง Route `/issues`, `/issues/new` และ `/issues/[id]` ได้
+6. ใช้ `Link` เชื่อมหน้าใน Next.js ได้
 
-### ไฟล์ที่ใช้ในชั่วโมงนี้
-
-ชั่วโมงนี้สอนการแยกไฟล์ component เป็นแกนหลัก โดยสร้างไฟล์จริงเหล่านี้ตั้งแต่ต้น:
+### ไฟล์ที่จะได้หลังจบชั่วโมง
 
 ```text
-components/StatusBadge.tsx
-components/IssueList.tsx
-components/IssueForm.tsx
-types/issue.ts
-data/issues.ts
-app/page.tsx
-app/layout.tsx
-app/issues/page.tsx
-app/issues/new/page.tsx
-app/issues/[id]/page.tsx
-```
-
----
-
-## โครงสร้างเวลา 60 นาที
-
-| เวลา | หัวข้อ | รูปแบบ |
-|---|---|---|
-| 0-5 นาที | Recap Hour 3: TypeScript data model | เชื่อมเข้าเนื้อหา |
-| 5-12 นาที | แยกส่วนใน `page.tsx` ออกมาเป็นไฟล์ component อะไรบ้าง | Explain |
-| 12-18 นาที | สร้างโครง `components/`, `types/`, `data/` | Live coding |
-| 18-35 นาที | สร้างไฟล์ component จริง: `StatusBadge`, `IssueList`, `IssueForm` | Live coding |
-| 35-45 นาที | import component กลับมาใช้ใน `app/page.tsx` | Live coding |
-| 45-52 นาที | ใช้ component เดิมซ้ำใน routes | Live coding |
-| 52-60 นาที | ตรวจโค้ดสุดท้ายและ recap | สรุป |
-
----
-
-## Slide 1: Recap จากชั่วโมงที่ 3
-
-### ชั่วโมงที่แล้วเราทำอะไร
-
-- สร้าง `IssueStatus` และ `Issue`
-- สร้าง mock data `issues: Issue[]`
-- เปลี่ยน static table เป็น `issues.map(...)`
-- ใช้ `getStatusClass()` เพื่อกำหนด class ของ status badge
-
-### ปัญหาตอนนี้
-
-ทุกอย่างยังอยู่ใน `app/page.tsx`:
-
-```text
-types
-mock data
-helper function
-form JSX
-table JSX
-page layout
-```
-
-ชั่วโมงนี้เราจะเริ่มจากการแยก `form`, `table` และ `status badge` ออกจาก `page.tsx` ไปเป็นไฟล์ component จริง
-
----
-
-## Slide 2: แยกอะไรออกจาก `page.tsx` บ้าง
-
-### จุดเริ่มต้น
-
-ถ้า `page.tsx` มีทั้ง form, table, badge, type และ data อยู่รวมกัน จะเริ่มเจอปัญหา:
-
-- ไฟล์ยาวและอ่านยาก
-- หน้าอื่นใช้ form/table ซ้ำไม่ได้
-- route `/issues` ต้องเขียน table ใหม่
-- route `/issues/new` ต้องเขียน form ใหม่
-- แก้ UI จุดเดียว อาจต้องตามแก้หลายไฟล์
-
-### สิ่งที่จะแยกออกมา
-
-```text
-status badge JSX  -> components/StatusBadge.tsx
-issue table JSX   -> components/IssueList.tsx
-issue form JSX    -> components/IssueForm.tsx
-type ของ issue    -> types/issue.ts
-mock issues       -> data/issues.ts
-page.tsx          -> เหลือแค่ import และจัด layout
-```
-
----
-
-## Slide 3: โครงสร้างไฟล์หลังแยก Component
-
-### โครงที่ต้องการ
-
-```text {10-13}
 app/
   layout.tsx
   page.tsx
@@ -125,75 +38,80 @@ components/
   IssueList.tsx
   StatusBadge.tsx
 data/
-  issues.ts
+  issue.ts
 types/
   issue.ts
 ```
 
-### แต่ละ folder ใช้ทำอะไร
+---
 
-| Folder | หน้าที่ |
-|---|---|
-| `components` | เก็บ UI ที่ใช้ซ้ำ เช่น form, table, badge |
-| `types` | เก็บ TypeScript type |
-| `data` | เก็บ mock data |
-| `app` | เก็บ pages/routes |
+## โครงสร้างเวลา 60 นาที
 
-หัวใจของชั่วโมงนี้คือ `components/` ส่วน `types` และ `data` เป็นไฟล์กลางที่ช่วยให้ component import ใช้ได้เป็นระเบียบ
+| เวลา | หัวข้อ | รูปแบบ |
+|---|---|---|
+| 0-10 นาที | ทำไมต้องแยกไฟล์ และ Component คืออะไร | อธิบาย |
+| 10-25 นาที | ย้าย Type, Data และ Status Badge | ทำทีละขั้นตอน |
+| 25-40 นาที | แยก Issue List และ Issue Form | ทำทีละขั้นตอน |
+| 40-52 นาที | สร้าง Routes และ Dynamic Route | ทำทีละขั้นตอน |
+| 52-60 นาที | เพิ่ม Navigation และตรวจผลลัพธ์ | ตรวจความพร้อม |
 
 ---
 
-## Slide 4: Export และ Import คืออะไร
+## Slide 1: `page.tsx` เริ่มทำหลายหน้าที่เกินไป
 
-### Component ที่อยู่คนละไฟล์ต้อง export ก่อน
+ท้าย Hour 3 ทุกอย่างยังอยู่ใน `app/page.tsx`:
+
+```text
+IssueStatus และ Issue
+Mock Data
+getStatusClass()
+Form JSX
+Table JSX
+โครงหน้า Home
+```
+
+Code ยังทำงานได้ แต่ไฟล์เดียวต้องรับผิดชอบทั้งข้อมูล Logic และ UI ทำให้อ่านยากขึ้น และหน้าอื่นไม่สามารถนำ Form หรือ Table ไปใช้ซ้ำได้
+
+Hour นี้เราจะ **Refactor** หรือปรับโครงสร้าง Code โดยยังคงผลลัพธ์เดิม แต่แยกแต่ละหน้าที่ไปอยู่ในไฟล์ที่เหมาะสม
+
+---
+
+## Slide 2: Component และ Props คืออะไร
+
+**Component** คือ Function ที่คืน UI และนำกลับมาใช้ซ้ำได้:
 
 ```tsx
-export function IssueForm() {
-  return <form>...</form>;
+export function StatusBadge() {
+  return <span>OPEN</span>;
 }
 ```
 
-### ไฟล์อื่น import ไปใช้
+หาก Component ต้องแสดงข้อมูลที่เปลี่ยนไปในแต่ละครั้ง เราส่งข้อมูลเข้าไปผ่าน **Props**:
 
 ```tsx
-import { IssueForm } from "@/components/IssueForm";
+<StatusBadge status="OPEN" />
 ```
 
-### Named export
-
-ในคอร์สนี้ใช้แบบนี้เป็นหลัก:
-
-```tsx
-export function StatusBadge() {}
-export function IssueList() {}
-export function IssueForm() {}
+```text
+Parent ส่ง Props → Component รับข้อมูล → Component สร้าง UI
 ```
 
-แล้ว import ด้วยชื่อใน `{ }`:
-
-```tsx
-import { StatusBadge } from "@/components/StatusBadge";
-```
-
-แยกไฟล์ component แล้วต้องเข้าใจ `export` และ `import` ไม่อย่างนั้น route อื่นจะเรียกใช้ component ไม่ได้
+คำว่า `export` ทำให้ไฟล์อื่น Import Component นี้ไปใช้ได้ ส่วนชื่อ Prop เช่น `status` บอกว่า Component ต้องการข้อมูลอะไร
 
 ---
 
-## Slide 5: เตรียม Type กลางให้ Component ใช้ร่วมกัน
+## Slide 3: ย้าย Type ไปไว้ในไฟล์กลาง
 
-### File
+สร้าง Folder `types` ไว้ที่ **Root ของ Project** ระดับเดียวกับ Folder `app` แล้วสร้างไฟล์ `issue.ts` ไว้ข้างใน:
 
 ```text
-types/issue.ts
+project/
+├── app/
+└── types/
+    └── issue.ts
 ```
 
-### ตำแหน่งที่วาง
-
-สร้าง `types/` ไว้ที่ root project ระดับเดียวกับ `app/`
-
-จากนั้นสร้างไฟล์ `issue.ts` ไว้ข้างใน `types/`
-
-วาง type ที่เคยอยู่ด้านบนของ `app/page.tsx` มาไว้ที่ไฟล์นี้ เพื่อให้ `StatusBadge` และ `IssueList` import ไปใช้ได้
+Copy `IssueStatus` และ `Issue` จาก `app/page.tsx` มาไว้ในไฟล์ใหม่ แล้วเพิ่ม `export`:
 
 ```ts
 export type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
@@ -204,84 +122,69 @@ export type Issue = {
   reporterEmail: string;
   title: string;
   description: string;
-  adminComment?: string;
   status: IssueStatus;
+  adminComment?: string;
   createdAt: string;
 };
 ```
 
-### จุดสำคัญ
+เราต้อง `export` เพราะไฟล์ Component และ Data จะ Import Type ทั้งสองตัวไปใช้ร่วมกัน
 
-ต้องใส่ `export` เพราะไฟล์อื่นจะ import type เหล่านี้ไปใช้
+ยังไม่ต้องลบ Type เดิมจาก `app/page.tsx` เพื่อให้หน้าเดิมทำงานต่อระหว่าง Refactor เราจะลบพร้อม Code เดิมทั้งหมดใน Slide 9
 
 ---
 
-## Slide 6: เตรียม Mock Data กลางให้หน้าและ Component ใช้ร่วมกัน
+## Slide 4: สร้าง Folder สำหรับ Mock Data
 
-### File
+สร้าง Folder `data` ไว้ที่ **Root ของ Project** ระดับเดียวกับ `app` และ `types` แล้วสร้างไฟล์ `issue.ts` ไว้ข้างใน:
 
 ```text
-data/issues.ts
+project/
+├── app/
+├── types/
+│   └── issue.ts
+└── data/
+    └── issue.ts
 ```
 
-### ตำแหน่งที่วาง
+Folder `data` ใช้เก็บข้อมูลตัวอย่างที่ Component หลายตัวต้องนำไปใช้ร่วมกัน ทำให้เราไม่ต้องประกาศข้อมูลชุดเดิมซ้ำในแต่ละหน้า
 
-สร้าง `data/` ไว้ที่ root project ระดับเดียวกับ `app/`
+`create-next-app` ตั้งค่า Import Alias `@/` ให้แล้ว เราจึงใช้ `@/types/issue` เพื่ออ้างถึงไฟล์ `types/issue.ts` จาก Project Root ได้ทันที
 
-จากนั้นสร้างไฟล์ `issues.ts` ไว้ข้างใน `data/`
+1. Copy `const issues` ทั้งหมดจาก `app/page.tsx`
+2. เพิ่ม Import Type ไว้ด้านบน
+3. เติม `export` หน้า `const issues`
+
+โครงของไฟล์หลังย้าย:
 
 ```ts
 import type { Issue } from "@/types/issue";
 
 export const issues: Issue[] = [
-  {
-    id: "001",
-    reporterName: "Anan",
-    reporterEmail: "anan@example.com",
-    title: "Login เข้าระบบไม่ได้",
-    description: "ไม่สามารถเข้าสู่ระบบด้วยบัญชีเดิมได้",
-    status: "OPEN",
-    createdAt: "2026-05-08",
-  },
-  {
-    id: "002",
-    reporterName: "Mali",
-    reporterEmail: "mali@example.com",
-    title: "ส่งแบบฟอร์มสมัครไม่ได้",
-    description: "กดส่งข้อมูลแล้วระบบขึ้น error",
-    status: "IN_PROGRESS",
-    createdAt: "2026-05-08",
-  },
-  {
-    id: "003",
-    reporterName: "Kanda",
-    reporterEmail: "kanda@example.com",
-    title: "ขอสิทธิ์เข้าใช้งาน dashboard",
-    description: "ต้องการสิทธิ์สำหรับตรวจสอบข้อมูลหลังบ้าน",
-    status: "DONE",
-    adminComment: "อนุมัติสิทธิ์และแจ้งผู้ใช้เรียบร้อยแล้ว",
-    createdAt: "2026-05-08",
-  },
+  // ย้าย Object ทั้ง 3 รายการจาก app/page.tsx มาไว้ที่นี่
 ];
 ```
 
-`issues` เป็น mock data กลางที่หน้า `/` และ `/issues` ใช้ร่วมกันได้
+Object ทั้งสามรายการไม่ต้องพิมพ์ใหม่ ให้ Copy แล้ว Paste เพื่อรักษาข้อมูลเดิมและลดโอกาสสะกดผิด
+
+ยังไม่ต้องลบ `const issues` เดิมจาก `app/page.tsx` เพราะหน้าเดิมยังใช้อยู่ เราจะเปลี่ยนให้ Import จากไฟล์ใหม่นี้ใน Slide 9
 
 ---
 
-## Slide 7: สร้างไฟล์ Component `StatusBadge.tsx`
+## Slide 5: สร้าง Component `StatusBadge`
 
-### File
+สร้าง Folder `components` ไว้ที่ **Root ของ Project** ระดับเดียวกับ `app`, `types` และ `data` แล้วสร้างไฟล์ `StatusBadge.tsx` ไว้ข้างใน:
 
 ```text
-components/StatusBadge.tsx
+project/
+├── app/
+├── types/
+├── data/
+└── components/
+    └── StatusBadge.tsx
 ```
 
-### ตำแหน่งที่วาง
-
-สร้าง `components/` ไว้ที่ root project ระดับเดียวกับ `app/`
-
-จากนั้นสร้างไฟล์ `StatusBadge.tsx` ไว้ข้างใน `components/`
+Copy `getStatusClass()` จาก `app/page.tsx` มาไว้ในไฟล์นี้ แล้วสร้าง Component:
 
 ```tsx
 import type { IssueStatus } from "@/types/issue";
@@ -311,62 +214,19 @@ export function StatusBadge({ status }: StatusBadgeProps) {
 }
 ```
 
-### ใช้งาน
+`StatusBadgeProps` กำหนดว่า Component ต้องได้รับ Prop ชื่อ `status` และค่านั้นต้องเป็น `IssueStatus`
 
-```tsx
-<StatusBadge status={issue.status} />
-```
-
-`StatusBadge` รับแค่ `status` และรับผิดชอบเรื่องหน้าตาของ status เท่านั้น
+ยังไม่ต้องลบ `getStatusClass()` เดิมจาก `app/page.tsx` จนกว่า Table จะเปลี่ยนมาใช้ `StatusBadge`
 
 ---
 
-## Slide 8: Props คืออะไร
+## Slide 6: เตรียม Component `IssueList`
 
-### Props คือข้อมูลที่ส่งเข้า component
+สร้างไฟล์ใหม่: `components/IssueList.tsx`
 
-ตัวอย่าง:
-
-```tsx
-<StatusBadge status="OPEN" />
-```
-
-ใน component:
+เพิ่ม Import และกำหนด Props ไว้ด้านบน:
 
 ```tsx
-type StatusBadgeProps = {
-  status: IssueStatus;
-};
-
-export function StatusBadge({ status }: StatusBadgeProps) {
-  return <span>{status}</span>;
-}
-```
-
-### ภาพจำง่าย ๆ
-
-```text
-Parent component ส่งข้อมูล -> Child component รับผ่าน props
-```
-
-Props ทำให้ component ไม่ต้องรู้ข้อมูลทั้งระบบ รู้เฉพาะข้อมูลที่จำเป็นต่อการแสดงผล
-
----
-
-## Slide 9: สร้างไฟล์ Component `IssueList.tsx`
-
-### File
-
-```text
-components/IssueList.tsx
-```
-
-### ตำแหน่งที่วาง
-
-สร้างไฟล์ `IssueList.tsx` ใน `components/`
-
-```tsx
-import Link from "next/link";
 import { StatusBadge } from "./StatusBadge";
 import type { Issue } from "@/types/issue";
 
@@ -375,120 +235,97 @@ type IssueListProps = {
 };
 
 export function IssueList({ issues }: IssueListProps) {
-  return (
-    <section aria-labelledby="issue-list-title">
-      <h2 id="issue-list-title">รายการปัญหาล่าสุด</h2>
-      <p>ตัวอย่างรายการปัญหาที่ถูกแจ้งเข้ามาในระบบ</p>
-
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>รหัส</th>
-              <th>หัวข้อ</th>
-              <th>ผู้แจ้ง</th>
-              <th>สถานะ</th>
-              <th>รายละเอียด</th>
-            </tr>
-          </thead>
-          <tbody>
-            {issues.map((issue) => (
-              <tr key={issue.id}>
-                <td>#{issue.id}</td>
-                <td>{issue.title}</td>
-                <td>{issue.reporterName}</td>
-                <td>
-                  <StatusBadge status={issue.status} />
-                </td>
-                <td>
-                  <Link href={`/issues/${issue.id}`}>ดูรายละเอียด</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
+  return null;
 }
 ```
 
-`IssueList` ไม่สนใจว่า data มาจาก mock, state หรือ database แค่รับ `issues` แล้วแสดงผล
+- เมื่อ Component รับ **Props** เราควรกำหนด Type ของ Props ให้ชัดเจน ในตัวอย่างนี้ `IssueListProps` บอกว่า `IssueList` ต้องได้รับ `issues` ซึ่งเป็น `Issue[]`
+- Type ช่วยให้ TypeScript ตรวจได้ตั้งแต่ตอนเขียน Code หากลืมส่ง `issues` หรือส่งข้อมูลผิดรูปแบบ แต่ถ้า Component ไม่ได้รับ Props เช่น `IssueForm` ในตอนนี้ ก็ไม่จำเป็นต้องสร้าง Props Type
+- ชื่อใน Type และชื่อที่ Component รับต้องตรงกัน ในที่นี้ต้องใช้ `issues` แบบพหูพจน์ทั้งสองตำแหน่ง หากเขียน `issue: Issue[]` แต่รับ `{ issues }` TypeScript จะแจ้ง Error
+- `return null` เป็นจุดพักที่หมายถึง “Component ยังไม่แสดงอะไร” และทำให้ไฟล์ยัง Compile ได้ ส่วน `return ()` แบบไม่มี Element อยู่ข้างในจะเกิด Syntax Error
+- ยังไม่ต้อง Cut Table ใน Slide นี้ เพราะ Slide ถัดไปจะนำ Section มาใส่ระหว่าง `return (` และ `);` ให้สมบูรณ์ในครั้งเดียว
 
 ---
 
-## Slide 10: สร้างไฟล์ Component `IssueForm.tsx`
+## Slide 7: ย้าย Table มาไว้ใน `IssueList`
 
-### File
+1. Cut `<section aria-labelledby="issue-list-title">...</section>` ออกจาก `app/page.tsx`
+2. แทน `return null;` ด้วย `return ( ... );`
+3. Paste Section ที่ Cut มาไว้ภายในวงเล็บ
+4. อย่า Cut `<main>` มาด้วย เพราะ `main` ยังเป็นโครงของหน้า
 
-```text
-components/IssueForm.tsx
+ภายใน `<tbody>` ให้ใช้ Code นี้ เพื่อวนสร้างแถวจาก `issues` และส่ง Status ไปให้ `StatusBadge`:
+
+```tsx
+<tbody>
+  {issues.map((issue) => (
+    <tr key={issue.id}>
+      <td>#{issue.id}</td>
+      <td>{issue.title}</td>
+      <td>{issue.reporterName}</td>
+      <td>
+        <StatusBadge status={issue.status} />
+      </td>
+    </tr>
+  ))}
+</tbody>
 ```
 
-### ตำแหน่งที่วาง
+Flow ของข้อมูลตอนนี้คือ:
 
-สร้างไฟล์ `IssueForm.tsx` ใน `components/`
+```text
+IssueList รับ issues
+   ↓
+.map() อ่าน issue ทีละตัว
+   ↓
+ส่ง issue.status ให้ StatusBadge
+```
+
+`IssueList` รับผิดชอบโครง Table ส่วน `StatusBadge` รับผิดชอบข้อความและสีของ Status แต่ละรายการ
+
+หลังเปลี่ยนแล้ว `IssueList.tsx` จะใช้ `issues`, `issue` และ `StatusBadge` ครบทุกตัวโดยไม่มี Code ที่เว้นว่าง ส่วน Helper เดิมใน `app/page.tsx` จะถูกลบเมื่อเราแทนทั้งไฟล์ใน Slide 9
+
+---
+
+## Slide 8: แยก Form เป็น `IssueForm`
+
+สร้างไฟล์ใหม่: `components/IssueForm.tsx`
+
+ให้ Cut ตั้งแต่ Tag เปิด `<section>` จนถึง Tag ปิด `</section>` เพื่อย้ายทั้งหัวข้อและ Form ไปด้วย:
+
+```tsx
+<section>
+  <h2>แจ้งปัญหาใหม่</h2>
+  <form>{/* fieldset และช่องกรอกข้อมูลทั้งหมด */}</form>
+</section>
+```
+
+1. Cut Section ของ Form ทั้งก้อนออกจาก `app/page.tsx` โดยไม่เอา `<main>` มาด้วย
+2. สร้าง Component เริ่มต้นด้วย `return null`
 
 ```tsx
 export function IssueForm() {
-  return (
-    <section>
-      <h2>แจ้งปัญหาใหม่</h2>
-
-      <form>
-        <fieldset>
-          <legend>ข้อมูลปัญหา</legend>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="reporterName">ชื่อผู้แจ้ง</label>
-              <input id="reporterName" name="reporterName" type="text" required />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="reporterEmail">อีเมลผู้แจ้ง</label>
-              <input id="reporterEmail" name="reporterEmail" type="email" required />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="title">หัวข้อปัญหา</label>
-            <input id="title" name="title" type="text" required />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">รายละเอียดปัญหา</label>
-            <textarea id="description" name="description" rows={5} required />
-          </div>
-
-          <button type="submit">ส่งข้อมูล</button>
-        </fieldset>
-      </form>
-    </section>
-  );
+  return null;
 }
 ```
 
-ตอนนี้ form ยังไม่ submit จริง แต่เรามี component ที่พร้อมต่อยอดใน Day 3 และ Day 4
+3. แทน `return null;` ด้วย `return ( ... );`
+4. Paste Section ของ Form ไว้ภายในวงเล็บ
+
+ไม่ต้องพิมพ์ Form ใหม่ ให้เก็บ Section, `fieldset`, Label, Input, Textarea และ Button เดิมไว้ครบ
+
+ตอนนี้ Form ยังไม่บันทึกข้อมูล การแยก Component มีเป้าหมายเพื่อจัดโครงสร้างก่อนเพิ่ม Interaction ใน Day 3
 
 ---
 
-## Slide 11: Import Component กลับมาใช้ในหน้าแรก
+## Slide 9: หน้า Home เหลือหน้าที่จัดวาง Component
 
-### File
-
-```text
-app/page.tsx
-```
-
-### ตำแหน่งที่แก้
-
-ใช้ code นี้แทนเนื้อหาทั้งไฟล์ `app/page.tsx`
+แทน Code ทั้งไฟล์: `app/page.tsx`
 
 ```tsx
 import { IssueForm } from "@/components/IssueForm";
 import { IssueList } from "@/components/IssueList";
-import { issues } from "@/data/issues";
+import { issues } from "@/data/issue";
 
 export default function Home() {
   return (
@@ -511,42 +348,40 @@ export default function Home() {
 }
 ```
 
-### ภาพที่ควรเห็น
-
-`page.tsx` เหลือแค่โครงหน้าและ import สิ่งที่ต้องใช้ ไม่ต้องแบก form/table/data ทั้งหมดไว้ในไฟล์เดียว
+`page.tsx` ไม่ต้องรู้รายละเอียดภายใน Form หรือ Table เพียง Import แล้วจัดวาง Component พร้อมส่ง `issues` เข้า `IssueList`
 
 ---
 
-## Slide 12: Routing ใน Next.js App Router
+## Slide 10: App Router ใช้ Folder สร้าง URL
 
-### Next.js ใช้ folder สร้าง route
+**App Router** คือระบบ Routing ของ Next.js ที่ใช้โครงสร้าง Folder ภายใน `app` เป็นตัวกำหนดว่าหน้าแต่ละหน้าจะเปิดด้วย URL อะไร
 
-```text
-app/page.tsx              -> /
-app/issues/page.tsx       -> /issues
-app/issues/new/page.tsx   -> /issues/new
-app/issues/[id]/page.tsx  -> /issues/001
-```
+- `app` คือจุดเริ่มต้นของ Route
+- ชื่อ Folder แต่ละชั้นจะกลายเป็นส่วนหนึ่งของ URL
+- `page.tsx` คือ UI ที่จะแสดงเมื่อผู้ใช้เปิด URL ของ Folder นั้น
 
-ใน App Router ถ้าอยากสร้างหน้าใหม่ ให้สร้าง folder แล้วใส่ไฟล์ `page.tsx`
+จึงไม่ต้องเขียนรายการ Route แยกเอง เพียงสร้าง Folder ตาม URL ที่ต้องการ แล้วใส่ `page.tsx` ไว้ภายใน:
+
+| ไฟล์ | URL |
+|---|---|
+| `app/page.tsx` | `/` |
+| `app/issues/page.tsx` | `/issues` |
+| `app/issues/new/page.tsx` | `/issues/new` |
+| `app/issues/[id]/page.tsx` | `/issues/001`, `/issues/002`, ... |
+
+เมื่อสร้างหน้าใหม่ เราจึงสร้าง Folder ตาม URL แล้วใส่ `page.tsx` ไว้ภายใน
+
+Folder `[id]` เป็น Dynamic Segment เครื่องหมาย `[ ]` บอกว่า Segment นี้เปลี่ยนค่าได้ตาม Issue ที่ผู้ใช้เปิด
 
 ---
 
-## Slide 13: สร้างหน้า `/issues` โดยใช้ `IssueList`
+## Slide 11: สร้างหน้ารายการปัญหา
 
-### File
-
-```text
-app/issues/page.tsx
-```
-
-### ตำแหน่งที่วาง
-
-สร้าง folder `app/issues/` แล้วสร้างไฟล์ `page.tsx`
+สร้างไฟล์ใหม่: `app/issues/page.tsx`
 
 ```tsx
 import { IssueList } from "@/components/IssueList";
-import { issues } from "@/data/issues";
+import { issues } from "@/data/issue";
 
 export default function IssuesPage() {
   return (
@@ -558,25 +393,13 @@ export default function IssuesPage() {
 }
 ```
 
-### เปิดใน browser
-
-```text
-http://localhost:3000/issues
-```
+เปิด `http://localhost:3000/issues` แล้วควรเห็น Table เดิม เพราะเรานำ `IssueList` กลับมาใช้ซ้ำแทนการเขียน Table ใหม่
 
 ---
 
-## Slide 14: สร้างหน้า `/issues/new` โดยใช้ `IssueForm`
+## Slide 12: สร้างหน้าแจ้งปัญหาใหม่
 
-### File
-
-```text
-app/issues/new/page.tsx
-```
-
-### ตำแหน่งที่วาง
-
-สร้าง folder `app/issues/new/` แล้วสร้างไฟล์ `page.tsx`
+สร้างไฟล์ใหม่: `app/issues/new/page.tsx`
 
 ```tsx
 import { IssueForm } from "@/components/IssueForm";
@@ -591,40 +414,89 @@ export default function NewIssuePage() {
 }
 ```
 
-### เปิดใน browser
+เปิด `http://localhost:3000/issues/new` แล้วควรเห็น Form เดิม เพราะ `IssueForm` ถูกนำกลับมาใช้ซ้ำ
 
-```text
-http://localhost:3000/issues/new
-```
+หน้า Home ยังมีทั้ง Form และ List เพื่อใช้ฝึก Mock CRUD ใน Day 3 ส่วน Route ที่แยกไว้จะนำไปต่อกับ Database ใน Day 4
 
 ---
 
-## Slide 15: สร้าง Dynamic Route `/issues/[id]`
+## Slide 13: เพิ่ม Link ไปหน้ารายละเอียด
 
-### File
+แก้บางส่วน: `components/IssueList.tsx`
+
+เพิ่ม Import ด้านบน:
+
+```tsx
+import Link from "next/link";
+```
+
+เพิ่มหัว Column ต่อจาก `<th>สถานะ</th>`:
+
+```tsx
+<th>รายละเอียด</th>
+```
+
+เพิ่ม Cell ต่อจาก Status ภายในแต่ละ Row:
+
+```tsx
+<td>
+  <Link href={`/issues/${issue.id}`}>ดูรายละเอียด</Link>
+</td>
+```
+
+หาก `issue.id` เป็น `"001"` ค่า `href` จะกลายเป็น `/issues/001` ส่วน `<Link>` ใช้เปลี่ยนหน้าใน Next.js โดยไม่ต้อง Reload หน้าเว็บทั้งหมด
+
+---
+
+## Slide 14: Dynamic Route รับ `id` จาก URL
+
+สร้าง Folder และไฟล์ใหม่:
 
 ```text
 app/issues/[id]/page.tsx
 ```
 
-### ตำแหน่งที่วาง
+เมื่อเปิด `/issues/001` Next.js จะส่งค่า `{ id: "001" }` เข้ามาทาง `params`
 
-สร้าง folder `app/issues/[id]/` แล้วสร้างไฟล์ `page.tsx`
+ใน Next.js เวอร์ชันนี้ `params` เป็น Promise หน้า Dynamic Route จึงต้องเป็น `async` และใช้ `await` ก่อนอ่านค่า:
+
+- **Promise** คือค่าที่อาจยังไม่พร้อมทันที แต่จะส่งผลลัพธ์กลับมาเมื่อทำงานเสร็จ
+- `Promise<{ id: string }>` บอกว่าผลลัพธ์ที่จะได้รับภายหลังมี `id` เป็น String
+- `async` ทำให้ Function สามารถใช้ `await` ได้
+- `await params` รอจน `params` พร้อม แล้วจึงนำ `id` ออกมาใช้
 
 ```tsx
-import { notFound } from "next/navigation";
-import { issues } from "@/data/issues";
-
-// params คือข้อมูลจาก dynamic route เช่น [id]
-// ใน Next.js เวอร์ชันนี้ params เป็น Promise จึงต้อง await ก่อนใช้งาน
 type IssueDetailPageProps = {
   params: Promise<{
     id: string;
   }>;
 };
 
-export default async function IssueDetailPage({ params }: IssueDetailPageProps) {
-  // ดึง id จาก URL เช่น /issues/001 จะได้ id เป็น "001"
+export default async function IssueDetailPage({
+  params,
+}: IssueDetailPageProps) {
+  const { id } = await params;
+  // ใช้ id ค้นหา Issue
+}
+```
+
+---
+
+## Slide 15: สร้างหน้ารายละเอียดจาก `id`
+
+แทน Code ทั้งไฟล์: `app/issues/[id]/page.tsx`
+
+```tsx
+import { notFound } from "next/navigation";
+import { issues } from "@/data/issue";
+
+type IssueDetailPageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function IssueDetailPage({
+  params,
+}: IssueDetailPageProps) {
   const { id } = await params;
   const issue = issues.find((item) => item.id === id);
 
@@ -644,221 +516,73 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
 }
 ```
 
-`[id]` คือ dynamic segment ที่ทำให้ URL แต่ละรายการมีหน้ารายละเอียดของตัวเอง
+`.find()` คืน Issue ที่มี `id` ตรงกับ URL หากไม่พบ `notFound()` จะแสดงหน้า 404 แทนการใช้ข้อมูลที่ไม่มีอยู่
 
 ---
 
-## Slide 16: เพิ่ม Navigation ใน `layout.tsx`
+## Slide 16: เพิ่ม Navigation ที่ทุกหน้าใช้ร่วมกัน
 
-### File
+แก้บางส่วน: `app/layout.tsx`
 
-```text
-app/layout.tsx
-```
-
-### ตำแหน่งที่แก้
-
-เพิ่ม `import Link from "next/link";` ด้านบน แล้ววาง `<nav>` ใน `<body>` ก่อน `{children}`
+เพิ่ม Import:
 
 ```tsx
 import Link from "next/link";
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="th">
-      <body>
-        <nav className="app-nav" aria-label="เมนูหลัก">
-          <div className="app-nav-inner">
-            <Link href="/">หน้าแรก</Link>
-            <Link href="/issues">รายการปัญหา</Link>
-            <Link href="/issues/new">แจ้งปัญหาใหม่</Link>
-          </div>
-        </nav>
-        {children}
-      </body>
-    </html>
-  );
-}
 ```
 
-### Style สั้น ๆ สำหรับ Navigation
+วาง `<nav>` ภายใน `<body>` และก่อน `{children}`:
 
-File:
+```tsx
+<body>
+  <nav className="app-nav" aria-label="เมนูหลัก">
+    <div className="app-nav-inner">
+      <Link href="/">หน้าแรก</Link>
+      <Link href="/issues">รายการปัญหา</Link>
+      <Link href="/issues/new">แจ้งปัญหาใหม่</Link>
+    </div>
+  </nav>
 
-```text
-app/globals.css
+  {children}
+</body>
 ```
 
-ตำแหน่งที่วาง:
+สิ่งที่อยู่ใน `layout.tsx` จะครอบทุก Route เราจึงเขียน Navigation เพียงครั้งเดียวแต่เห็นได้ทุกหน้า
 
-วางต่อท้ายไฟล์ `app/globals.css`
+---
+
+## Slide 17: ตกแต่ง Navigation
+
+เพิ่มต่อท้าย: `app/globals.css`
 
 ```css
 .app-nav {
   border-bottom: 1px solid #e5e7eb;
-  background: #ffffff;
+  background: white;
 }
 
 .app-nav-inner {
-  max-width: 960px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 12px 16px;
+  padding: 12px 24px;
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
 }
-
-.app-nav a {
-  color: #1f2937;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.app-nav a:hover {
-  color: #2563eb;
-}
 ```
 
-สิ่งที่อยู่ใน `layout.tsx` จะใช้ร่วมกันทุกหน้า ส่วน style ของ navigation ใส่สั้น ๆ ใน Day 2 แค่พอให้ใช้งานได้ แล้ว Day 3 ค่อยต่อยอดด้วย Tailwind
+Navigation ใช้ความกว้างเดียวกับเนื้อหาหลัก `display: flex` จัด Link เป็นแถว และ `flex-wrap` ยอมให้ Link ขึ้นบรรทัดใหม่เมื่อหน้าจอแคบ
 
 ---
 
-## Slide 17: Import Path ที่ควรรู้
+## Slide 18: ตรวจ Project หลังจบ Day 2
 
-### `@/` คืออะไร
+ตรวจว่า:
 
-ตอนสร้าง project เราใช้ import alias:
+- Navigation กดไป `/`, `/issues` และ `/issues/new` ได้
+- `/issues` แสดง `IssueList`
+- `/issues/new` แสดง `IssueForm`
+- Link ใน Table เปิด `/issues/001` และแสดงรายละเอียดถูกต้อง
+- `/issues/999` แสดงหน้า 404
+- Terminal และ Browser ไม่มี Error หรือ Warning
 
-```text
-@/* -> project root
-```
-
-ดังนั้น:
-
-```tsx
-import { IssueList } from "@/components/IssueList";
-import { issues } from "@/data/issues";
-import type { Issue } from "@/types/issue";
-```
-
-หมายถึง:
-
-```text
-components/IssueList
-data/issues
-types/issue
-```
-
-ใช้ alias ช่วยให้ import สั้นและไม่ต้องเขียน path ยาว ๆ เช่น `../../../components/...`
-
----
-
-## Slide 18: โค้ดสุดท้ายและโครงไฟล์หลัง Day 2
-
-### โครงไฟล์ที่ควรได้
-
-```text
-app/
-  layout.tsx
-  page.tsx
-  issues/
-    page.tsx
-    new/
-      page.tsx
-    [id]/
-      page.tsx
-components/
-  IssueForm.tsx
-  IssueList.tsx
-  StatusBadge.tsx
-data/
-  issues.ts
-types/
-  issue.ts
-```
-
-### Route ที่ต้องเปิดได้
-
-```text
-/             -> หน้าแรก
-/issues       -> รายการปัญหา
-/issues/new   -> แจ้งปัญหาใหม่
-/issues/001   -> รายละเอียดปัญหา mock
-```
-
-### Component ที่ถูกใช้ซ้ำ
-
-```text
-IssueForm -> ใช้ใน / และ /issues/new
-IssueList -> ใช้ใน / และ /issues
-StatusBadge -> ใช้ใน IssueList
-```
-
----
-
-## Slide 19: ตรวจผลลัพธ์หลัง Day 2
-
-### สิ่งที่ต้องตรวจ
-
-- หน้า `/` เปิดได้
-- หน้า `/issues` เปิดได้และเห็น list
-- หน้า `/issues/new` เปิดได้และเห็น form
-- หน้า `/issues/001` เปิดได้และเห็น detail
-- navigation กดไปแต่ละหน้าได้
-- `page.tsx` ไม่ได้เก็บ type/data/component ทั้งหมดไว้ในไฟล์เดียวแล้ว
-
-### ถ้า error ให้ดู
-
-- import path ถูกไหม
-- export/import ชื่อตรงกันไหม
-- สร้าง folder route ถูกที่ไหม
-- ไฟล์ route ต้องชื่อ `page.tsx`
-- `IssueList` import `StatusBadge` แล้วหรือยัง
-
----
-
-## Slide 20: Common Mistakes
-
-### ข้อผิดพลาดที่พบบ่อย
-
-- ลืม `export` ในไฟล์ component
-- import แบบ default ทั้งที่ export แบบ named
-- path ผิด เช่น `@/component` แทน `@/components`
-- ลืมสร้าง folder ก่อนสร้างไฟล์
-- สร้าง route แล้วลืมชื่อไฟล์ `page.tsx`
-- ใช้ `issues` ใน route แต่ลืม import จาก `@/data/issues`
-- ใช้ `<a>` แทน `Link` สำหรับ navigation ภายใน app
-- ลืมใส่ `key={issue.id}` ตอน `.map()`
-
----
-
-## Slide 21: Recap ชั่วโมงที่สี่ของ Day 2
-
-### สิ่งที่ได้เรียน
-
-- Component ช่วยแบ่ง UI ให้ดูแลง่ายขึ้น
-- Props คือข้อมูลที่ส่งเข้า component
-- `StatusBadge`, `IssueList`, `IssueForm` ถูกแยกเป็นไฟล์ component จริง
-- Type และ mock data ถูกแยกไฟล์กลางเพื่อให้ component และ route ใช้ร่วมกัน
-- App Router ใช้ folder และ `page.tsx` สร้าง route
-- Dynamic route ใช้ folder เช่น `[id]`
-- `layout.tsx` ใช้ใส่ UI ที่ทุกหน้าต้องมี เช่น navigation
-
-### ต่อไป
-
-Day 3 จะใช้ component ที่แยกแล้วมาปรับ UI ด้วย Tailwind และเพิ่ม form state/validation
-
----
-
-## คำศัพท์สำคัญ
-
-| คำศัพท์ | ความหมาย |
-|---|---|
-| Component | ชิ้นส่วน UI ที่แยกเป็น function และใช้ซ้ำได้ |
-| Props | ข้อมูลที่ส่งเข้า component |
-| Named export | การ export แบบ `export function ...` |
-| Import alias | path ย่อ เช่น `@/components/...` |
-| Route | URL path ของหน้าเว็บ |
-| App Router | ระบบ routing แบบ folder-based ของ Next.js |
-| Dynamic route | route ที่มี parameter เช่น `/issues/[id]` |
-| `Link` | component ของ Next.js สำหรับ navigation ภายใน app |
+ตอนนี้ Type, Data และ UI ถูกแยกตามหน้าที่แล้ว Day 3 จะใช้ Component ชุดนี้ปรับหน้าตาด้วย Tailwind และเพิ่ม Interaction ให้ Form

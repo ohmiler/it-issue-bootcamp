@@ -13,7 +13,7 @@
 | Day | สถานะ | หมายเหตุ |
 |---|---|---|
 | Day 1 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 ใช้ flow จากภาพรวมระบบ ไปสู่ HTML Form, CSS, Static Issue List และ Git/GitHub; Hour 4 ลดเหลือ 17 slides และแก้คำอธิบายให้ชัดว่า Form/List ยังเป็น Static Prototype |
-| Day 2 | กำลังปรับ | Hour 1 เหลือ 15 slides และ Hour 2 เหลือ 15 slides; สร้าง Next.js 16 แบบ root-level `app/`, อธิบาย TSX แล้วค่อยย้าย Layout, Static TSX และ Custom CSS โดยยังไม่เปิด Tailwind หรือเพิ่ม Data Model ก่อน Hour 3 |
+| Day 2 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-3 เหลือ Hour ละ 15 slides และ Hour 4 เหลือ 18 slides; สร้าง Next.js 16 แบบ root-level `app/`, ย้าย Static TSX และ Custom CSS, สร้าง `Issue` และ `.map()`, แล้วแยก `types`, `data`, Components และ Routes โดยยังไม่เปิด Tailwind |
 | Day 3 | รอตรวจใหม่ | ตัด status filter ออกแล้ว แต่จะตรวจทั้งวันอีกครั้งหลัง Day 5 |
 | Day 4 | ปรับและตรวจแล้ว | Supabase, Read, Create, Update และ Deploy ใช้ flow ปัจจุบัน |
 | Day 5 | ปรับครบแล้ว รอตรวจภาพรวม | Hour 1-4 ใช้ Auth แบบ SSR, USER/ADMIN, Page guard, Server Action และ RLS; Hour 4 ปิดหลักสูตรด้วย OWASP 2025, AI code review, production verification และ final demo |
