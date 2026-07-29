@@ -200,13 +200,15 @@ const config = {
 export default config;
 ```
 
-### ตรวจใน `app/globals.css`
+### เปิดใช้งานใน `app/globals.css`
 
-ควรมี `@import "tailwindcss";` อยู่ในไฟล์ global CSS
+Day 2 เราลบ Tailwind Import ออกชั่วคราวเพื่อใช้ Custom CSS เพียงชุดเดียว ตอนนี้ให้เพิ่มบรรทัดนี้กลับไว้ด้านบนสุดของไฟล์:
 
 ```css
 @import "tailwindcss";
 ```
+
+เมื่อเพิ่มบรรทัดนี้ Tailwind และ Preflight จะเริ่มทำงาน จากนั้นเราจะทยอยเปลี่ยน Style เดิมเป็น Utility Class และลบ Selector ที่ซ้ำกัน
 
 ### ถ้ายังไม่มีจริง ๆ
 

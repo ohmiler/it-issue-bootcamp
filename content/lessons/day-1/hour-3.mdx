@@ -170,13 +170,18 @@ body {
 }
 
 main {
+  width: 100%;
   max-width: 760px;
   margin: 0 auto;
   padding: 24px;
 }
 ```
 
-`max-width` จำกัดความกว้างไม่ให้เนื้อหาอ่านยาก ส่วน `margin: 0 auto` จัด `main` ให้อยู่กลางหน้า
+- `width: 100%` ให้ `main` ใช้พื้นที่เท่าที่หน้าจอมี
+- `max-width` จำกัดความกว้างไม่ให้เนื้อหาอ่านยาก
+- `margin: 0 auto` จัด `main` ให้อยู่กลางหน้า
+
+เมื่อใช้ร่วมกับ `box-sizing: border-box` ค่า `padding` จะถูกรวมอยู่ภายในความกว้างของ `main` จึงไม่ดันหน้าให้กว้างเกิน Viewport
 
 ---
 

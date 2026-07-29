@@ -177,15 +177,18 @@ section + section {
 }
 
 .table-wrapper {
+  width: 100%;
+  max-width: 100%;
   margin-top: 16px;
   overflow-x: auto;
 }
 ```
 
 - `section + section` เพิ่มช่องว่างให้ Section ที่อยู่ต่อจาก Section อื่น
+- `width` และ `max-width` จำกัด Wrapper ไม่ให้กว้างเกินพื้นที่ของ Section
 - `overflow-x: auto` ทำให้เลื่อน Table แนวนอนได้เมื่อ Table กว้างกว่าหน้าจอ
 
-วิธีนี้ช่วยไม่ให้ทั้งหน้าเว็บขยายออกด้านข้างบนมือถือ
+เมื่อ Table กว้างเกินพื้นที่ Scrollbar จะอยู่ใต้ Table เท่านั้น ส่วนทั้งหน้าเว็บจะไม่ขยายออกด้านข้าง
 
 ---
 
