@@ -8,236 +8,141 @@ source: "day-3-hour-2-tailwind-components-and-responsive-ui.md"
 
 # Tailwind Components and Responsive UI
 
-## Day 3 - ชั่วโมงที่ 2: Tailwind Components and Responsive UI
+## Day 3 - ชั่วโมงที่ 2: ปรับ Component และตารางด้วย Tailwind
 
 ### เป้าหมายของชั่วโมงนี้
 
-หลังจบชั่วโมงที่สองของ Day 3 ผู้เรียนควรสามารถ:
+หลังจบชั่วโมงนี้ นักศึกษาจะสามารถ:
 
-1. ใช้ Tailwind กับ component ที่แยกไว้จาก Day 2 ได้
-2. ปรับ `StatusBadge` ให้ใช้ class ตามสถานะได้เป็นระบบ
-3. ปรับ `IssueList` ให้เป็น table ที่อ่านง่ายและ responsive
-4. ตรวจ layout เดิมของ `IssueForm` และปรับเฉพาะ field/helper text ที่จำเป็น
-5. เข้าใจการใช้ component + props + Tailwind ร่วมกัน
-6. แยกความรับผิดชอบระหว่าง data, component และ style ได้ชัดขึ้น
+1. ใช้ Tailwind กำหนดหน้าตาของ Component ตาม Props ได้
+2. ปรับ `StatusBadge` ให้แสดงสีตามสถานะ
+3. ปรับ `IssueList` ให้อ่านง่ายขึ้น
+4. ทำให้ตารางเลื่อนแนวนอนได้เมื่อพื้นที่ไม่พอ
+5. แสดง Empty State เมื่อไม่มีรายการ
+6. ลบ Custom CSS เดิมที่ไม่ใช้งานแล้วได้อย่างถูกต้อง
 
-### ไฟล์ที่ใช้ในชั่วโมงนี้
-
-แนะนำให้วาง component ใน:
+### ไฟล์ที่ใช้
 
 ```text
 components/StatusBadge.tsx
 components/IssueList.tsx
-components/IssueForm.tsx
+app/globals.css
 ```
 
 ---
 
 ## โครงสร้างเวลา 60 นาที
 
-| เวลา | หัวข้อ | รูปแบบ |
-|---|---|---|
-| 0-5 นาที | Recap Tailwind จากชั่วโมงแรก | เชื่อมเข้าเนื้อหา |
-| 5-15 นาที | Component UI ที่ควรปรับในระบบเรา | Explain |
-| 15-25 นาที | ปรับ `StatusBadge` ด้วย Tailwind | Live coding |
-| 25-40 นาที | ปรับ `IssueList` และ responsive table | Live coding |
-| 40-50 นาที | ปรับ field ใน `IssueForm` โดยไม่ทำให้ layout เดิมเพี้ยน | Live coding |
-| 50-60 นาที | สรุปสิ่งที่ทำ | ทำทีละขั้นตอน |
+| เวลา | เนื้อหา |
+|---|---|
+| 0-5 นาที | ทบทวนจาก Hour 1 |
+| 5-15 นาที | ปรับ `StatusBadge` |
+| 15-40 นาที | ปรับ `IssueList` และตาราง |
+| 40-50 นาที | เพิ่ม Empty State |
+| 50-60 นาที | ลบ CSS เดิมและทดสอบ Responsive |
 
 ---
 
-## Slide 1: Recap จากชั่วโมงแรก
+## Slide 1: Recap จาก Hour 1
 
-### ชั่วโมงที่แล้วเราเรียนอะไร
+Hour 1 เราได้:
 
-- Tailwind CSS คืออะไร
-- ตรวจและเปิดใช้ Tailwind ที่ `app/globals.css`
-- ใช้ utility class พื้นฐาน
-- แปลง navigation, header, main, footer และ `IssueForm`
-- เข้าใจว่า Tailwind ไม่ได้ลบความรู้ CSS เดิม แต่ใช้ CSS concept ผ่าน class
+- เปิดใช้งาน Tailwind ผ่าน `app/globals.css`
+- รู้จัก Utility Class สำหรับสี ระยะห่าง Layout และ Responsive
+- เปลี่ยน Navigation, Header, Main และ Footer มาใช้ Tailwind
+- เปลี่ยน `IssueForm` มาใช้ Tailwind
+- ลบ Custom CSS เดิมของส่วนที่ย้ายเสร็จแล้ว
 
-ชั่วโมงนี้เราจะเอา Tailwind ไปใช้กับ component จริงของระบบ ได้แก่ `StatusBadge`, `IssueList` และ `IssueForm`
-
----
-
-## Slide 2: Component จาก Day 2 ที่จะปรับ
-
-### Components ที่จะปรับ
+Hour นี้เราจะทำส่วนที่เหลือให้ครบ:
 
 ```text
-StatusBadge
-IssueList
-IssueForm
+StatusBadge → IssueList → Responsive Table → Empty State
 ```
 
-### สิ่งที่จะเพิ่มในชั่วโมงนี้
-
-- ใส่ Tailwind class ให้แต่ละ component
-- ทำให้ layout อ่านง่ายทั้ง mobile และ desktop
-- ใช้สี ระยะห่าง และ hierarchy ให้ช่วย scan ข้อมูลเร็วขึ้น
-- ทำ pattern ที่ใช้ซ้ำได้ เช่น badge ตาม status และ form field ที่หน้าตาเหมือนกัน
-
 ---
 
-## Slide 3: หลักคิดก่อนปรับ UI
+## Slide 2: Component เดิมยังทำงานเหมือนเดิม
 
-### UI ของระบบภายในควรเป็นอย่างไร
-
-- อ่านง่าย
-- scan ข้อมูลได้เร็ว
-- ปุ่มและ field ชัดเจน
-- ไม่ตกแต่งจนรบกวนงาน
-- responsive พอสำหรับผู้แจ้งปัญหาผ่านมือถือ
-- admin table ใช้งานบนจอกว้างได้ดี
-
-ระบบ operational tool ไม่ควรดูเหมือน landing page แต่ควรเป็น UI ที่ช่วยให้ทำงานซ้ำ ๆ ได้ดี
-
----
-
-## Slide 4: `StatusBadge` ก่อนปรับ
+ก่อนปรับ หน้าตาของ `StatusBadge` และ `IssueList` ยังมาจาก Class ใน `globals.css`:
 
 ```tsx
+<span className={`status ${getStatusClass(status)}`}>
+  {status}
+</span>
+```
+
+```tsx
+<div className="table-wrapper">
+  <table>...</table>
+</div>
+```
+
+เราจะไม่เปลี่ยนข้อมูลหรือการทำงานของ Component แต่จะย้าย Style มาเขียนด้วย Tailwind ใน `className`
+
+```text
+Props และ Logic เดิม
+        ↓
+เปลี่ยนเฉพาะ Style
+        ↓
+หน้าเว็บทำงานเหมือนเดิม แต่อ่านง่ายและ Responsive ขึ้น
+```
+
+---
+
+## Slide 3: ปรับ `StatusBadge` ทั้งไฟล์
+
+แทนโค้ดเดิมทั้งไฟล์ `components/StatusBadge.tsx` ด้วย:
+
+```tsx
+import type { IssueStatus } from "@/types/issue";
+
+type StatusBadgeProps = {
+  status: IssueStatus;
+};
+
 function getStatusClass(status: IssueStatus): string {
   if (status === "OPEN") {
-  return "status-open";
+    return "bg-red-50 text-red-700 ring-red-200";
   }
 
   if (status === "IN_PROGRESS") {
-  return "status-progress";
-  }
-
-  return "status-done";
-}
-
-function StatusBadge({ status }: { status: IssueStatus }) {
-  return (
-  <span className={`status ${getStatusClass(status)}`}>
-    {status}
-  </span>
-  );
-}
-```
-
-### ปัญหา
-
-ยังพึ่ง CSS class เดิมจาก `globals.css`
-
----
-
-## Slide 5: `StatusBadge` ด้วย Tailwind
-
-### File
-
-```text
-components/StatusBadge.tsx
-```
-
-### ตำแหน่งที่แก้
-
-ใช้ code นี้แทน function `getStatusClass()` และ `StatusBadge()` เดิมทั้งคู่
-
-```tsx
-function getStatusClass(status: IssueStatus): string {
-  if (status === "OPEN") {
-  return "bg-red-50 text-red-700 ring-red-200";
-  }
-
-  if (status === "IN_PROGRESS") {
-  return "bg-amber-50 text-amber-700 ring-amber-200";
+    return "bg-amber-50 text-amber-700 ring-amber-200";
   }
 
   return "bg-emerald-50 text-emerald-700 ring-emerald-200";
 }
 
-function StatusBadge({ status }: { status: IssueStatus }) {
+export function StatusBadge({ status }: StatusBadgeProps) {
   return (
-  <span
-    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ring-1 ${getStatusClass(
-      status
-    )}`}
-  >
-    {status}
-  </span>
+    <span
+      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ring-1 ${getStatusClass(
+        status
+      )}`}
+    >
+      {status}
+    </span>
   );
 }
 ```
 
-เรายังใช้ logic เดิม แต่เปลี่ยน output จาก CSS class ที่เราสร้างเอง เป็น Tailwind class
+บันทึกไฟล์แล้วตรวจว่า Badge ทั้งสามสถานะยังแสดงสีถูกต้อง จากนั้นเปิด `app/globals.css` และลบ CSS เดิมของ `StatusBadge`:
+
+```css
+.status { ... }
+.status-open { ... }
+.status-progress { ... }
+.status-done { ... }
+```
+
+ตอนนี้ Style ทั้งหมดของ Badge อยู่ใน `StatusBadge.tsx` แล้ว จึงไม่ต้องเก็บ Class เดิมไว้ให้ซ้ำกัน
 
 ---
 
-## Slide 6: `IssueList` ก่อนปรับ
+## Slide 4: เริ่มปรับ `IssueList`
 
-```tsx
-import Link from "next/link";
-import { StatusBadge } from "./StatusBadge";
-import type { Issue } from "@/types/issue";
+แก้บางส่วนใน `components/IssueList.tsx`
 
-type IssueListProps = {
-  issues: Issue[];
-};
-
-export function IssueList({ issues }: IssueListProps) {
-  return (
-    <section aria-labelledby="issue-list-title">
-      <h2 id="issue-list-title">รายการปัญหาล่าสุด</h2>
-      <p>ตัวอย่างรายการปัญหาที่ถูกแจ้งเข้ามาในระบบ</p>
-
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>รหัส</th>
-              <th>หัวข้อ</th>
-              <th>ผู้แจ้ง</th>
-              <th>สถานะ</th>
-              <th>รายละเอียด</th>
-            </tr>
-          </thead>
-          <tbody>
-            {issues.map((issue) => (
-              <tr key={issue.id}>
-                <td>#{issue.id}</td>
-                <td>{issue.title}</td>
-                <td>{issue.reporterName}</td>
-                <td>
-                  <StatusBadge status={issue.status} />
-                </td>
-                <td>
-                  <Link href={`/issues/${issue.id}`}>ดูรายละเอียด</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
-```
-
-### สิ่งที่จะปรับ
-
-- section style
-- table wrapper
-- table header
-- table row
-- empty state เบื้องต้น
-- Link ไป detail
-
----
-
-## Slide 7: Section และ Header ของ IssueList
-
-### File
-
-```text
-components/IssueList.tsx
-```
-
-### ตำแหน่งที่แก้
-
-ปรับ `<section>`, `<h2>` และ `<p>` ด้านบนของ `IssueList`
+ปรับ `<section>`, `<h2>` และ `<p>` ด้านบนของ `return` หลัก:
 
 ```tsx
 <section
@@ -246,7 +151,10 @@ components/IssueList.tsx
 >
   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
     <div>
-      <h2 id="issue-list-title" className="text-xl font-bold text-slate-950">
+      <h2
+        id="issue-list-title"
+        className="text-xl font-bold text-slate-950"
+      >
         รายการปัญหาล่าสุด
       </h2>
       <p className="mt-1 text-sm text-slate-600">
@@ -258,65 +166,80 @@ components/IssueList.tsx
       ทั้งหมด {issues.length} รายการ
     </p>
   </div>
+
+  {/* ตารางเดิมอยู่ต่อจากส่วนนี้ */}
+</section>
 ```
 
-### อธิบาย
+`issues.length` อ่านจำนวนสมาชิกใน Array ทำให้ตัวเลขเปลี่ยนตามจำนวนรายการจริง
 
-- `section` กลายเป็นกล่องหลักของรายการ
-- `h2` และคำอธิบายยังอยู่เหมือนเดิม แต่เพิ่ม hierarchy ด้วย Tailwind
-- จำนวนรายการอยู่ฝั่งขวาบนจอกว้าง และลงบรรทัดใหม่บนจอเล็ก
+โค้ดตารางเดิมยังต้องอยู่ภายใน `<section>` โดยนำมาใส่แทน Comment `{/* ตารางเดิมอยู่ต่อจากส่วนนี้ */}`
 
 ---
 
-## Slide 8: Responsive Table Wrapper
+## Slide 5: Header ปรับตามขนาดหน้าจอ
 
-### File
+Class ของ Header ใช้แนวคิด Mobile-first:
 
 ```text
-components/IssueList.tsx
+flex flex-col gap-2
 ```
 
-### ตำแหน่งที่แก้
+เป็นค่าเริ่มต้นบนจอเล็ก จึงวางหัวข้อและจำนวนรายการเรียงลงมา
 
-ใช้ code นี้แทน wrapper เดิม:
+```text
+sm:flex-row sm:items-center sm:justify-between
+```
+
+เมื่อหน้าจอกว้างตั้งแต่ `sm` ขึ้นไป:
+
+- `sm:flex-row` เปลี่ยนเป็นแนวนอน
+- `sm:items-center` จัดให้อยู่กึ่งกลางแนวตั้ง
+- `sm:justify-between` แยกหัวข้อไปซ้ายและจำนวนรายการไปขวา
+
+เราเขียน Layout สำหรับจอเล็กก่อน แล้วใช้ Prefix `sm:` เปลี่ยนเฉพาะตอนที่พื้นที่เพียงพอ
+
+---
+
+## Slide 6: ทำให้ตารางเลื่อนได้เมื่อพื้นที่ไม่พอ
+
+แก้บางส่วนใน `components/IssueList.tsx`
+
+แทน Wrapper และ `<table>` เดิม:
 
 ```tsx
 <div className="table-wrapper">
-  <table>...</table>
-</div>
+  <table>
 ```
 
-เป็น:
+ด้วย:
 
 ```tsx
 <div className="mt-4 overflow-x-auto">
-  <table className="w-full min-w-[760px] border-collapse text-sm">
-    ...
-  </table>
-</div>
+  <table className="w-full min-w-[720px] border-collapse text-sm">
 ```
 
-### ทำไมต้อง `overflow-x-auto`
+- `overflow-x-auto` ให้ Wrapper แสดง Scrollbar แนวนอนเมื่อจำเป็น
+- `min-w-[720px]` ป้องกัน Column ถูกบีบจนอ่านยาก
+- `w-full` ให้ตารางกว้างเต็ม Wrapper เมื่อมีพื้นที่พอ
 
-ตารางหลาย column อาจล้นจอมือถือ จึงให้ scroll แนวนอนแทนการบีบจนอ่านไม่ได้
+ต้องใส่ `overflow-x-auto` ที่ `<div>` ซึ่งเป็น Wrapper ไม่ใช่ที่ `<table>` เพื่อให้ตารางเลื่อนอยู่ภายในกล่องของตัวเอง
 
-### ทำไมต้อง `min-w-[760px]`
+บันทึกไฟล์และตรวจว่าตารางยังแสดงครบ จากนั้นเปิด `app/globals.css` แล้วลบ CSS เดิมของ Wrapper และ Table:
 
-ช่วยให้ column ไม่บีบเกินไปบนจอเล็ก
+```css
+.table-wrapper { ... }
+
+table { ... }
+```
+
+ยังไม่ลบ `th`, `td` และ `th { ... }` ในตอนนี้ เพราะหัวตารางและ Cell จะย้ายมาใช้ Tailwind ใน Slide ถัดไป
 
 ---
 
-## Slide 9: Table Header
+## Slide 7: ปรับหัวตาราง
 
-### File
-
-```text
-components/IssueList.tsx
-```
-
-### ตำแหน่งที่แก้
-
-แทนที่ `<thead>...</thead>` เดิมใน table ของ `IssueList` ด้วย code นี้
+แทน `<thead>...</thead>` เดิมด้วย:
 
 ```tsx
 <thead>
@@ -330,29 +253,51 @@ components/IssueList.tsx
 </thead>
 ```
 
-Header ของ table ควรทำให้แยกจาก data row ได้ชัดเจน
+- พื้นหลังสีอ่อนช่วยแยกหัวตารางออกจากข้อมูล
+- `text-left` ทำให้ทุกหัวข้อชิดซ้ายและอ่านตามแนวเดียวกัน
+- `px-3 py-3` เพิ่มพื้นที่ภายใน Cell
+- `font-semibold` ทำให้ชื่อ Column เด่นกว่าข้อมูล
+
+หลังตรวจหัวตารางแล้ว ให้เปิด `app/globals.css` และลบ Block ที่ใช้กับ `th` โดยเฉพาะ:
+
+```css
+th { ... }
+```
+
+CSS เดิมอีก Block ใช้ `th` และ `td` ร่วมกัน ให้แก้ Selector ชั่วคราวจาก:
+
+```css
+th,
+td {
+  ...
+}
+```
+
+ให้เหลือเฉพาะ `td` เพราะ Cell ใน `<tbody>` จะปรับเป็น Tailwind ใน Slide ถัดไป:
+
+```css
+td {
+  ...
+}
+```
 
 ---
 
-## Slide 10: Table Body และ Link
+## Slide 8: ปรับข้อมูลแต่ละแถว
 
-### File
-
-```text
-components/IssueList.tsx
-```
-
-### ตำแหน่งที่แก้
-
-แทนที่ `<tbody>...</tbody>` เดิมใน table ของ `IssueList` ด้วย code นี้
+แทน `<tbody>...</tbody>` เดิมด้วย:
 
 ```tsx
 <tbody>
   {issues.map((issue) => (
     <tr key={issue.id} className="border-b border-slate-100 last:border-0">
-      <td className="px-3 py-4 font-medium text-slate-700">#{issue.id}</td>
+      <td className="px-3 py-4 font-medium text-slate-700">
+        #{issue.id}
+      </td>
       <td className="px-3 py-4 text-slate-950">{issue.title}</td>
-      <td className="px-3 py-4 text-slate-600">{issue.reporterName}</td>
+      <td className="px-3 py-4 text-slate-600">
+        {issue.reporterName}
+      </td>
       <td className="px-3 py-4">
         <StatusBadge status={issue.status} />
       </td>
@@ -369,35 +314,55 @@ components/IssueList.tsx
 </tbody>
 ```
 
-### อธิบาย
+ยังใช้ `.map()` และ `StatusBadge` เหมือนเดิม เราเพิ่มเพียง Tailwind Class เพื่อจัดระยะ สี และเส้นคั่นของแต่ละแถว
 
-- ใช้ `StatusBadge` เดิมต่อ ไม่ต้องย้าย logic มาไว้ใน table
-- ใช้ `Link` จาก `next/link` ให้ตรงกับโค้ดจริง
-- เพิ่ม padding และสีให้แต่ละ cell อ่านง่ายขึ้น
+เมื่อข้อมูลทุก Cell มี Tailwind Class แล้ว ให้กลับไปที่ `app/globals.css` และลบ Block `td` ที่เหลือ:
+
+```css
+td { ... }
+```
+
+ตอนนี้ Style ของตารางทั้งส่วนอยู่ใน `IssueList.tsx` ครบแล้ว
 
 ---
 
-## Slide 11: Empty State
+## Slide 9: Link ของแต่ละรายการทำงานอย่างไร
 
-### ทำไมต้องมี Empty State
-
-ถ้ายังไม่มี issue ระบบไม่ควรแสดงตารางว่าง ๆ โดยไม่บอกอะไร
-
-### File
-
-```text
-components/IssueList.tsx
+```tsx
+<Link href={`/issues/${issue.id}`}>
+  ดูรายละเอียด
+</Link>
 ```
 
-### ตำแหน่งที่วาง
+Template Literal นำ `issue.id` มาต่อเป็น URL ของรายการนั้น:
 
-วาง `if (issues.length === 0) { ... }` ไว้เป็นบรรทัดแรกใน function `IssueList` ก่อน `return` หลัก
+```text
+issue.id = "001"
+        ↓
+/issues/001
+```
+
+เมื่อใช้โค้ดนี้ภายใน `.map()` แต่ละแถวจึงลิงก์ไปยังหน้ารายละเอียดของตัวเอง
+
+Class `hover:text-teal-900` เปลี่ยนสีเมื่อวางเมาส์เหนือ Link เพื่อบอกผู้ใช้ว่าส่วนนี้กดได้
+
+---
+
+## Slide 10: Empty State คืออะไร
+
+ถ้า `issues` เป็น Array ว่าง ตารางจะไม่มีแถวข้อมูล ผู้ใช้จึงอาจไม่รู้ว่าระบบยังไม่มีรายการหรือหน้าเว็บมีปัญหา
+
+**Empty State** คือ UI ที่อธิบายสถานะเมื่อยังไม่มีข้อมูล
+
+เพิ่มโค้ดนี้ภายใน Function `IssueList` ก่อน `return` หลัก:
 
 ```tsx
 if (issues.length === 0) {
   return (
     <section className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
-      <h2 className="text-lg font-bold text-slate-950">ยังไม่มีรายการปัญหา</h2>
+      <h2 className="text-lg font-bold text-slate-950">
+        ยังไม่มีรายการปัญหา
+      </h2>
       <p className="mt-2 text-sm text-slate-600">
         เมื่อมีการแจ้งปัญหา รายการจะแสดงที่นี่
       </p>
@@ -406,162 +371,144 @@ if (issues.length === 0) {
 }
 ```
 
-State ของ UI ไม่ได้มีแค่ success ต้องคิดถึง empty, loading และ error ด้วย
+เมื่อไม่มีข้อมูล Function จะ `return` Empty State ทันที และไม่ทำงานต่อไปถึงตารางด้านล่าง
 
 ---
 
-## Slide 12: `IssueForm` Layout
+## Slide 11: ทดสอบ Empty State ชั่วคราว
 
-Hour 1 เราแปลง `IssueForm` เป็น Tailwind แล้ว ตรวจว่า Wrapper ของชื่อและอีเมลใช้ Responsive Grid:
+เปิดไฟล์ที่ส่งข้อมูลเข้า `IssueList` แล้วเปลี่ยน Props ชั่วคราวเป็น Array ว่าง:
 
 ```tsx
-<div className="grid gap-4 md:grid-cols-2">
-  {/* ชื่อผู้แจ้ง */}
-  {/* อีเมลผู้แจ้ง */}
-</div>
+<IssueList issues={[]} />
 ```
 
-- จอเล็ก Field เรียงแนวตั้ง
-- จอตั้งแต่ `md` ขึ้นไป Field เรียงสองคอลัมน์
-- ทุก Field ใช้ `grid gap-2` เพื่อเว้นระยะระหว่าง Label กับช่องกรอก
-
-ชั่วโมงนี้ไม่ต้องเปลี่ยน Layout ของ Form ซ้ำ เราจะเพิ่มเพียงข้อความช่วยกรอกข้อมูลใน Slide ถัดไป
-
----
-
-## Slide 13: Helper Text
-
-### File
+หน้าเว็บควรแสดงข้อความ:
 
 ```text
-components/IssueForm.tsx
+ยังไม่มีรายการปัญหา
+เมื่อมีการแจ้งปัญหา รายการจะแสดงที่นี่
 ```
 
-### ตำแหน่งที่แก้
+หลังทดสอบเสร็จ ให้เปลี่ยนกลับเป็น:
 
-เพิ่ม helper text ใต้ `textarea` ของ field `description`
-
-```diff
-<div className="grid gap-2">
-  <label htmlFor="description" className="text-sm font-semibold text-slate-800">
-    รายละเอียดปัญหา
-  </label>
-  <textarea
-    id="description"
-    name="description"
-    rows={5}
-    required
-    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100"
-  />
-+  <p className="text-xs text-slate-500">
-+    อธิบายอาการที่พบและขั้นตอนที่ทำก่อนเกิดปัญหา
-+  </p>
-</div>
+```tsx
+<IssueList issues={issues} />
 ```
 
-บรรทัดที่ขึ้นต้นด้วย `+` คือโค้ดที่เพิ่มเข้ามาใหม่ Helper text ช่วยลดความไม่แน่ใจของผู้ใช้ โดยไม่ต้องใส่คำอธิบายยาว ๆ
+การทดสอบด้วย Array ว่างช่วยให้เราเห็น State ที่ Mock Data ปกติอาจยังไม่แสดง
 
 ---
 
-## Slide 14: โค้ดสุดท้ายของ Component Layout ด้วย Tailwind
+## Slide 12: ลบ Custom CSS ที่ไม่ใช้แล้ว
 
-### ขั้นตอน
+เมื่อ `StatusBadge` และ `IssueList` ใช้ Tailwind ครบแล้ว ให้เปิด `app/globals.css` และลบ Style เดิมต่อไปนี้:
 
-1. ปรับ `StatusBadge` ให้ใช้ Tailwind class
-2. ปรับ `IssueList` section ให้มี border, background และ spacing
-3. ปรับ table ให้มี responsive wrapper
-4. เพิ่ม empty state ถ้า `issues.length === 0`
-5. เพิ่ม Helper Text ให้ `IssueForm`
+```css
+section { ... }
+```
 
-### ผลลัพธ์
+CSS ส่วนอื่นถูกลบไปพร้อมกับ Component ที่ปรับเสร็จแล้ว:
 
-หน้าเว็บยังทำงานเหมือนเดิม แต่ component แต่ละส่วนดูเป็นระบบและ responsive มากขึ้น
+- `.status*` ลบหลังปรับ `StatusBadge` ใน Slide 3
+- `.table-wrapper` และ `table` ลบหลังปรับ Responsive Table ใน Slide 6
+- `th` ลบหลังปรับหัวตารางใน Slide 7
+- `td` ลบหลังปรับข้อมูลใน Slide 8
 
-### Cleanup CSS เดิม
+เมื่อ `IssueForm` และ `IssueList` มี Tailwind Class ที่กล่อง `<section>` ของตัวเองแล้ว จึงลบ `section { ... }` เดิมได้เป็นรายการสุดท้าย
 
-หลังจากแปลง component ไหนเป็น Tailwind แล้ว ให้กลับไปที่ `app/globals.css` แล้วลบ CSS เดิมของ component นั้นออกด้วย
+เก็บ Global Style ที่ยังใช้งาน:
 
-ลบได้หลังจบชั่วโมงนี้:
+```css
+@import "tailwindcss";
 
-- CSS ของ `StatusBadge` เดิม
-- `.status`, `.status-open`, `.status-progress`, `.status-done` ถ้า `StatusBadge` ใช้ Tailwind class แล้ว
-- `section` เมื่อทั้ง `IssueForm` และ `IssueList` ใช้ Tailwind Class แล้ว
-- `.table-wrapper` ถ้าเปลี่ยนเป็น `<div className="mt-4 overflow-x-auto">` แล้ว
-- style ของ table เดิม เช่น `table`, `thead`, `tbody`, `th`, `td` ถ้า table ใช้ Tailwind class แล้ว
+* {
+  box-sizing: border-box;
+}
 
-ยังเก็บไว้ชั่วคราว:
+body {
+  margin: 0;
+}
+```
 
-- global style ที่ยังใช้จริง เช่น `@import "tailwindcss";`, `*`, `body`
+ลบ CSS หลังจากย้าย Style เสร็จแล้ว เพื่อไม่ให้หน้าเว็บเสียระหว่างทำ
 
-หลักคือย้ายส่วนไหนแล้วลบ CSS เดิมของส่วนนั้นทันที แต่ไม่ลบ selector ที่ component อื่นยังพึ่งอยู่
+---
 
-### ตัวอย่างภาพรวม `app/page.tsx`
+## Slide 13: ปรับหน้า `/issues` แล้วตรวจ Responsive
+
+หลังลบ Global Style ของ `main` หน้า `/issues` อาจกว้างเต็มจอ เพราะไฟล์นี้ยังไม่ได้ใส่ Tailwind Class ให้ Layout ของตัวเอง
+
+แทนโค้ดทั้งไฟล์ `app/issues/page.tsx` ด้วย:
 
 ```tsx
-import { IssueForm } from "@/components/IssueForm";
 import { IssueList } from "@/components/IssueList";
 import { issues } from "@/data/issue";
 
-export default function Home() {
+export default function IssuesPage() {
   return (
-    <>
-      <header className="bg-teal-800 px-6 py-8 text-white">
-        <div className="mx-auto max-w-5xl">
-          <h1 className="text-3xl font-bold">ระบบแจ้งปัญหา IT</h1>
-          <p className="mt-2 text-teal-100">
-            แจ้งและติดตามปัญหาการใช้งานระบบภายใน
-          </p>
-        </div>
-      </header>
-
-      <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
-        <IssueForm />
-        <IssueList issues={issues} />
-      </main>
-
-      <footer className="px-6 py-8 text-center text-sm text-slate-500">
-        <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
-      </footer>
-    </>
+    <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
+      <h1 className="text-2xl font-bold text-slate-950">
+        รายการปัญหา
+      </h1>
+      <IssueList issues={issues} />
+    </main>
   );
 }
 ```
 
----
+- `max-w-5xl` จำกัดความกว้างของเนื้อหาให้เท่ากับหน้า Home
+- `mx-auto` จัดเนื้อหาไว้กึ่งกลาง
+- `px-6 py-8` เพิ่มระยะห่างจากขอบจอ
+- `grid-cols-1` ป้องกันตารางดัน Grid จนทั้งหน้าล้นแนวนอน
 
-## Slide 15: Common Mistakes
+`IssueList` ไม่ได้มีปัญหา แต่ Route ที่นำ Component ไปใช้ต้องกำหนด Layout ของหน้าให้เรียบร้อยด้วย
 
-### ข้อผิดพลาดที่พบบ่อย
+### ตรวจ Responsive บนสองหน้า
 
-- ใส่ Tailwind class ยาวมากโดยไม่จัดบรรทัด
-- ลืม responsive wrapper ของ table
-- ทำสี badge ด้วยสีอย่างเดียว แต่ไม่มี text
-- บังคับ field ใน form เป็นหลาย column ทั้งที่พื้นที่จริงไม่พอ
-- ใส่ `overflow-x-auto` ที่ table แทน wrapper
-- style ทุกอย่างในหน้าเดียวจน component อ่านยาก
+`IssueList` ถูกนำไปใช้ทั้งหน้า Home และหน้ารายการปัญหา จึงต้องตรวจทั้งสอง Route:
 
-### Speaker Notes
+```text
+http://localhost:3000/
+http://localhost:3000/issues
+```
 
-แนะนำให้จัด JSX หลายบรรทัดเมื่อ class ยาว เพื่อให้อ่านและแก้ง่าย
+เปิด DevTools แล้วลดความกว้างของหน้าจอ จากนั้นตรวจว่า:
 
----
+- หน้าเว็บทั้งหน้าไม่ล้นออกด้านข้าง
+- เฉพาะตารางเลื่อนแนวนอนได้
+- Header ของรายการลงบรรทัดใหม่บนจอเล็ก
+- Badge ทั้งสามสถานะอ่านได้ชัดเจน
+- Link “ดูรายละเอียด” เปิดรายการที่ถูกต้อง
+- เมื่อส่ง `[]` เข้า `IssueList` จะเห็น Empty State
 
-## Slide 16: Recap ชั่วโมงที่สองของ Day 3
-
-### สิ่งที่ได้เรียน
-
-- Tailwind ใช้กับ component ได้ดี เพราะ style อยู่ใกล้ UI
-- `StatusBadge` สามารถ map status เป็น class ได้
-- `IssueList` ควรมี responsive table และ empty state
-- `IssueForm` ควรปรับเฉพาะจุดที่ช่วยให้อ่านง่าย โดยไม่ทำลาย layout เดิมที่ดีอยู่แล้ว
-- Component + props + Tailwind ทำให้ UI ปรับง่ายขึ้น
-
-### ต่อไป
-
-เราจะเพิ่ม form state และ validation เพื่อให้ form ไม่ใช่แค่หน้าตา แต่เริ่มมีพฤติกรรมแบบ frontend application
+ถ้าทั้งหน้ามี Scrollbar แนวนอน ให้ตรวจว่า `<main>` จาก Hour 1 มี `grid-cols-1` และตารางอยู่ภายใน Wrapper ที่มี `overflow-x-auto`
 
 ---
 
+## Slide 14: สรุป Hour 2
+
+ตอนนี้ UI ส่วนหลักย้ายมาใช้ Tailwind ครบแล้ว:
+
+```text
+IssueStatus
+    ↓
+StatusBadge เลือกสี
+    ↓
+IssueList วนแสดงแต่ละรายการ
+    ↓
+Responsive Wrapper ดูแลตารางบนจอเล็ก
+```
+
+สิ่งที่ได้เรียน:
+
+- Props สามารถกำหนดทั้งข้อมูลและหน้าตาของ Component
+- Mobile-first เริ่มจากจอเล็ก แล้วค่อยเพิ่ม Prefix เช่น `sm:`
+- ตารางที่กว้างควรเลื่อนภายใน Wrapper ไม่ควรดันทั้งหน้า
+- Empty State ช่วยอธิบายว่า “ยังไม่มีข้อมูล”
+- เมื่อย้ายมาใช้ Tailwind แล้ว ควรลบ Custom CSS เดิมที่ซ้ำกัน
+
+Hour ถัดไป เราจะเพิ่ม State และ Validation เพื่อให้ Form เริ่มโต้ตอบกับผู้ใช้ได้
 
 ---
 
@@ -569,8 +516,7 @@ export default function Home() {
 
 | คำศัพท์ | ความหมาย |
 |---|---|
-| Component styling | การกำหนดหน้าตาให้ component |
-| Empty state | หน้าจอเมื่อยังไม่มีข้อมูล |
-| Responsive table | ตารางที่ยังอ่านได้บนหน้าจอเล็ก |
-| `Record<K, V>` | TypeScript utility type สำหรับ object mapping |
-| Mobile-first | ออกแบบค่า default สำหรับมือถือก่อน แล้วค่อยขยายด้วย breakpoint |
+| Dynamic class | Class ที่เปลี่ยนตามข้อมูลหรือเงื่อนไข |
+| Empty State | UI ที่แสดงเมื่อยังไม่มีข้อมูล |
+| Responsive table | ตารางที่ยังใช้งานได้เมื่อหน้าจอมีพื้นที่น้อย |
+| Mobile-first | ออกแบบค่าเริ่มต้นสำหรับจอเล็ก แล้วค่อยปรับเมื่อจอกว้างขึ้น |
