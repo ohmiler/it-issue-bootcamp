@@ -51,9 +51,9 @@ components/IssueForm.tsx
 ### ชั่วโมงที่แล้วเราเรียนอะไร
 
 - Tailwind CSS คืออะไร
-- ติดตั้ง Tailwind ใน Next.js project
+- ตรวจและเปิดใช้ Tailwind ที่ `app/globals.css`
 - ใช้ utility class พื้นฐาน
-- แปลง header, main, section และ button บางส่วน
+- แปลง navigation, header, main, footer และ `IssueForm`
 - เข้าใจว่า Tailwind ไม่ได้ลบความรู้ CSS เดิม แต่ใช้ CSS concept ผ่าน class
 
 ชั่วโมงนี้เราจะเอา Tailwind ไปใช้กับ component จริงของระบบ ได้แก่ `StatusBadge`, `IssueList` และ `IssueForm`
@@ -412,46 +412,20 @@ State ของ UI ไม่ได้มีแค่ success ต้องคิ�
 
 ## Slide 12: `IssueForm` Layout
 
-### ตรวจ Layout เดิมก่อนปรับ
-
-### File
-
-```text
-components/IssueForm.tsx
-```
-
-### ตำแหน่งที่แก้
-
-จากหน้าเว็บปัจจุบัน form มี layout ใช้งานได้อยู่แล้ว จึงไม่ต้องเพิ่ม class ที่ `<form>` หรือ `<fieldset>` ในชั่วโมงนี้
+Hour 1 เราแปลง `IssueForm` เป็น Tailwind แล้ว ตรวจว่า Wrapper ของชื่อและอีเมลใช้ Responsive Grid:
 
 ```tsx
-<form>
-  <fieldset>
-    <legend>ข้อมูลปัญหา</legend>
-    ...
-  </fieldset>
-</form>
-```
-
-### ทำไมไม่เพิ่ม class ที่ `<form>`
-
-- หน้าเว็บปัจจุบันจัด layout ของฟอร์มได้ถูกแล้ว
-- `<form>` มีลูกหลักแค่ `<fieldset>` ตัวเดียว การใส่ `grid gap-5` ที่ `<form>` จึงไม่ช่วยจัด field ข้างใน
-- ถ้าจะเปลี่ยน layout จริง ควรเปลี่ยนที่ wrapper ของ field หรือ CSS เดิม ไม่ใช่ที่ `<form>`
-
-ดังนั้นใน slide นี้ให้คงโครงสร้าง form เดิมไว้ แล้วอธิบายว่าเราจะปรับ Tailwind class ใน field แต่ละก้อนต่อใน slide ถัดไป
-
-### ชื่อและอีเมลผู้แจ้ง
-
-ส่วนชื่อและอีเมลผู้แจ้งยังใช้ wrapper เดิมไว้ก่อนได้
-
-```tsx
-<div className="form-row">
-  ...
+<div className="grid gap-4 md:grid-cols-2">
+  {/* ชื่อผู้แจ้ง */}
+  {/* อีเมลผู้แจ้ง */}
 </div>
 ```
 
-เพราะตอนนี้หน้าจริงแสดงผลสองช่องได้โอเคแล้ว ถ้าจะเปลี่ยน `.form-row` เป็น Tailwind ให้ทำตอนที่ตั้งใจย้าย CSS เดิมทั้งก้อน ไม่ใช่แทรก class เพิ่มเฉพาะจุดจน layout เพี้ยน
+- จอเล็ก Field เรียงแนวตั้ง
+- จอตั้งแต่ `md` ขึ้นไป Field เรียงสองคอลัมน์
+- ทุก Field ใช้ `grid gap-2` เพื่อเว้นระยะระหว่าง Label กับช่องกรอก
+
+ชั่วโมงนี้ไม่ต้องเปลี่ยน Layout ของ Form ซ้ำ เราจะเพิ่มเพียงข้อความช่วยกรอกข้อมูลใน Slide ถัดไป
 
 ---
 
@@ -497,8 +471,7 @@ components/IssueForm.tsx
 2. ปรับ `IssueList` section ให้มี border, background และ spacing
 3. ปรับ table ให้มี responsive wrapper
 4. เพิ่ม empty state ถ้า `issues.length === 0`
-5. ปรับ `IssueForm` ให้ field อ่านง่ายขึ้น
-6. คง layout เดิมของ `IssueForm` ไว้ ถ้าหน้าจริงแสดงผลถูกแล้ว
+5. เพิ่ม Helper Text ให้ `IssueForm`
 
 ### ผลลัพธ์
 
@@ -512,24 +485,19 @@ components/IssueForm.tsx
 
 - CSS ของ `StatusBadge` เดิม
 - `.status`, `.status-open`, `.status-progress`, `.status-done` ถ้า `StatusBadge` ใช้ Tailwind class แล้ว
+- `section` เมื่อทั้ง `IssueForm` และ `IssueList` ใช้ Tailwind Class แล้ว
 - `.table-wrapper` ถ้าเปลี่ยนเป็น `<div className="mt-4 overflow-x-auto">` แล้ว
 - style ของ table เดิม เช่น `table`, `thead`, `tbody`, `th`, `td` ถ้า table ใช้ Tailwind class แล้ว
-- `section + section` ถ้า `<main>` ใช้ `grid gap-6` จัดระยะห่างแล้ว
 
 ยังเก็บไว้ชั่วคราว:
 
-- `.form-row` ถ้า `IssueForm` ยังใช้ `<div className="form-row">`
-- CSS ของ `fieldset`, `legend`, `.form-group` ถ้า form ส่วนนั้นยังไม่ได้ย้ายเป็น Tailwind ครบ
-- global style ที่ยังใช้จริง เช่น `@import "tailwindcss";`, `body`
+- global style ที่ยังใช้จริง เช่น `@import "tailwindcss";`, `*`, `body`
 
 หลักคือย้ายส่วนไหนแล้วลบ CSS เดิมของส่วนนั้นทันที แต่ไม่ลบ selector ที่ component อื่นยังพึ่งอยู่
 
 ### ตัวอย่างภาพรวม `app/page.tsx`
 
 ```tsx
-import Image from "next/image";
-
-// Components
 import { IssueForm } from "@/components/IssueForm";
 import { IssueList } from "@/components/IssueList";
 import { issues } from "@/data/issue";
