@@ -272,16 +272,6 @@ export function IssueList({ issues }: IssueListProps) {
 
 hidden input ส่ง `issue.id` และสถานะของปุ่มไปยัง Server Action ส่วนปุ่มของสถานะปัจจุบันถูก disable เพื่อไม่ให้ update ค่าเดิมซ้ำ
 
-### 5. Cleanup `IssueBoard`
-
-ถ้า `IssueBoard.tsx` ยังส่ง callback ให้ `IssueList` ให้เปลี่ยนเป็น:
-
-```tsx
-<IssueList issues={items} />
-```
-
-จากนั้นลบ `handleUpdateStatus` และ `handleCloseIssue` ที่ไม่ถูกใช้งานแล้ว แม้ `IssueBoard` ไม่ได้แสดงในหน้า `/issues` แต่ TypeScript ยังตรวจไฟล์นี้อยู่
-
 ---
 
 ## Slide 5: ใครสามารถ Update Status ได้บ้าง
