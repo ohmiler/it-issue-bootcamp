@@ -15,7 +15,7 @@
 | Day 1 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 ใช้ flow จากภาพรวมระบบ ไปสู่ HTML Form, CSS, Static Issue List และ Git/GitHub; Hour 4 ลดเหลือ 17 slides และแก้คำอธิบายให้ชัดว่า Form/List ยังเป็น Static Prototype |
 | Day 2 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-3 เหลือ Hour ละ 15 slides และ Hour 4 เหลือ 18 slides; สร้าง Next.js 16 แบบ root-level `app/`, ย้าย Static TSX และ Custom CSS, สร้าง `Issue` และ `.map()`, แล้วแยก `types`, `data`, Components และ Routes โดยยังไม่เปิด Tailwind |
 | Day 3 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Tailwind และ Responsive UI ไปสู่ Client Component, FormData, Validation, Mock Create และ Immutable Status Update; Hour 4 ลดเหลือ 13 slides และใช้ Optional Props เพื่อให้ `IssueList` ทำงานได้ทั้งหน้า Home และ `/issues` |
-| Day 4 | กำลังปรับใหม่ | Hour 1 ลดเหลือ 15 slides เรียงจาก Mock State ไปสู่ Supabase Project, Schema, Constraint, RLS, Demo Policies, Seed Data, Environment Variables และ TypeScript Type; Hour 2 ลดเหลือ 13 slides เชื่อม Supabase Client, Mapping, List Query และ Detail Query; Hour 3 ลดเหลือ 12 slides เชื่อม Form กับ Server Action และลบ `IssueBoard`/Mock Data ที่ไม่ใช้แล้ว; Hour 4 รอตรวจต่อ |
+| Day 4 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Supabase Setup ไปสู่ Read, Create, Update และ Deploy; เหลือ 15, 13, 12 และ 11 slides ตามลำดับ พร้อมตัด Mock Flow ที่ไม่ใช้และระบุข้อจำกัดของ Demo RLS ก่อนเข้าสู่ Auth ใน Day 5 |
 | Day 5 | ปรับครบแล้ว รอตรวจภาพรวม | Hour 1-4 ใช้ Auth แบบ SSR, USER/ADMIN, Page guard, Server Action และ RLS; Hour 4 ปิดหลักสูตรด้วย OWASP 2025, AI code review, production verification และ final demo |
 
 ## สถานะ Project เมื่อจบ Day 4
