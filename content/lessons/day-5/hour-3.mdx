@@ -10,95 +10,82 @@ source: "day-5-hour-3-authorization-rls-and-admin.md"
 
 ## Day 5 - ชั่วโมงที่ 3: กำหนดสิทธิ์ USER และ ADMIN
 
-### เป้าหมายของชั่วโมงนี้
-
-หลังเรียนจบ ผู้เรียนจะสามารถ:
-
-1. แยก Authentication และ Authorization ได้
-2. ผูก issue กับผู้สร้างผ่าน `created_by`
-3. เก็บ role `USER` / `ADMIN` ใน table `profiles`
-4. เขียน RLS ให้ USER เห็นเฉพาะข้อมูลตัวเองและ ADMIN เห็นทั้งหมด
-5. ตรวจ role ซ้ำใน Server Action
-6. สร้างหน้า `/admin/issues` และซ่อนคำสั่ง admin จากผู้ใช้ทั่วไป
-
-### ไฟล์ที่ใช้
-
-รัน SQL ใน Supabase SQL Editor และสร้างหรือแก้ไฟล์ต่อไปนี้:
+Hour 2 ทำให้ระบบรู้ว่าใคร Login อยู่ ชั่วโมงนี้เราจะกำหนดว่าผู้ใช้แต่ละ Role อ่านหรือแก้ข้อมูลใดได้บ้าง
 
 ```text
-types/auth.ts                      สร้างใหม่
-types/issue.ts                     แก้บางส่วน
-lib/issues.ts                      แก้บางส่วน
-lib/auth.ts                        แก้บางส่วน
-app/actions.ts                     แก้บางส่วน
-app/issues/page.tsx                แก้บางส่วน
-app/issues/[id]/page.tsx           แก้บางส่วน
-components/IssueList.tsx           แก้บางส่วน
-app/admin/issues/page.tsx          สร้างใหม่
-components/AppNav.tsx              แก้บางส่วน
+Supabase SQL Editor              สร้าง profiles, created_by และ RLS Policies
+lib/auth.ts                      เพิ่มการอ่าน Role และ requireAdmin()
+lib/issues.ts                    บันทึกเจ้าของ Issue
+app/actions.ts                   ตรวจ User และ ADMIN
+app/issues/page.tsx              ป้องกันหน้ารายการ
+app/issues/[id]/page.tsx         ป้องกันหน้ารายละเอียด
+components/IssueList.tsx         ซ่อนเครื่องมือจัดการในหน้า USER
+app/admin/issues/page.tsx        สร้างใหม่
+components/AppNav.tsx            เพิ่มลิงก์ Admin
 ```
 
 ---
 
-## Slide 1: จาก Login สู่การกำหนดสิทธิ์
+## Slide 1: จาก Authentication สู่ Authorization
 
-Hour 2 ทำให้ระบบตอบคำถามแรกได้แล้ว:
+Hour 2 ตอบคำถามแรกได้แล้ว:
 
 ```text
 Authentication → ผู้ใช้คนนี้คือใคร?
 ```
 
-แต่ผู้ใช้ที่ Login ทุกคนยังมีสิทธิ์ใกล้เคียงกัน และ demo policy ยังเปิดกว้าง เราจึงต้องตอบคำถามต่อไป:
+แต่การ Login สำเร็จไม่ได้หมายความว่าทุกคนควรทำงานได้เหมือนกัน เราจึงต้องตอบคำถามต่อไป:
 
 ```text
 Authorization → ผู้ใช้คนนี้ทำอะไรกับข้อมูลใดได้บ้าง?
 ```
 
-ชั่วโมงนี้เราจะเปลี่ยนจาก “Login แล้วใช้งานได้” เป็น “Login แล้วใช้งานได้ตาม role และเจ้าของข้อมูล”
+<LessonCallout type="review">
+
+ชั่วโมงนี้เราจะเปลี่ยนจาก Demo Policy ที่เปิดกว้าง เป็นสิทธิ์ที่ตรวจทั้ง Role และเจ้าของข้อมูล
+
+</LessonCallout>
 
 ---
 
-## Slide 2: สิทธิ์ของ USER และ ADMIN
+## Slide 2: กำหนดสิทธิ์ก่อนเขียน Code
 
-### USER
+| Role | ดูข้อมูล | สร้าง Issue | เปลี่ยน Status |
+|---|---|---|---|
+| USER | เฉพาะ Issue ของตัวเอง | ได้ | ไม่ได้ |
+| ADMIN | Issue ทั้งหมด | ได้ | ได้ |
 
-- สร้าง issue โดยระบบบันทึกว่าใครเป็นผู้สร้าง
-- ดูรายการและรายละเอียด issue ของตัวเอง
-- ไม่มีสิทธิ์เปลี่ยน status
-
-### ADMIN
-
-- ดู issue ได้ทุกคน
-- เปลี่ยน status เป็น `OPEN`, `IN_PROGRESS` หรือ `DONE`
-- เปิดหน้า `/admin/issues` ได้
-
-เราจะป้องกันระบบพร้อมกัน 3 ชั้น:
+ระบบจะตรวจสิทธิ์สามชั้น:
 
 ```text
-UI             → ซ่อนคำสั่งที่ผู้ใช้ไม่มีสิทธิ์
-Server Action  → ตรวจ role ก่อนแก้ข้อมูล
-RLS            → database อนุญาตเฉพาะ row ที่ policy กำหนด
+UI             → แสดงเฉพาะคำสั่งที่เหมาะกับผู้ใช้
+Server Action  → ตรวจ Role ก่อนทำงานสำคัญ
+RLS            → Database ตรวจทุก Row ก่อนอ่านหรือเขียน
 ```
 
-UI ช่วยเรื่องประสบการณ์ใช้งาน ส่วน Server Action และ RLS คือชั้นความปลอดภัยจริง
+<LessonCallout type="concept">
+
+การซ่อนปุ่มช่วยให้ใช้งานง่าย แต่ Server Action และ RLS คือชั้นที่ป้องกันข้อมูลจริง
+
+</LessonCallout>
 
 ---
 
-## Slide 3: ผูก Issue กับผู้สร้าง
+## Slide 3: เพิ่มเจ้าของให้แต่ละ Issue
 
-ตอนนี้ table `issues` ยังไม่รู้ว่าแต่ละ row เป็นของใคร จึงยังเขียน policy ว่า “ดูเฉพาะของตัวเอง” ไม่ได้
+ตอนนี้ Table `issues` ยังไม่รู้ว่าแต่ละ Row เป็นของใคร จึงยังสร้างกฎ “USER เห็นเฉพาะของตัวเอง” ไม่ได้
 
-เมื่อผู้ใช้ Login Supabase จะรู้ `id` ของ user ผ่าน `auth.uid()` เราจะเก็บ id เดียวกันไว้ใน `issues.created_by`:
+เมื่อ Login แล้ว `auth.uid()` จะคืน ID ของผู้ใช้ปัจจุบัน เราจะเก็บ ID เดียวกันไว้ใน `issues.created_by`
 
 ```text
-auth.users.id ──ผู้สร้าง issue──> issues.created_by
-      │                                │
-      └──────── RLS นำมาเปรียบเทียบ ───┘
+auth.users.id ──ผู้สร้าง──> issues.created_by
 ```
 
-เราใช้ user id แทน email เพราะ id ไม่เปลี่ยนและไม่ซ้ำ แม้ผู้ใช้จะแก้ email ภายหลัง
+<LessonCallout type="action">
 
-รันใน **Supabase SQL Editor**:
+รัน SQL นี้ใน **Supabase SQL Editor**
+
+</LessonCallout>
 
 ```sql
 alter table public.issues
@@ -109,26 +96,32 @@ create index if not exists issues_created_by_idx
 on public.issues (created_by);
 ```
 
-### อ่าน SQL ทีละคำสั่ง
+- `references auth.users(id)` บังคับให้ใช้ ID ของบัญชีที่มีอยู่จริง
+- `on delete set null` เก็บ Issue ไว้แม้บัญชีผู้สร้างถูกลบ
+- `create index ... (created_by)` สร้างตัวช่วยค้นหาที่ Column เจ้าของ เพราะ RLS ต้องเปรียบเทียบ `created_by` ทุกครั้งที่อ่าน Issue
 
-- `alter table public.issues` เลือกแก้ table `issues` ที่อยู่ใน schema `public`
-- `add column if not exists` เพิ่ม column เฉพาะเมื่อยังไม่มี ช่วยให้รัน SQL ซ้ำแล้วไม่ error
-- `created_by uuid` สร้าง column ชื่อ `created_by` โดยใช้ชนิดเดียวกับ `auth.users.id`
-- `references auth.users(id)` กำหนด foreign key เพื่อให้ใส่เฉพาะ id ของ user ที่มีอยู่จริง
-- `on delete set null` เมื่อลบ user ให้เปลี่ยน `created_by` เป็น `null` แทนการลบ issue ตามไปด้วย
-- `create index if not exists` สร้างตัวช่วยค้นหาที่ column `created_by` เพื่อให้ query และ RLS ตรวจเจ้าของได้เร็วขึ้น
+เมื่อข้อมูลมีจำนวนมาก Index ช่วยให้ Database ไปยัง Row ของผู้ใช้ได้เร็วขึ้น แทนการไล่ตรวจทุก Row ใน Table
 
-ชื่อ `issues_created_by_idx` เป็นชื่อของ index เราตั้งให้อ่านแล้วรู้ว่าเป็น index ของ table และ column ใด
-
-ข้อมูลจาก Day 4 จะมี `created_by = null` เพราะสร้างก่อนมีระบบ Login ซึ่งเป็นผลลัพธ์ที่คาดไว้ หลังเปิด RLS แล้ว USER จะไม่เห็นข้อมูลเก่าเหล่านี้ แต่ ADMIN ยังเห็นได้
+Issue เก่าจาก Day 4 จะมี `created_by = null` ซึ่งเป็นผลลัพธ์ที่ถูกต้อง เพราะข้อมูลเหล่านั้นถูกสร้างก่อนมีระบบผู้ใช้
 
 ---
 
-## Slide 4: สร้าง Table `profiles`
+## Slide 4: แยกข้อมูล Login ออกจาก Role
 
-Supabase Auth เก็บข้อมูลตัวตนไว้ใน `auth.users` แต่เราไม่ควรแก้ table นี้เพื่อเพิ่มข้อมูลเฉพาะของแอป จึงสร้าง `profiles` แยกออกมา
+Supabase สร้าง `auth.users` ให้อัตโนมัติเมื่อเราเพิ่มบัญชีผ่าน **Authentication → Users** Table นี้ดูแล Email, Password และตัวตนของผู้ใช้
 
-`auth.users` เป็น table ที่ Supabase Auth ดูแลเรื่องตัวตนและการ Login ส่วน `profiles` เป็น table ของแอปที่เราออกแบบและกำหนด RLS ได้เอง ความสัมพันธ์เป็นแบบหนึ่ง user ต่อหนึ่ง profile
+Role เป็นข้อมูลเฉพาะของ Issue Tracker เราจึงสร้าง `profiles` แยกออกมาและใช้ ID เดียวกันเชื่อมสอง Table
+
+```text
+auth.users  → ตัวตนและการ Login
+profiles    → Role ของ Issue Tracker
+```
+
+<LessonCallout type="action">
+
+รัน SQL นี้เพื่อสร้าง Table `profiles`
+
+</LessonCallout>
 
 ```sql
 create table if not exists public.profiles (
@@ -140,53 +133,24 @@ create table if not exists public.profiles (
 );
 ```
 
-### อ่าน SQL ทีละส่วน
-
-- `create table if not exists` สร้าง table เมื่อยังไม่มี และช่วยให้รันคำสั่งซ้ำได้
-- `id uuid primary key` กำหนดให้หนึ่ง user มีได้เพียงหนึ่ง profile
-- `references auth.users(id)` บังคับว่า profile ต้องอ้างถึง user ที่มีอยู่จริง
-- `on delete cascade` เมื่อลบ user ให้ลบ profile ของ user คนนั้นตามไปด้วย
-- `role ... default 'USER'` ให้ account ใหม่เริ่มด้วยสิทธิ์ต่ำกว่าก่อนเสมอ
-- `check (role in (...))` ป้องกันค่าที่ไม่รู้จัก เช่น `SUPER_ADMIN` หรือการสะกดผิด
-- `created_at ... default now()` บันทึกเวลาที่สร้าง profile อัตโนมัติ
-
-```text
-auth.users  → email, password identity, session
-profiles    → role และข้อมูลเฉพาะของ Issue Tracker
-```
-
-ใช้ `id` เดียวกันทั้งสอง table ทำให้หา profile จาก user ที่ Login ได้โดยตรง ส่วน `email` เก็บซ้ำไว้เพื่อดูและตั้ง account ตัวอย่างได้สะดวก แต่การตรวจสิทธิ์จริงจะใช้ `id` และ `role`
+- `id` เป็นทั้ง Primary Key และ Foreign Key จึงมีได้หนึ่ง Profile ต่อหนึ่ง User
+- `on delete cascade` ลบ Profile ตามอัตโนมัติเมื่อลบบัญชีที่เชื่อมอยู่ใน `auth.users` จึงไม่เหลือ Profile ที่ไม่มีเจ้าของ
+- Role เริ่มต้นเป็น `USER` ซึ่งมีสิทธิ์น้อยกว่า
+- `check` ป้องกันค่าอื่นหรือการสะกด Role ผิด
 
 ---
 
 ## Slide 5: สร้าง Profile และตั้ง ADMIN
 
-Hour 2 เราสร้างบัญชีไว้ใน Supabase Auth แล้ว แต่ table `profiles` ที่เพิ่งสร้างยังว่างอยู่ ขั้นตอนนี้จะนำบัญชีเหล่านั้นมาเชื่อมกับ role ของแอป
+บัญชีจาก Hour 2 อยู่ใน `auth.users` แล้ว แต่ `profiles` ที่เพิ่งสร้างยังไม่มีข้อมูล ขั้นตอนนี้จะคัดลอก ID และ Email มาสร้าง Profile
 
-### `auth.users` มาจากไหน
+<LessonCallout type="action">
 
-Supabase สร้าง table `auth.users` ให้อัตโนมัติตั้งแต่สร้าง project เมื่อเราเพิ่มบัญชีผ่าน **Authentication → Users → Add user** Supabase จะเพิ่มข้อมูลผู้ใช้ลง table นี้
+รัน SQL ทั้งสามส่วนตามลำดับ
 
-```text
-Supabase Dashboard: Authentication → Users
-                       ↓
-Database: auth.users
-```
+</LessonCallout>
 
-- `auth` คือ schema สำหรับระบบ Authentication ของ Supabase
-- `users` คือ table ที่เก็บ id, email และข้อมูลตัวตนของผู้ใช้
-- เราไม่ได้สร้างหรือแก้ table นี้เอง แต่ SQL Editor สามารถอ่านข้อมูลเพื่อเตรียม `profiles` ได้
-- code ของแอปทั่วไปไม่ควร query `auth.users` โดยตรง
-
-```text
-บัญชีใน auth.users
-        ↓ คัดลอก id และ email
-สร้างข้อมูลใน profiles โดยเริ่มเป็น USER
-        ↓ เลือกบัญชีผู้ดูแล
-เปลี่ยน admin@example.com เป็น ADMIN
-```
-
-### สร้าง profile ให้ user ที่มีอยู่
+### 1. สร้าง Profile ให้บัญชีที่มีอยู่
 
 ```sql
 insert into public.profiles (id, email, role)
@@ -196,18 +160,9 @@ on conflict (id) do update
 set email = excluded.email;
 ```
 
-### อ่านคำสั่งแบบง่าย ๆ
+`select ... from auth.users` อ่านบัญชีที่สร้างไว้ ส่วน `on conflict` ทำให้รันซ้ำได้โดยไม่สร้าง Profile ซ้ำและไม่เปลี่ยน ADMIN กลับเป็น USER
 
-1. `insert into public.profiles (id, email, role)` บอกว่าจะเพิ่มข้อมูลลง table และ column ใดบ้าง
-2. `select ... from auth.users` บอกว่าจะนำข้อมูลมาจากไหน โดยเลือก `id`, `email` และกำหนด role เริ่มต้นเป็น `USER`
-3. `on conflict (id)` หมายถึง ถ้า id นี้มี profile อยู่แล้ว ไม่ต้องสร้างข้อมูลซ้ำ
-4. `set email = excluded.email` ให้อัปเดต email เป็นค่าล่าสุดที่นำเข้ามารอบนี้
-
-SQL เขียนปลายทาง `INSERT INTO` ก่อน แล้วค่อยเขียนแหล่งข้อมูล `SELECT` แต่เวลาทำงาน ผลลัพธ์จาก `SELECT` จะถูกนำไปเพิ่มใน `profiles`
-
-คำสั่งนี้แก้เฉพาะ email และไม่แตะ role ดังนั้นถ้ารันซ้ำ บัญชี ADMIN จะไม่ถูกเปลี่ยนกลับเป็น USER
-
-### เปลี่ยน account ตัวอย่างเป็น ADMIN
+### 2. ตั้งบัญชีผู้ดูแล
 
 ```sql
 update public.profiles
@@ -215,9 +170,7 @@ set role = 'ADMIN'
 where email = 'admin@example.com';
 ```
 
-คำสั่งนี้หา profile ที่ใช้ email `admin@example.com` แล้วเปลี่ยนเฉพาะบัญชีนั้นเป็น `ADMIN` ถ้าใช้ email อื่น ให้แก้ข้อความใน `where` ให้ตรงกับบัญชีจริงก่อนรัน
-
-### ตรวจผลลัพธ์
+### 3. ตรวจผลลัพธ์
 
 ```sql
 select id, email, role
@@ -227,16 +180,17 @@ order by email;
 
 ควรเห็น `user@example.com` เป็น `USER` และ `admin@example.com` เป็น `ADMIN`
 
-ถ้าไม่พบ account ให้กลับไปตรวจ **Authentication → Users** ก่อน เพราะเราสร้าง profile จากบัญชีที่มีอยู่ใน `auth.users`
-
 ---
 
-## Slide 6: ป้องกันข้อมูลใน `profiles`
+## Slide 6: ให้ผู้ใช้เห็นเฉพาะ Profile ตัวเอง
 
-จาก Slide ก่อนหน้า ตอนนี้ `profiles` มีข้อมูลผู้ใช้และ role แล้ว ขั้นต่อไปคือล็อก table นี้ให้ปลอดภัย โดยตอบ 2 คำถาม
+แอปต้องอ่าน Role ของผู้ใช้ แต่ไม่ควรเปิดให้ผู้ใช้เห็น Profile ของคนอื่นหรือแก้ Role ของตัวเอง
 
-- ผู้ใช้ประเภทไหน **เข้าอ่าน table ได้** → ควบคุมด้วย `GRANT` และ `REVOKE`
-- เมื่อเข้าอ่านได้แล้ว **เห็น row ไหนบ้าง** → ควบคุมด้วย RLS Policy
+<LessonCallout type="action">
+
+รัน SQL นี้เพื่อกำหนดสิทธิ์ของ Table `profiles`
+
+</LessonCallout>
 
 ```sql
 alter table public.profiles enable row level security;
@@ -254,148 +208,41 @@ to authenticated
 using (id = (select auth.uid()));
 ```
 
-คำสั่งทำงานตามลำดับดังนี้
+### อ่านคำสั่งตามลำดับ
 
-1. `enable row level security` เปิดระบบตรวจสิทธิ์แยกทีละ row
-2. `revoke all` ปิดสิทธิ์เดิมของทั้งผู้ที่ยังไม่ login (`anon`) และผู้ที่ login แล้ว (`authenticated`)
-3. `grant select` เปิดกลับมาเฉพาะสิทธิ์อ่าน และเปิดให้เฉพาะผู้ที่ login แล้ว จึงยัง `insert`, `update` หรือ `delete` ไม่ได้
-4. `drop policy if exists` ลบ policy ชื่อเดิมก่อน เพื่อให้รัน SQL ชุดนี้ซ้ำได้
-5. `using (id = (select auth.uid()))` อนุญาตเฉพาะ row ที่ `profiles.id` ตรงกับ id ของผู้ใช้ที่กำลัง login
+| คำสั่ง | หน้าที่ |
+|---|---|
+| `enable row level security` | เปิดให้ Table ตรวจ RLS Policy ทุกครั้งที่เข้าถึงข้อมูล |
+| `revoke all ... from anon, authenticated` | ถอนสิทธิ์เดิมของทั้งผู้ที่ยังไม่ Login และผู้ที่ Login แล้ว เพื่อเริ่มกำหนดใหม่ให้ชัดเจน |
+| `grant select ... to authenticated` | ให้เฉพาะผู้ที่ Login แล้วมีสิทธิ์ส่งคำสั่งอ่าน Table |
+| `drop policy if exists` | ลบ Policy ชื่อเดิมก่อน ทำให้รัน SQL ชุดนี้ซ้ำได้โดยไม่ชนชื่อ |
+| `for select to authenticated` | ใช้ Policy นี้เฉพาะการอ่านข้อมูลของผู้ที่ Login แล้ว |
+| `using (id = (select auth.uid()))` | อนุญาตเฉพาะ Row ที่ Profile ID ตรงกับ ID ใน Session |
 
-สรุปคือ ผู้ที่ยังไม่ login จะเข้าอ่านไม่ได้ ส่วนผู้ที่ login แล้วจะอ่านได้เฉพาะ profile ของตัวเอง โดย `auth.uid()` จะคืนค่า id ของผู้ใช้ปัจจุบัน
+<LessonCallout type="concept">
 
-เพราะเราไม่ได้เปิดสิทธิ์ `update` ผู้ใช้จึงแก้ role ของตัวเองเป็น `ADMIN` ผ่านหน้าเว็บไม่ได้ การตั้ง ADMIN ในชั่วโมงนี้จึงทำผ่าน SQL Editor โดยผู้ดูแลระบบเท่านั้น
+`GRANT` กำหนดว่า Role ใช้คำสั่ง `SELECT` ได้หรือไม่ ส่วน RLS Policy กำหนดว่าเมื่ออ่านได้แล้วจะเห็น Row ใดบ้าง
+
+</LessonCallout>
+
+```text
+ยังไม่ Login → ไม่มีสิทธิ์อ่าน profiles
+Login แล้ว    → อ่านได้เฉพาะ Row ที่ id ตรงกับ auth.uid()
+```
+
+Policy `users_can_view_own_profile` เป็น Policy ใหม่ที่เราสร้างใน Slide นี้ และเพราะไม่ได้ให้สิทธิ์ `update` ผู้ใช้จึงเปลี่ยนตัวเองเป็น ADMIN ผ่านแอปไม่ได้
 
 ---
 
-## Slide 7: ปิด Demo Access จาก Day 4
+## Slide 7: สร้างกฎ SELECT สำหรับ Issue
 
-Hour 2 ยังเก็บ `anon` ไว้ชั่วคราวเพื่อไม่ให้ flow เดิมพัง ตอนนี้เราพร้อมเปลี่ยนเป็นระบบที่ต้อง Login จริงแล้ว
+กฎแรกควบคุม `.select()` โดย USER เห็น Row ที่ตัวเองสร้าง ส่วน ADMIN เห็นทุก Row
 
-ก่อนถอนสิทธิ์ `anon` ต้องป้องกันหน้าที่อ่าน `issues` ก่อน ไม่เช่นนั้นผู้ที่ยังไม่ Login จะ query database แล้วพบ `permission denied` แทนที่จะถูกส่งไปหน้า Login
+<LessonCallout type="action">
 
-### แก้บางส่วน: `app/issues/page.tsx`
+รัน SQL นี้เพื่อสร้าง SELECT Policy ใหม่
 
-เพิ่ม import และเรียก `requireUser()` ก่อน `getIssues()` โดยเก็บ JSX เดิมไว้ทั้งหมด:
-
-> ตั้งแต่สไลด์นี้ บรรทัดที่มี highlight คือโค้ดที่ต้องเพิ่มหรือแก้ในไฟล์เดิม ส่วนหัวข้อ “สร้างไฟล์ใหม่ทั้งไฟล์” ให้ใช้โค้ดทั้ง block
-
-```tsx {1,4}
-import { requireUser } from "@/lib/auth";
-
-export default async function IssuesPage() {
-  await requireUser();
-  const issues = await getIssues();
-
-  // JSX เดิม
-}
-```
-
-### แก้บางส่วน: `app/issues/[id]/page.tsx`
-
-```tsx {1,4}
-import { requireUser } from "@/lib/auth";
-
-export default async function IssueDetailPage(props: IssueDetailPageProps) {
-  await requireUser();
-
-  // เก็บการ await params, getIssueById และ JSX เดิมไว้
-}
-```
-
-เมื่อหน้าเว็บตรวจ session ก่อนแล้ว จึงค่อยปิด demo access ใน **Supabase SQL Editor**:
-
-```sql
-drop policy if exists "demo_select_issues" on public.issues;
-drop policy if exists "demo_insert_issues" on public.issues;
-drop policy if exists "demo_update_issues" on public.issues;
-
-revoke select, insert, update on public.issues from anon;
-grant select, insert, update on public.issues to authenticated;
-
-alter table public.issues enable row level security;
-```
-
-หลังรัน SQL นี้ request ที่ไม่มี session จะใช้ role `anon` และเข้า table `issues` ไม่ได้
-
-```text
-ยังไม่ Login → requireUser() ส่งไป /login ก่อน query
-Login แล้ว    → ใช้ role authenticated และผ่านไปตรวจ RLS
-```
-
-หลัง Slide นี้ ผู้ที่ Login แล้วอาจยังไม่เห็นรายการ เพราะเราเพิ่งปิด policy เดิมและยังไม่ได้สร้าง policy ใหม่ ให้ทำ Slide 8–11 ต่อก่อนทดสอบ USER และ ADMIN
-
-การลบ demo policies สำคัญมาก เพราะ policy หลายตัวของ Postgres มักรวมสิทธิ์แบบ OR หาก policy ที่ใช้ `true` ยังอยู่ policy ใหม่จะไม่ช่วยจำกัดข้อมูล
-
----
-
-## Slide 8: สร้าง Helper ตรวจ ADMIN ใน Database
-
-Helper ใน Slide นี้คือ **SQL function ที่อยู่ใน database** ไม่ใช่ function ใน TypeScript เราสร้างไว้เป็นคำสั่งกลาง เพื่อให้ RLS Policy เรียกถามได้ว่า “ผู้ใช้ปัจจุบันเป็น ADMIN หรือไม่” โดยไม่ต้องเขียน query ตรวจ role ซ้ำในทุก policy
-
-```text
-RLS ของ issues
-      ↓ เรียก private.is_admin()
-อ่าน role ของ user ปัจจุบันจาก profiles
-      ↓
-คืน true  → เป็น ADMIN
-คืน false → ไม่ใช่ ADMIN
-```
-
-ไม่ต้องจำทุกคำสั่ง ให้แบ่ง SQL เป็น 3 ช่วง: **เตรียม schema → สร้าง function → เปิดสิทธิ์เรียก function**
-
-```sql
--- 1. เตรียม schema สำหรับ helper ภายใน
-create schema if not exists private;
-revoke all on schema private from PUBLIC;
-grant usage on schema private to authenticated;
-
--- 2. สร้าง function ที่ตอบว่า user ปัจจุบันเป็น ADMIN หรือไม่
-create or replace function private.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-  select exists (
-    select 1
-    from public.profiles
-    where id = (select auth.uid())
-      and role = 'ADMIN'
-  );
-$$;
-
--- 3. เปิดให้เฉพาะผู้ที่ Login แล้วเรียก function นี้
-revoke all on function private.is_admin() from PUBLIC;
-grant execute on function private.is_admin() to authenticated;
-```
-
-### อธิบายเป็น 3 ช่วง
-
-1. **เตรียม schema:** `private` ใช้จัดกลุ่ม helper ภายใน แยกจาก schema `public` เราปิดสิทธิ์ของ `PUBLIC` หรือทุก database role ก่อน แล้วเปิดให้ `authenticated` เข้าถึงชื่อใน schema ได้
-2. **สร้าง function:** `is_admin()` ค้นหา profile ที่ id ตรงกับ `auth.uid()` และ role เป็น `ADMIN` ถ้าพบคืน `true` ถ้าไม่พบคืน `false`
-3. **เปิดสิทธิ์เรียก:** ปิดสิทธิ์เรียก function จากทุก role ก่อน แล้วเปิด `execute` กลับมาเฉพาะ `authenticated`
-
-`security definer` และ `set search_path = ''` เป็นการทำให้ helper อ่าน `profiles` ได้อย่างปลอดภัย ในชั่วโมงนี้ให้ใช้ตามตัวอย่างได้ ยังไม่จำเป็นต้องจำ syntax
-
-จากนั้น Slide 9–11 จะนำผลลัพธ์ `true` หรือ `false` ไปใช้กำหนดสิทธิ์ใน RLS Policy
-
----
-
-## Slide 9: SELECT — เห็นของตัวเองหรือเห็นทั้งหมด
-
-Slide นี้สร้างกฎสำหรับตอนที่แอปเรียก `.select()` จาก table `issues` โดย database จะตรวจทีละ row ว่า user ปัจจุบันมีสิทธิ์เห็นหรือไม่
-
-```text
-getIssues() เรียก .select("*")
-        ↓
-RLS ตรวจ policy นี้ทีละ row
-        ↓
-ส่งกลับเฉพาะ row ที่เงื่อนไขเป็น true
-```
-
-ลบ policy ชื่อเดิมก่อนเพื่อให้รัน SQL ซ้ำได้ แล้วสร้าง policy สำหรับอ่านข้อมูล:
+</LessonCallout>
 
 ```sql
 drop policy if exists "users_view_own_admins_view_all"
@@ -407,32 +254,37 @@ for select
 to authenticated
 using (
   created_by = (select auth.uid())
-  or (select private.is_admin())
+  or exists (
+    select 1
+    from public.profiles
+    where id = (select auth.uid())
+      and role = 'ADMIN'
+  )
 );
 ```
 
-### อ่าน SQL ทีละส่วน
-
-- `create policy "users_view_own_admins_view_all"` สร้าง policy และตั้งชื่อให้สื่อว่า USER เห็นของตัวเอง ส่วน ADMIN เห็นทั้งหมด
-- `on public.issues` ระบุว่า policy นี้ใช้กับ table `issues`
-- `for select` ใช้เฉพาะ operation การอ่านข้อมูล
-- `to authenticated` ใช้กับ request ของผู้ที่ Login แล้ว
-- `using (...)` คือเงื่อนไขกรองแต่ละ row โดยต้องเป็นเจ้าของ row **หรือ** เป็น ADMIN อย่างใดอย่างหนึ่ง
+อ่านเงื่อนไขเป็นภาษาง่าย ๆ:
 
 ```text
-USER  → เห็น row ที่ created_by ตรงกับ user.id
-ADMIN → private.is_admin() เป็น true จึงเห็นทุก row
+เป็นเจ้าของ Issue หรือเป็น ADMIN → อ่าน Row นี้ได้
+ไม่ตรงทั้งสองเงื่อนไข            → Database ไม่ส่ง Row นี้กลับมา
 ```
 
-คำว่า `or` สำคัญ เพราะทำให้ ADMIN ผ่านเงื่อนไขได้แม้ `created_by` จะเป็น id ของคนอื่น
+`exists (...)` ตรวจ Profile ของผู้ใช้ปัจจุบันว่ามี Role เป็น `ADMIN` หรือไม่ โดยผู้ใช้มีสิทธิ์อ่านเฉพาะ Profile ของตัวเองจาก Slide 6
 
-issue เก่าจาก Day 4 ที่มี `created_by = null` จะไม่แสดงสำหรับ USER แต่ ADMIN ยังเห็นได้
+ตอนนี้ Demo Policy เดิมยังเปิดอยู่ Policy ใหม่นี้จึงยังไม่จำกัดข้อมูลจริง เราจะปิด Demo Access หลังเตรียม Code และ Policy ทุกส่วนเสร็จใน Slide 18
 
 ---
 
-## Slide 10: INSERT — สร้างได้เฉพาะในชื่อตัวเอง
+## Slide 8: สร้างกฎ INSERT สำหรับเจ้าของ Issue
 
-ตอนสร้าง issue แอปจะส่ง `created_by` ไปพร้อมข้อมูลอื่น แต่ database ไม่ควรเชื่อ id ที่มากับ request ทันที จึงต้องตรวจว่า id นั้นตรงกับผู้ใช้ใน session จริง
+ตอนสร้าง Issue แอปต้องส่ง `created_by` ที่ตรงกับผู้ใช้ใน Session Database จึงควรตรวจค่านี้ก่อนบันทึก
+
+<LessonCallout type="action">
+
+รัน SQL นี้เพื่อสร้าง INSERT Policy
+
+</LessonCallout>
 
 ```sql
 drop policy if exists "users_insert_own_issues"
@@ -442,25 +294,29 @@ create policy "users_insert_own_issues"
 on public.issues
 for insert
 to authenticated
-with check (
-  created_by = (select auth.uid())
-);
+with check (created_by = (select auth.uid()));
 ```
+
+`with check` ตรวจ Row ใหม่ก่อนบันทึก ถ้า `created_by` ไม่ตรงกับผู้ใช้ที่ Login Database จะปฏิเสธ
 
 ```text
 created_by ตรงกับ auth.uid()       → บันทึกได้
-created_by เป็น id คนอื่นหรือ null → ปฏิเสธ
+created_by เป็น ID อื่นหรือเป็น null → ปฏิเสธ
 ```
 
-`for insert` ใช้กับการสร้าง row ใหม่ จึงไม่มี row เดิมให้ตรวจ และใช้เฉพาะ `with check` เพื่อตรวจข้อมูลก่อนบันทึก หากเงื่อนไขเป็น `false` database จะปฏิเสธการ `insert`
-
-ถ้า app ลืมส่ง `created_by` หรือพยายามส่ง id ของคนอื่น Supabase จะปฏิเสธด้วย RLS
+Policy นี้ช่วยป้องกันทั้งกรณีที่แอปลืมส่งเจ้าของ และกรณีที่ผู้ใช้พยายามสร้าง Issue ในนามของคนอื่น
 
 ---
 
-## Slide 11: UPDATE — เฉพาะ ADMIN
+## Slide 9: สร้างกฎ UPDATE สำหรับ ADMIN
 
-USER ใช้ issue เพื่อติดตามงาน แต่การเปลี่ยน status เป็นหน้าที่ของ ADMIN เราจึงสร้าง update policy ที่ถาม `private.is_admin()` ทั้งก่อนและหลังแก้ข้อมูล
+USER มีหน้าที่แจ้งและติดตาม Issue ส่วนการเปลี่ยน Status เป็นหน้าที่ของ ADMIN
+
+<LessonCallout type="action">
+
+รัน SQL นี้เพื่อสร้าง UPDATE Policy
+
+</LessonCallout>
 
 ```sql
 drop policy if exists "admins_update_issues"
@@ -470,96 +326,84 @@ create policy "admins_update_issues"
 on public.issues
 for update
 to authenticated
-using ((select private.is_admin()))
-with check ((select private.is_admin()));
+using (
+  exists (
+    select 1 from public.profiles
+    where id = (select auth.uid()) and role = 'ADMIN'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where id = (select auth.uid()) and role = 'ADMIN'
+  )
+);
 ```
 
-- `for update` กำหนดว่า policy นี้ใช้เมื่อแก้ row ที่มีอยู่
-- `using` ตรวจว่า ADMIN มีสิทธิ์เลือก row เดิมมา update
-- `with check` ตรวจข้อมูลหลัง update ก่อนบันทึก
-- USER ไม่มี update policy จึงเปลี่ยน status ไม่ได้ แม้ส่ง request เอง
-
-ทั้งสองเงื่อนไขเรียก helper เดียวกัน ถ้าเป็น ADMIN จะได้ `true` และ update ได้ หากเป็น USER จะได้ `false` และ database ปฏิเสธ
-
-เราไม่สร้าง DELETE policy เพราะ flow ของคอร์สใช้ status `DONE` แทนการลบข้อมูลจริง
-
-หลังทำ Slide 9–11 ครบ หน้า Table Editor ของ `public.issues` ควรแสดง **3 RLS policies** ได้แก่ SELECT, INSERT และ UPDATE หากมีน้อยกว่านี้ ให้ย้อนกลับไปรัน SQL ของ operation ที่หายไปก่อนทดสอบหน้าเว็บ
+- `using` ตรวจว่า ADMIN เลือก Row เดิมมาแก้ได้หรือไม่
+- `with check` ตรวจอีกครั้งก่อนบันทึก Row หลังแก้
+- ไม่มี DELETE Policy เพราะระบบใช้ Status `DONE` แทนการลบ Issue
 
 ---
 
-## Slide 12: ต่อ `created_by` เข้ากับ TypeScript
+## Slide 10: บันทึกเจ้าของตอนสร้าง Issue
 
-เพิ่ม column ใน database แล้วต้องอัปเดต type และ mapping ของแอปด้วย เพราะชื่อ field สองฝั่งใช้รูปแบบต่างกัน
+Policy INSERT ต้องได้รับ `created_by` ที่ตรงกับ Session เราจึงนำ `user.id` จาก `requireUser()` ส่งต่อไปยัง `createIssue()`
 
 ```text
-Database: created_by  → mapIssue() → App: createdBy
+Session → requireUser() → user.id → createIssue() → created_by
 ```
 
-### แก้บางส่วน: `types/issue.ts`
+### จุดที่ 1: แก้ `createIssueAction()` ใน `app/actions.ts`
 
-```ts {3}
-export type Issue = {
-  // fields เดิมทั้งหมด
-  createdBy?: string;
-};
-```
+<CodeChange code='export async function createIssueAction(formData: FormData) {\n  await requireUser();\n  const user = await requireUser();\n\n  const input = parseIssueInput(formData);\n  // เก็บ Validation เดิมไว้\n\n  await createIssue(input);\n  await createIssue(input, user.id);\n}' removedLines="2,7" addedLines="3,8" />
 
-ฝั่ง UI ใช้ `createdBy?` เพราะ issue เก่าจาก Day 4 อาจไม่มีเจ้าของ และ component ไม่จำเป็นต้องจัดการค่า `null` โดยตรง
+### จุดที่ 2: เพิ่มสองบรรทัดใน `createIssue()` ที่ `lib/issues.ts`
 
-### แก้บางส่วน: `lib/issues.ts`
+เก็บ `Promise<void>`, Fields และ Error Handling เดิมไว้ แล้วเพิ่มเฉพาะบรรทัดที่ Highlight:
 
-เพิ่ม field ใน `DbIssue`:
+<CodeChange code='export async function createIssue(\n  input: NewIssueInput,\n  userId: string,\n): Promise<void> {\n  const supabase = await createClient();\n\n  const { error } = await supabase.from("issues").insert({\n    reporter_name: input.reporterName,\n    reporter_email: input.reporterEmail,\n    title: input.title,\n    description: input.description,\n    status: "OPEN",\n    created_by: userId,\n  });\n\n  if (error) {\n    throw new Error(`Failed to create issue: ${error.message}`);\n  }\n}' addedLines="3,13" />
 
-```ts {3}
-type DbIssue = {
-  // fields เดิมทั้งหมด
-  created_by: string | null;
-};
-```
+สิ่งที่เพิ่มมีเพียง:
 
-แล้วเพิ่มใน object ที่ `mapIssue()` return:
+- `userId: string` ทำให้ Function รับ ID ของผู้ใช้จาก Server Action
+- `created_by: userId` บันทึก ID นั้นเป็นเจ้าของ Row ใหม่
 
-```ts {1}
-createdBy: row.created_by ?? undefined,
-```
+อย่ารับ `created_by` จาก Hidden Input เพราะผู้ใช้แก้ค่าใน Browser ได้ ID ต้องมาจาก Session และ RLS จะตรวจซ้ำก่อนบันทึก
 
-`DbIssue` ใช้ `string | null` ให้ตรงกับค่าจริงจาก database ส่วน `mapIssue()` เปลี่ยน `null` เป็น `undefined` ให้ตรงกับ `Issue`
-
-ถ้าขาด type, field ใน `DbIssue` หรือ mapping จุดใดจุดหนึ่ง database จะมีข้อมูลแล้ว แต่ TypeScript หรือ UI ยังไม่รู้จัก `createdBy`
+เราไม่เพิ่ม `createdBy` ใน Type `Issue` เพราะ UI ยังไม่ได้ใช้ Field นี้ Database ใช้ `created_by` สำหรับ RLS และการบันทึกเจ้าของโดยตรง
 
 ---
 
-## Slide 13: อ่าน Role ของ User ฝั่ง Server
+## Slide 11: เพิ่ม Helper ตรวจสิทธิ์ ADMIN
 
-เราจะอ่าน role ฝั่ง server จาก table `profiles` เพื่อให้หน้าและ action ใช้ข้อมูลเดียวกับ RLS ไม่รับ role จาก browser เพราะผู้ใช้สามารถแก้ request เองได้
+จากโค้ดเดิม **ไม่ต้องลบหรือแก้** `getCurrentUser()` และ `requireUser()` เราจะเพิ่มสามส่วน:
 
-### สร้างไฟล์ใหม่ทั้งไฟล์: `types/auth.ts`
+1. `UserRole` กำหนดค่า Role ที่แอปรองรับ
+2. `getCurrentUserRole()` อ่าน Role จาก `profiles`
+3. `requireAdmin()` บังคับว่าต้อง Login และมี Role เป็น ADMIN
+
+### จุดที่ 1: เพิ่ม Type ใต้ Import เดิม
+
+<CodeChange code='import { redirect } from "next/navigation";\nimport { createClient } from "@/lib/supabase/server";\n\ntype UserRole = "USER" | "ADMIN";' addedLines="4" />
+
+### จุดที่ 2: เพิ่มสอง Functions ต่อจาก `requireUser()`
+
+<LessonCallout type="action">
+
+Code ทั้ง Block ต่อไปนี้เป็นโค้ดใหม่ ส่วน Functions เดิมด้านบนให้เก็บไว้ทั้งหมด
+
+</LessonCallout>
 
 ```ts
-export type UserRole = "USER" | "ADMIN";
-```
-
-Union type นี้บอก TypeScript ว่า role ที่แอปรองรับมีเพียง 2 ค่า ช่วยป้องกันการสะกดผิดและค่าที่ไม่รู้จัก
-
-### เพิ่มในไฟล์เดิม: `lib/auth.ts`
-
-เพิ่ม import แล้ววาง function ต่อจาก `requireUser()`:
-
-```ts {1-29}
-import type { UserRole } from "@/types/auth";
-
 export async function getCurrentUserRole(
-  userId?: string,
+  userId: string,
 ): Promise<UserRole | null> {
-  const id = userId ?? (await getCurrentUser())?.id;
-
-  if (!id) return null;
-
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", id)
+    .eq("id", userId)
     .maybeSingle();
 
   if (error) {
@@ -573,26 +417,7 @@ export async function getCurrentUserRole(
 
   return null;
 }
-```
 
-### ลำดับการทำงาน
-
-1. ใช้ `userId` ที่รับมา หรือหา id จาก session หากไม่ได้ส่งมา
-2. `.eq("id", id)` เลือก profile ของ user คนนั้น
-3. `.maybeSingle()` คืนหนึ่ง row หรือ `null` หากไม่พบ โดยไม่บังคับว่าต้องมีข้อมูล
-4. ตรวจว่าค่าเป็น `USER` หรือ `ADMIN` จริงก่อนคืนผลลัพธ์ หากผิดปกติให้คืน `null`
-
-การรับ `userId` แบบ optional ช่วยให้ caller ที่มี user อยู่แล้วไม่ต้องเรียก `getCurrentUser()` ซ้ำ
-
----
-
-## Slide 14: สร้าง `requireAdmin()` เพื่อตรวจสิทธิ์ผู้ดูแล
-
-เมื่อหลายหน้าและ action ต้องตรวจ ADMIN เราไม่ควรเขียนเงื่อนไขซ้ำ จึงรวมขั้นตอน Login และตรวจ role ไว้ใน `requireAdmin()`
-
-### เพิ่มต่อในไฟล์เดิม: `lib/auth.ts`
-
-```ts {1-11}
 export async function requireAdmin() {
   const user = await requireUser();
   const role = await getCurrentUserRole(user.id);
@@ -606,172 +431,108 @@ export async function requireAdmin() {
 ```
 
 ```text
-ไม่มี session → requireUser() ส่งไป /login
-มี USER       → ส่งกลับ /issues
-มี ADMIN      → คืน user และทำงานต่อ
+ไม่มี Session → requireUser() ส่งไป /login
+มี Role USER  → requireAdmin() ส่งไป /issues
+มี Role ADMIN → ทำงานต่อ
 ```
 
-`requireAdmin()` ตรวจจาก profile ฝั่ง server ไม่ใช่เชื่อจาก email, URL หรือตัวแปรที่ browser ส่งมา
-
-เมื่อผ่านการตรวจ function จะคืน `user` เพื่อให้ code ถัดไปใช้ id หรือข้อมูล session ต่อได้ ส่วน `redirect()` จะหยุด flow ปัจจุบันและไม่ปล่อยให้ USER ทำคำสั่งถัดไป
+Role ถูกอ่านจาก Database ฝั่ง Server ไม่ได้เชื่อค่าจาก URL, Email หรือ Browser
 
 ---
 
-## Slide 15: บันทึกเจ้าของตอนสร้าง Issue
+## Slide 12: ป้องกันหน้าที่อ่าน Issue
 
-เดิม `createIssue()` รับเฉพาะข้อมูลจากฟอร์ม แต่ policy ใหม่ต้องรู้เจ้าของ issue เราจึงเปลี่ยน signature ให้รับ `userId` ที่มาจาก session เพิ่มอีกหนึ่งค่า
+Hour 2 ป้องกัน `/issues/new` แล้ว แต่หน้ารายการและรายละเอียดก็ต้อง Login ก่อน Query เพราะ Slide 18 จะถอนสิทธิ์ของ `anon`
+
+### แก้ `app/issues/page.tsx`
+
+<CodeChange code='import { IssueList } from "@/components/IssueList";\nimport { getIssues } from "@/lib/issues";\nimport { requireUser } from "@/lib/auth";\n\nexport default async function IssuesPage() {\n  await requireUser();\n  const issues = await getIssues();\n\n  // เก็บ JSX เดิมไว้\n}' addedLines="3,6" />
+
+### แก้ `app/issues/[id]/page.tsx`
+
+<CodeChange code='import { notFound } from "next/navigation";\nimport { getIssueById } from "@/lib/issues";\nimport { requireUser } from "@/lib/auth";\n\nexport default async function IssueDetailPage({\n  params,\n}: IssueDetailPageProps) {\n  await requireUser();\n  const { id } = await params;\n  const issue = await getIssueById(id);\n\n  // เก็บ notFound() และ JSX เดิมไว้\n}' addedLines="3,8" />
+
+<LessonCallout type="concept">
+
+ตรวจ Session ก่อน Query เพื่อให้ผู้ที่ยังไม่ Login ถูกส่งไปหน้า Login แทนการเห็น Error `permission denied`
+
+</LessonCallout>
+
+---
+
+## Slide 13: ให้เฉพาะ ADMIN เปลี่ยน Status ได้
+
+`updateIssueStatusAction()` เดิมตรวจว่า `id` และ `status` ถูกต้อง แต่ยังไม่ได้ตรวจว่า **ใครเป็นคนเรียก Action** ถ้า USER ส่ง Request เข้ามาเอง Code เดิมจะพยายาม Update Database
+
+### แก้สามจุดใน `app/actions.ts`
+
+| จุดที่แก้ | เหตุผล |
+|---|---|
+| Import `requireAdmin` | เพื่อเรียก Helper ที่สร้างใน Slide 11 |
+| `await requireAdmin()` | ปฏิเสธ USER ก่อนอ่าน `formData` และ Update |
+| `revalidatePath("/admin/issues")` | ให้หน้า Admin แสดง Status ล่าสุด |
+
+<CodeChange code='import { requireUser } from "@/lib/auth";\nimport { requireAdmin, requireUser } from "@/lib/auth";\n\nexport async function updateIssueStatusAction(\n  formData: FormData,\n): Promise<void> {\n  await requireAdmin();\n\n  const id = String(formData.get("id") ?? "").trim();\n  // เก็บ Validation และ Update เดิมไว้\n\n  revalidatePath("/issues");\n  revalidatePath("/admin/issues");\n}' removedLines="1" addedLines="2,7,13" />
+
+เก็บ `requireUser` ไว้เพราะ `createIssueAction()` ยังใช้งานอยู่ ส่วน RLS จะตรวจ Role ซ้ำอีกชั้นก่อน Database แก้ Row
+
+---
+
+## Slide 14: ให้ `IssueList` เลือกแสดงปุ่มจัดการ
+
+`IssueList` จาก Day 4 แสดงปุ่มเปลี่ยน Status อยู่เสมอ แต่หลังแบ่งสิทธิ์แล้วสองหน้าต้องแสดงผลต่างกัน:
 
 ```text
-session → requireUser() → user.id → createIssue() → issues.created_by
+หน้า /issues        → USER ดูข้อมูลอย่างเดียว
+หน้า /admin/issues  → ADMIN เห็นปุ่มเปลี่ยน Status
 ```
 
-### แก้บางส่วน: `app/actions.ts`
+เราจึงเพิ่ม Prop `canManage` เพื่อให้ Parent บอกว่า Context นี้แสดงเครื่องมือจัดการได้หรือไม่
 
-Hour 2 เรียก `await requireUser()` อยู่แล้ว ให้เก็บ user ที่ได้และส่ง `user.id` ต่อไป:
+<LessonCallout type="action">
 
-```ts {2,10}
-export async function createIssueAction(formData: FormData) {
-  const user = await requireUser();
-  const input = parseIssueInput(formData);
-  const errors = validateIssueInput(input);
+แก้ Props Type และ Parameter ของ `IssueList()` ใน `components/IssueList.tsx`
 
-  if (errors.length > 0) {
-    throw new Error(errors.join(", "));
-  }
+</LessonCallout>
 
-  await createIssue(input, user.id);
-  revalidatePath("/issues");
-  redirect("/issues");
-}
-```
+<CodeChange code='type IssueListProps = {\n  issues: Issue[];\n  canManage?: boolean;\n};\n\nexport function IssueList({ issues }: IssueListProps) {\nexport function IssueList({\n  issues,\n  canManage = false,\n}: IssueListProps) {' removedLines="6" addedLines="3,7,8,9,10" />
 
-### แทน function เดิม: `lib/issues.ts`
+- `canManage?` เป็น Optional Prop จึงไม่บังคับให้ทุกหน้าต้องส่งค่า
+- `canManage = false` ทำให้หน้าที่ไม่ส่ง Prop แสดงรายการแบบอ่านอย่างเดียว
+- หน้า Admin จะส่ง `<IssueList issues={issues} canManage />` เพื่อเปลี่ยนค่าเป็น `true`
 
-```ts {1,10}
-export async function createIssue(input: NewIssueInput, userId: string) {
-  const supabase = await createClient();
-
-  const { error } = await supabase.from("issues").insert({
-    reporter_name: input.reporterName,
-    reporter_email: input.reporterEmail,
-    title: input.title,
-    description: input.description,
-    status: "OPEN",
-    created_by: userId,
-  });
-
-  if (error) {
-    throw new Error(`Failed to create issue: ${error.message}`);
-  }
-}
-```
-
-อย่ารับ `created_by` จาก hidden input เพราะผู้ใช้แก้ค่าใน browser ได้ Server Action ต้องส่ง id จาก session และ RLS จะตรวจซ้ำว่า id นั้นตรงกับ `auth.uid()` ก่อนบันทึก
-
-### ผลที่ควรได้หลังสร้าง Issue
-
-```text
-createIssueAction() → บันทึก created_by → redirect ไป /issues
-IssuesPage          → getIssues() → RLS กรองข้อมูล → IssueList
-```
-
-`IssueList` มีหน้าที่แสดง prop `issues` และไม่ต้อง query Supabase เอง หลังสร้าง issue ใหม่จึงควรเห็นรายการของตัวเองทันที
-
-ถ้าสร้างสำเร็จแต่รายการยังว่าง ให้เปิด Supabase Table Editor ดู row ล่าสุดใน `issues` ค่า `created_by` ต้องตรงกับ id ของ account ที่กำลัง Login หากเป็น `null` ให้ตรวจสองบรรทัดที่ highlight ในสไลด์นี้ และตรวจว่าได้ลบ demo insert policy ตาม Slide 7 แล้ว
-
-issue เก่าที่สร้างก่อนเพิ่ม `created_by` จะยังเป็น `null` และ USER มองไม่เห็นตาม policy ซึ่งเป็นผลลัพธ์ที่ถูกต้อง
+Slide นี้เตรียมค่า `canManage` ก่อน ส่วน Slide 15 จะนำค่านี้ไปควบคุมหัว Column และปุ่มในแต่ละ Row
 
 ---
 
-## Slide 16: ตรวจ ADMIN ก่อน Update Status
+## Slide 15: ซ่อน Column จัดการด้วย `canManage`
 
-แม้ปุ่มเปลี่ยน status จะปรากฏเฉพาะหน้า Admin ผู้ใช้อาจสร้าง request เองได้ Server Action จึงต้องตรวจ role ทุกครั้งก่อนอ่าน input หรือ update database
+Slide ก่อนหน้าเป็นเพียงการเตรียม Prop ตอนนี้ให้นำ `canManage` มาใช้ใน JSX เพื่อเลือกว่าจะแสดง Column จัดการหรือไม่
 
-### แก้ function เดิมใน `app/actions.ts`
+- `canManage` เป็น `true` → แสดงหัว Column และปุ่มเปลี่ยน Status
+- `canManage` เป็น `false` → ไม่สร้าง Element เหล่านี้บนหน้าเว็บ
 
-เพิ่ม import `requireAdmin` แล้วเรียกเป็นคำสั่งแรก โดยเก็บ validation เดิมทั้งหมดไว้:
+### จุดที่ 1: แทน `<th>` เดิมใน `<thead>`
 
-```ts {1,6,17}
-import { requireAdmin } from "@/lib/auth";
+<CodeChange code='<th className="px-3 py-3 font-semibold">จัดการ</th>\n{canManage && (\n  <th className="px-3 py-3 font-semibold">จัดการ</th>\n)}' removedLines="1" addedLines="2,3,4" />
 
-export async function updateIssueStatusAction(
-  formData: FormData,
-): Promise<void> {
-  await requireAdmin();
+### จุดที่ 2: ครอบ `<td>` เดิมภายในแต่ละ Row
 
-  const id = String(formData.get("id") ?? "").trim();
-  const status = String(formData.get("status") ?? "").trim();
+<CodeChange code='<td className="px-3 py-4">\n  {/* Forms และปุ่มเปลี่ยน Status เดิม */}\n</td>\n{canManage && (\n  <td className="px-3 py-4">\n    {/* เก็บ Forms และปุ่มเปลี่ยน Status เดิมทั้งหมดไว้ */}\n  </td>\n)}' removedLines="1,2,3" addedLines="4,5,6,7,8" />
 
-  if (!id || !allowedStatuses.includes(status as IssueStatus)) {
-    throw new Error("Invalid update request");
-  }
+ให้นำ `<th>` และ `<td>` เดิมมาครอบด้วยเงื่อนไข ไม่ต้องสร้าง Column ชุดที่สอง และต้องใช้เงื่อนไขเดียวกันทั้งสองจุดเพื่อให้หัวตารางตรงกับข้อมูล
 
-  await updateIssueStatus(id, status as IssueStatus);
-  revalidatePath("/issues");
-  revalidatePath("/admin/issues");
-}
-```
-
-```text
-UI ถูกแก้ request → Server Action ตรวจ ADMIN
-Server Action มี bug  → RLS ตรวจ ADMIN ซ้ำที่ database
-```
-
-นี่คือ defense in depth: ความผิดพลาดในชั้นหนึ่งยังมีอีกชั้นช่วยป้องกันข้อมูล
-
-หลัง update เรา revalidate ทั้งหน้ารายการของ USER และหน้า Admin เพราะทั้งสอง route อ่านข้อมูลจาก table `issues` เดียวกัน
+การซ่อนปุ่มช่วยให้หน้า USER อ่านง่ายขึ้น แต่ Security จริงยังต้องตรวจซ้ำใน Server Action และ RLS
 
 ---
 
-## Slide 17: แสดงปุ่มจัดการเฉพาะหน้าที่อนุญาต
+## Slide 16: สร้างหน้า `/admin/issues`
 
-หน้า USER และหน้า Admin ใช้ `IssueList` ตัวเดียวกัน แต่ต้องแสดงเครื่องมือไม่เหมือนกัน เราจึงส่ง boolean `canManage` เพื่อบอกว่า context ปัจจุบันอนุญาตให้แสดงปุ่มจัดการหรือไม่
+<LessonCallout type="action">
 
-### แก้บางส่วน: `components/IssueList.tsx`
+สร้างไฟล์ใหม่ `app/admin/issues/page.tsx` แล้วใส่ Code ทั้งไฟล์
 
-เพิ่ม prop ที่บอกว่า context นี้อนุญาตให้จัดการ status หรือไม่:
-
-```tsx {3,6-9}
-type IssueListProps = {
-  issues: Issue[];
-  canManage?: boolean;
-};
-
-export function IssueList({
-  issues,
-  canManage = false,
-}: IssueListProps) {
-  // JSX เดิม
-}
-```
-
-ครอบหัวตารางและ cell จัดการด้วยเงื่อนไขเดียวกัน:
-
-```tsx {1-3}
-{canManage && (
-  <th className="px-3 py-3 font-semibold">จัดการ</th>
-)}
-```
-
-```tsx {1-5}
-{canManage && (
-  <td className="px-3 py-4">
-    {/* เก็บ forms และปุ่มเปลี่ยน status เดิมทั้งหมดไว้ */}
-  </td>
-)}
-```
-
-ค่าเริ่มต้นเป็น `false` ทำให้หน้าที่ไม่ได้ส่ง prop นี้ซ่อนเครื่องมือโดยอัตโนมัติ และต้องใช้เงื่อนไขเดียวกันกับทั้ง `<th>` และ `<td>` เพื่อให้ column ของตารางตรงกัน
-
-ใช้ boolean แทนการส่ง role ทั้งก้อน เพราะ `IssueList` ต้องรู้เพียงว่าแสดงเครื่องมือได้หรือไม่ การซ่อนปุ่มช่วยเรื่อง UX เท่านั้น ส่วน Security จริงยังอยู่ใน action และ RLS
-
----
-
-## Slide 18: สร้างหน้า Admin และเพิ่มทางเข้า
-
-ตอนนี้มีทั้ง RLS, `requireAdmin()` และ UI ที่รองรับ `canManage` แล้ว จึงนำทั้งสามส่วนมาประกอบเป็นหน้า `/admin/issues`
-
-### สร้างไฟล์ใหม่ทั้งไฟล์: `app/admin/issues/page.tsx`
+</LessonCallout>
 
 ```tsx
 import { IssueList } from "@/components/IssueList";
@@ -786,8 +547,9 @@ export default async function AdminIssuesPage() {
     <main className="mx-auto max-w-5xl px-6 py-8">
       <h1 className="text-2xl font-bold">Admin Issues</h1>
       <p className="mt-2 text-sm text-slate-600">
-        ดู issue ทั้งหมดและอัปเดตสถานะ
+        ดู Issue ทั้งหมดและอัปเดตสถานะ
       </p>
+
       <div className="mt-6">
         <IssueList issues={issues} canManage />
       </div>
@@ -796,100 +558,143 @@ export default async function AdminIssuesPage() {
 }
 ```
 
-ลำดับคือ `requireAdmin()` ตรวจสิทธิ์ก่อน → `getIssues()` query ด้วย session ของ ADMIN → RLS อนุญาตให้เห็นทุก row → `canManage` แสดงปุ่มเปลี่ยน status
-
-### แก้บางส่วน: `components/AppNav.tsx`
-
-เพิ่ม import ด้านบนไฟล์:
-
-```tsx {1}
-import { getCurrentUserRole } from "@/lib/auth";
+```text
+requireAdmin() → getIssues() → RLS ให้ ADMIN เห็นทุก Row → canManage แสดงปุ่ม
 ```
 
-ภายใน `AppNav()` ให้วาง `const role` ต่อจาก `const user` และก่อน `return`:
+หาก USER พิมพ์ URL นี้โดยตรง `requireAdmin()` จะส่งกลับ `/issues`
 
-```tsx {3}
-export async function AppNav() {
-  const user = await getCurrentUser();
-  const role = user ? await getCurrentUserRole(user.id) : null;
+---
 
-  // return (...) เดิมอยู่ต่อจากนี้
-}
+## Slide 17: แสดงลิงก์ Admin ตาม Role
+
+เพิ่ม Role เข้าไปใน `AppNav()` เพื่อให้เฉพาะ ADMIN เห็นทางเข้าหน้าจัดการ
+
+<LessonCallout type="action">
+
+แก้สามจุดใน `components/AppNav.tsx` โดยเก็บ Navigation เดิมไว้
+
+</LessonCallout>
+
+### 1. แก้ Import
+
+<CodeChange code='import { getCurrentUser } from "@/lib/auth";\nimport { getCurrentUser, getCurrentUserRole } from "@/lib/auth";' removedLines="1" addedLines="2" />
+
+### 2. อ่าน Role ภายใน `AppNav()`
+
+<CodeChange code='export async function AppNav() {\n  const user = await getCurrentUser();\n  const role = user ? await getCurrentUserRole(user.id) : null;\n\n  return (' addedLines="3" />
+
+### 3. แทรกลิงก์ Admin ก่อนลิงก์ `New Issue`
+
+ภายในเงื่อนไข `{user ? (...)}` ให้แทรกโค้ดใหม่หลัง `<>` และก่อน `<Link href="/issues/new">`
+
+<CodeChange code='{user ? (\n  <>\n    {role === "ADMIN" && (\n      <Link href="/admin/issues" className="font-semibold">\n        Admin\n      </Link>\n    )}\n\n    <Link href="/issues/new" className="font-semibold">\n      New Issue\n    </Link>\n    {/* เก็บ Email และปุ่ม Logout เดิมไว้ */}\n  </>\n) : (\n  // เก็บลิงก์ Login เดิมไว้\n)}' addedLines="3,4,5,6,7" />
+
+ลิงก์ `New Issue`, Email และปุ่ม Logout เดิมไม่ต้องลบ เพียงเพิ่มเงื่อนไขของ Admin ไว้ข้างหน้าลิงก์ `New Issue`
+
+การซ่อนลิงก์ช่วยไม่ให้ USER สับสน แต่ `requireAdmin()` ในหน้า Admin ยังเป็นผู้ตรวจสิทธิ์จริง
+
+---
+
+## Slide 18: สลับจาก Demo Policy เป็นสิทธิ์จริง
+
+ตอนนี้ Auth, Role และ Policies ใหม่พร้อมแล้ว ขั้นสุดท้ายคือปิดสิทธิ์ชั่วคราวจาก Day 4
+
+Policy ของคำสั่งเดียวกันทำงานแบบ `OR` หาก Demo Policy ที่ใช้ `true` ยังอยู่ ทุก Row จะยังผ่านได้ แม้เราสร้าง Policy ใหม่แล้ว
+
+```text
+Demo Policy (true) OR Policy ใหม่ = ผ่าน
 ```
 
-ภายใน `return` เดิม ให้วางลิงก์ Admin ใน fragment ของกรณีที่ `user` มีค่า ต่อจากลิงก์ `New Issue`:
+<LessonCallout type="action">
 
-```tsx {1-3}
-{role === "ADMIN" && (
-  <Link href="/admin/issues">Admin</Link>
-)}
+รัน SQL ต่อไปนี้หลังทำ Slide 3–17 ครบ
+
+</LessonCallout>
+
+### 1. ลบ Demo Policies เดิม
+
+```sql
+drop policy if exists "demo_select_issues" on public.issues;
+drop policy if exists "demo_insert_issues" on public.issues;
+drop policy if exists "demo_update_issues" on public.issues;
 ```
 
-อย่าวางลิงก์นี้นอก `{user ? (...) : (...)}` เพราะกรณีที่ยังไม่ Login จะไม่มี role ให้ตรวจ
+`if exists` ช่วยให้รันคำสั่งซ้ำได้โดยไม่ Error หาก Policy นั้นถูกลบไปแล้ว
 
-การซ่อนลิงก์ช่วยไม่ให้ USER สับสน แต่หากพิมพ์ `/admin/issues` โดยตรง `requireAdmin()` ยังเป็นผู้ป้องกันหน้าจริง
+### 2. อนุญาตเฉพาะ Request ที่ Login แล้ว
+
+แม้หน้า Policies จะเหลือเฉพาะกฎของ `authenticated` แล้ว ก็ยังต้องรันขั้นตอนนี้ เพราะหน้า Policies แสดงกฎ RLS แต่ไม่ได้ยืนยันว่า `anon` ถูกถอนสิทธิ์ระดับ Table แล้ว
+
+```sql
+revoke select, insert, update on public.issues from anon;
+grant select, insert, update on public.issues to authenticated;
+```
+
+- `revoke ... from anon` ถอนสิทธิ์ชั่วคราวที่เราเคยให้ไว้ใน Day 4
+- `grant ... to authenticated` ยืนยันว่าผู้ที่ Login แล้วส่งคำสั่งมาที่ Table ได้ คำสั่งนี้รันซ้ำได้
+- RLS จะตรวจต่อว่าผู้ใช้คนนั้นทำงานกับ Row ใดได้บ้าง
+
+<LessonCallout type="check">
+
+หน้า Policies ของ `issues` ต้องเหลือ 3 กฎ: SELECT ของ USER/ADMIN, INSERT ของเจ้าของ และ UPDATE ของ ADMIN
+
+</LessonCallout>
+
+หลัง Slide นี้ระบบจะบังคับสิทธิ์จริง หากหน้าเว็บมี Error ให้ตรวจ Policies และ Code ตาม Slide ก่อนหน้าแทนการเปิด Demo Policy กลับมา
 
 ---
 
 ## Slide 19: ทดสอบ USER และ ADMIN
 
-ต้องทดสอบทั้งสอง account เพราะการที่ ADMIN ใช้งานได้ ไม่ได้ยืนยันว่า USER ถูกจำกัดสิทธิ์อย่างถูกต้อง ให้ Logout ก่อนสลับ account เพื่อไม่ให้ session เดิมค้างอยู่
+Logout ก่อนสลับบัญชี เพื่อไม่ให้ Session เดิมค้างอยู่
 
-### ทดสอบด้วย `user@example.com`
+### ทดสอบ `user@example.com`
 
-1. Login แล้วสร้าง issue ใหม่
-2. หน้า `/issues` ต้องเห็นเฉพาะ issue ที่ account นี้สร้าง
-3. ต้องไม่เห็นปุ่มเปลี่ยน status หรือลิงก์ Admin
-4. เปิด `/admin/issues` โดยตรง → ต้องถูกส่งกลับ `/issues`
+1. Login แล้วสร้าง Issue ใหม่
+2. หน้า `/issues` ต้องเห็นเฉพาะ Issue ที่บัญชีนี้สร้าง
+3. ต้องไม่เห็น Column จัดการหรือลิงก์ Admin
+4. เปิด `/admin/issues` โดยตรง → ต้องกลับ `/issues`
 
-### ทดสอบด้วย `admin@example.com`
+### ทดสอบ `admin@example.com`
 
 5. ต้องเห็นลิงก์ Admin
-6. หน้า `/admin/issues` ต้องเห็น issue ทั้งหมด รวมข้อมูลเก่าที่ `created_by` เป็น `null`
-7. เปลี่ยน status แล้วข้อมูลต้องอัปเดต
+6. หน้า `/admin/issues` ต้องเห็น Issue ทั้งหมด รวมข้อมูลเก่าที่ `created_by` เป็น `null`
+7. เปลี่ยน Status แล้วข้อมูลต้องอัปเดต
 
 ### ทดสอบหลัง Logout
 
-8. เปิด `/issues`, `/issues/[id]` หรือ `/issues/new` → ต้องถูกส่งไป `/login`
+8. เปิด `/issues`, `/issues/[id]` หรือ `/issues/new` → ต้องไป `/login`
 
 ### ถ้าผลลัพธ์ไม่ตรง
 
-```text
-permission denied                 → ตรวจ GRANT ใน Slide 6–7
-new row violates row-level policy → ตรวจ created_by ใน Slide 15
-สร้างแล้วรายการว่าง              → ตรวจ created_by ของ row ล่าสุดและ SELECT policy ใน Slide 9
-อ่าน role ไม่ได้                  → ตรวจ profiles และ policy ใน Slide 5–6
-ADMIN เข้าไม่ได้                  → ตรวจ email, role และ private.is_admin()
-```
+| อาการ | จุดที่ควรตรวจ |
+|---|---|
+| `permission denied` | GRANT และ Role ของ Request |
+| `new row violates row-level security` | `user.id`, `created_by` และ INSERT Policy |
+| สร้างแล้วรายการว่าง | `created_by` ของ Row ล่าสุดและ SELECT Policy |
+| อ่าน Role ไม่ได้ | ข้อมูลและ Policy ของ `profiles` |
+| ADMIN เข้าไม่ได้ | Role ของ `admin@example.com` และ `requireAdmin()` |
 
 ---
 
-## Slide 20: Commit และ Push โปรเจกต์
+## Slide 20: Authorization Flow พร้อมใช้งาน
 
-เมื่อทดสอบ USER, ADMIN และ Logout ผ่านแล้ว ให้ตรวจ build และบันทึก code ชุดนี้ขึ้น GitHub
-
-```bash
-npm run build
-git status
-git add .
-git status
-git commit -m "Add authentication and role-based authorization"
-git push origin main
+```text
+Login → Session → Profile Role → Server Check → RLS → ข้อมูลที่ได้รับอนุญาต
 ```
 
-### ตรวจให้ดีก่อน Commit
+<LessonCallout type="review">
 
-- `npm run build` ต้องผ่าน
-- ตรวจ `git status` ก่อนและหลัง `git add .`
-- `.env.local` ต้องไม่ปรากฏใน staged files
-- อย่า commit password, token หรือ secret
-- SQL policies อยู่ใน Supabase และไม่ได้ถูกบันทึกขึ้น GitHub อัตโนมัติ
+USER เห็นและสร้าง Issue ของตัวเอง ส่วน ADMIN เห็นทั้งหมดและเปลี่ยน Status ได้ โดย Database เป็นผู้ตรวจสิทธิ์สุดท้าย
 
-หาก GitHub repository เชื่อมกับ Vercel อยู่ การ push ไป `main` จะเริ่ม Production Deployment ใหม่ รอให้ deployment สำเร็จแล้วค่อยทดสอบ Production ใน Hour 4
+</LessonCallout>
+
+Hour 4 จะทบทวน Security ทั้งระบบ ตรวจค่าที่เปิดเผยได้ และทดสอบ Flow บน Production
 
 ---
 
 ## อ้างอิงสำหรับผู้สอน
 
 - [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
-- [Supabase Database Functions](https://supabase.com/docs/guides/database/functions)
+- [Supabase Auth Users](https://supabase.com/docs/guides/auth/users)

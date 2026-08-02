@@ -16,7 +16,7 @@
 | Day 2 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-3 เหลือ Hour ละ 15 slides และ Hour 4 เหลือ 18 slides; สร้าง Next.js 16 แบบ root-level `app/`, ย้าย Static TSX และ Custom CSS, สร้าง `Issue` และ `.map()`, แล้วแยก `types`, `data`, Components และ Routes โดยยังไม่เปิด Tailwind |
 | Day 3 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Tailwind และ Responsive UI ไปสู่ Client Component, FormData, Validation, Mock Create และ Immutable Status Update; Hour 4 ลดเหลือ 13 slides และใช้ Optional Props เพื่อให้ `IssueList` ทำงานได้ทั้งหน้า Home และ `/issues` |
 | Day 4 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Supabase Setup ไปสู่ Read, Create, Update และ Deploy; เหลือ 15, 13, 12 และ 11 slides ตามลำดับ พร้อมตัด Mock Flow ที่ไม่ใช้และระบุข้อจำกัดของ Demo RLS ก่อนเข้าสู่ Auth ใน Day 5 |
-| Day 5 | ปรับ Hour 1-2 แล้ว | Hour 1 เหลือ 12 slides สำหรับ Auth และ Supabase SSR Setup; Hour 2 เหลือ 13 slides เรียงจากบัญชีทดลอง, Login, Current User, Protected Page/Action ไปถึง Logout และตัด Register กับ SQL ที่ซ้ำจาก Day 4 ออก; Hour 3-4 ยังรอปรับรอบใหม่ |
+| Day 5 | ปรับ Hour 1-3 แล้ว | Hour 1 เหลือ 12 slides สำหรับ Auth และ Supabase SSR Setup; Hour 2 เหลือ 13 slides สำหรับ Login, Protected Page/Action และ Logout; Hour 3 มี 20 slides สำหรับเจ้าของ Issue, Profile Role, RLS และหน้า Admin โดยตัด Type/SQL Helper ที่ไม่ได้ใช้ แยกแต่ละ Operation ให้อ่านง่าย และปิด Demo Access หลังเตรียมระบบครบ; Hour 4 ยังรอปรับรอบใหม่ |
 
 ## สถานะ Project เมื่อจบ Day 4
 
