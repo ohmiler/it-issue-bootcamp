@@ -4,9 +4,10 @@
 
 ## ลำดับการทำงานปัจจุบัน
 
-1. ปรับและตรวจ Day 5 ให้จบก่อน
-2. ย้อนตรวจ Day 1 ถึง Day 3 หลังจาก flow สุดท้ายของ Day 5 ชัดเจน
-3. ตรวจความต่อเนื่องทั้งหลักสูตรตั้งแต่เริ่ม project จนถึง deploy และ security
+1. ปรับและตรวจ Day 5 Hour 1 โดยใช้กติกา Slide และ Code Diff ชุดใหม่
+2. ปรับ Day 5 Hour 2-4 ทีละ Hour ให้จบ
+3. ตรวจ dependency ย้อนจาก Day 5 แล้วปรับ Day 1 ถึง Day 4 ตามลำดับการเรียนจริง
+4. ตรวจความต่อเนื่องทั้งหลักสูตรตั้งแต่เริ่ม project จนถึง deploy และ security
 
 ## สถานะเนื้อหา
 
@@ -16,7 +17,7 @@
 | Day 2 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-3 เหลือ Hour ละ 15 slides และ Hour 4 เหลือ 18 slides; สร้าง Next.js 16 แบบ root-level `app/`, ย้าย Static TSX และ Custom CSS, สร้าง `Issue` และ `.map()`, แล้วแยก `types`, `data`, Components และ Routes โดยยังไม่เปิด Tailwind |
 | Day 3 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Tailwind และ Responsive UI ไปสู่ Client Component, FormData, Validation, Mock Create และ Immutable Status Update; Hour 4 ลดเหลือ 13 slides และใช้ Optional Props เพื่อให้ `IssueList` ทำงานได้ทั้งหน้า Home และ `/issues` |
 | Day 4 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Supabase Setup ไปสู่ Read, Create, Update และ Deploy; เหลือ 15, 13, 12 และ 11 slides ตามลำดับ พร้อมตัด Mock Flow ที่ไม่ใช้และระบุข้อจำกัดของ Demo RLS ก่อนเข้าสู่ Auth ใน Day 5 |
-| Day 5 | ปรับครบแล้ว รอตรวจภาพรวม | Hour 1-4 ใช้ Auth แบบ SSR, USER/ADMIN, Page guard, Server Action และ RLS; Hour 4 ปิดหลักสูตรด้วย OWASP 2025, AI code review, production verification และ final demo |
+| Day 5 | มีเนื้อหาเดิมครบ รอปรับรอบใหม่ | จะตรวจทีละ Hour โดยเริ่มจาก Auth แบบ SSR ไปสู่ Login, USER/ADMIN, Page guard, Server Action, RLS, OWASP, AI code review และ final demo |
 
 ## สถานะ Project เมื่อจบ Day 4
 

@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Children, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Children,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -19,6 +26,17 @@ type SlideDeckProps = {
   slideTitles: string[];
 };
 
+function readSlideIndexFromHash(slideCount: number) {
+  const match = window.location.hash.match(/^#slide-(\d+)$/);
+  const requestedSlide = Number.parseInt(match?.[1] ?? "", 10);
+
+  if (!Number.isInteger(requestedSlide)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(requestedSlide - 1, slideCount - 1));
+}
+
 export function SlideDeck({
   children,
   documentHref,
@@ -28,13 +46,49 @@ export function SlideDeck({
 }: SlideDeckProps) {
   const slides = useMemo(() => Children.toArray(children), [children]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [hasReadHash, setHasReadHash] = useState(false);
+  const slideFrameRef = useRef<HTMLElement>(null);
   const activeTitle = slideTitles[activeIndex] ?? "Slide";
   const progressPercent =
     slides.length > 0 ? ((activeIndex + 1) / slides.length) * 100 : 0;
 
-  const goToSlide = useCallback((index: number) => {
-    setActiveIndex(Math.max(0, Math.min(index, slides.length - 1)));
+  const goToSlide = useCallback(
+    (index: number) => {
+      slideFrameRef.current?.scrollTo({ left: 0, top: 0 });
+      setActiveIndex(Math.max(0, Math.min(index, slides.length - 1)));
+    },
+    [slides.length],
+  );
+
+  useEffect(() => {
+    const animationFrame = window.requestAnimationFrame(() => {
+      setActiveIndex(readSlideIndexFromHash(slides.length));
+      setHasReadHash(true);
+    });
+
+    function onHashChange() {
+      slideFrameRef.current?.scrollTo({ left: 0, top: 0 });
+      setActiveIndex(readSlideIndexFromHash(slides.length));
+    }
+
+    window.addEventListener("hashchange", onHashChange);
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("hashchange", onHashChange);
+    };
   }, [slides.length]);
+
+  useEffect(() => {
+    if (!hasReadHash) {
+      return;
+    }
+
+    slideFrameRef.current?.scrollTo({ left: 0, top: 0 });
+
+    const url = new URL(window.location.href);
+    url.hash = `slide-${activeIndex + 1}`;
+    window.history.replaceState(null, "", url);
+  }, [activeIndex, hasReadHash]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -100,7 +154,11 @@ export function SlideDeck({
       </header>
 
       <main className="slide-stage" aria-live="polite">
-        <section className="slide-frame" aria-label={activeTitle}>
+        <section
+          className="slide-frame"
+          aria-label={activeTitle}
+          ref={slideFrameRef}
+        >
           {slides[activeIndex]}
         </section>
       </main>

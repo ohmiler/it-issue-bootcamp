@@ -954,6 +954,56 @@ code {
   font-weight: 700;
 }
 
+.lesson-code-change__line--removed {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+}
+
+.lesson-code-change__line--removed .lesson-code-change__marker {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.lesson-callout {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+  margin: 1.25rem 0;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 0.9rem 1rem;
+}
+
+.lesson-callout__label {
+  color: var(--text-strong);
+}
+
+.lesson-callout__content > :first-child {
+  margin-top: 0;
+}
+
+.lesson-callout__content > :last-child {
+  margin-bottom: 0;
+}
+
+.lesson-callout--action {
+  border-left-color: var(--accent-strong);
+}
+
+.lesson-callout--check {
+  border-left-color: var(--success);
+}
+
+.lesson-callout--review {
+  border-left-color: var(--warning);
+}
+
+.lesson-callout--concept {
+  border-left-color: var(--muted-strong);
+}
+
 .lesson-prose :not(pre) > code {
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -1843,6 +1893,11 @@ code {
 }
 
 @media (max-width: 760px) {
+  .lesson-callout {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
   .slide-topbar {
     align-items: flex-start;
     flex-direction: column;

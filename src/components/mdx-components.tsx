@@ -8,19 +8,59 @@ import {
 } from "@/components/teaching-flow-diagram";
 
 type CodeChangeProps = {
+  addedLines?: string;
   code?: string;
   highlightLines?: string;
+  removedLines?: string;
 };
 
-async function CodeChange({ code = "", highlightLines = "" }: CodeChangeProps) {
-  const normalizedCode = code.replaceAll("\\n", "\n");
-  const lines = normalizedCode.split("\n");
-  const highlightedLines = new Set(
-    highlightLines
-      .split(",")
+type LessonCalloutType = "action" | "check" | "concept" | "review";
+
+type LessonCalloutProps = {
+  children?: React.ReactNode;
+  type?: LessonCalloutType;
+};
+
+const lessonCalloutLabels: Record<LessonCalloutType, string> = {
+  action: "ลงมือทำ",
+  check: "ตรวจผล",
+  concept: "ทำความเข้าใจ",
+  review: "ทบทวน",
+};
+
+function parseLineNumbers(...values: string[]) {
+  return new Set(
+    values
+      .flatMap((value) => value.split(","))
       .map((line) => Number.parseInt(line, 10))
       .filter(Number.isFinite),
   );
+}
+
+function LessonCallout({
+  children,
+  type = "concept",
+}: LessonCalloutProps) {
+  return (
+    <aside className={`lesson-callout lesson-callout--${type}`}>
+      <strong className="lesson-callout__label">
+        {lessonCalloutLabels[type]}
+      </strong>
+      <div className="lesson-callout__content">{children}</div>
+    </aside>
+  );
+}
+
+async function CodeChange({
+  addedLines = "",
+  code = "",
+  highlightLines = "",
+  removedLines = "",
+}: CodeChangeProps) {
+  const normalizedCode = code.replaceAll("\\n", "\n");
+  const lines = normalizedCode.split("\n");
+  const addedLineNumbers = parseLineNumbers(highlightLines, addedLines);
+  const removedLineNumbers = parseLineNumbers(removedLines);
   const { tokens } = await codeToTokens(normalizedCode, {
     lang: "tsx",
     theme: "dark-plus",
@@ -30,34 +70,27 @@ async function CodeChange({ code = "", highlightLines = "" }: CodeChangeProps) {
     <pre className="lesson-code-change">
       <code>
         {lines.map((line, index) => {
-          const isAdded = highlightedLines.has(index + 1);
+          const isAdded = addedLineNumbers.has(index + 1);
+          const isRemoved = removedLineNumbers.has(index + 1);
+          const changeType = isRemoved ? "removed" : isAdded ? "added" : null;
           const lineTokens = tokens[index] ?? [];
 
           return (
             <span
               className={`lesson-code-change__line${
-                isAdded ? " lesson-code-change__line--added" : ""
+                changeType ? ` lesson-code-change__line--${changeType}` : ""
               }`}
               key={`${index}-${line}`}
-              style={{
-                background: isAdded
-                  ? "rgba(115, 201, 145, 0.18)"
-                  : undefined,
-                display: "grid",
-                gridTemplateColumns: "1.25rem max-content",
-                minWidth: "100%",
-              }}
             >
               <span
                 aria-hidden="true"
                 className="lesson-code-change__marker"
-                style={{
-                  color: isAdded ? "var(--success)" : "transparent",
-                  fontWeight: isAdded ? 700 : undefined,
-                  userSelect: "none",
-                }}
               >
-                {isAdded ? "+" : " "}
+                {changeType === "added"
+                  ? "+"
+                  : changeType === "removed"
+                    ? "−"
+                    : " "}
               </span>
               <span>
                 {lineTokens.length > 0
@@ -94,6 +127,13 @@ async function CodeChange({ code = "", highlightLines = "" }: CodeChangeProps) {
 export const mdxComponents: MDXComponents = {
   BoxModelDiagram: () => <BoxModelDiagram />,
   CodeChange,
+  LessonCallout: (props) => (
+    <LessonCallout
+      type={String(props.type ?? "concept") as LessonCalloutType}
+    >
+      {props.children}
+    </LessonCallout>
+  ),
   MermaidDiagram: (props) => (
     <MermaidDiagram chart={String(props.chart ?? "")} />
   ),

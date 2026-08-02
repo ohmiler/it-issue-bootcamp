@@ -7,8 +7,8 @@ The course website is the teaching material. The learner project repository stil
 - `day-2-end`: Next.js app with typed mock issue data and components.
 - `day-3-end`: Tailwind UI with client-side mock CRUD and validation.
 - `day-4-start`: Clean project state before Supabase setup.
-- `day-4-end`: Deployed read/create Supabase app.
-- `day-5-start`: Deployed Day 4 state ready for auth and role work.
+- `day-4-end`: Deployed Supabase app with demo read/create/update flow and no user-based access control yet.
+- `day-5-start`: Deployed Day 4 state ready to add authentication, roles, and secured RLS policies.
 
 ## Checkpoint Recovery Rule
 

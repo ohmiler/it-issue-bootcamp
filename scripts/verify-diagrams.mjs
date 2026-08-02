@@ -3,25 +3,31 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const lessonPath = path.join(root, "content", "lessons", "day-1", "hour-1.mdx");
+const lessonsPath = path.join(root, "content", "lessons");
 const componentPath = path.join(root, "src", "components", "teaching-flow-diagram.tsx");
 const mdxComponentsPath = path.join(root, "src", "components", "mdx-components.tsx");
 const cssPath = path.join(root, "src", "app", "globals.css");
 
-const lesson = fs.readFileSync(lessonPath, "utf8");
+function listLessonFiles(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = path.join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      return listLessonFiles(entryPath);
+    }
+
+    return entry.isFile() && entry.name.endsWith(".mdx") ? [entryPath] : [];
+  });
+}
+
+const lesson = listLessonFiles(lessonsPath)
+  .map((lessonFile) => fs.readFileSync(lessonFile, "utf8"))
+  .join("\n");
 const css = fs.readFileSync(cssPath, "utf8");
 const mdxComponents = fs.readFileSync(mdxComponentsPath, "utf8");
 const component = fs.existsSync(componentPath)
   ? fs.readFileSync(componentPath, "utf8")
   : "";
-
-const requiredVariants = [
-  "bootcamp-map",
-  "system-overview",
-  "issue-submit-flow",
-  "runtime-flow",
-  "development-flow",
-];
 
 const failures = [];
 
@@ -29,9 +35,20 @@ if (!fs.existsSync(componentPath)) {
   failures.push("Missing reusable TeachingFlowDiagram component.");
 }
 
-for (const variant of requiredVariants) {
-  if (!lesson.includes(`<TeachingFlowDiagram variant="${variant}"`)) {
-    failures.push(`Missing TeachingFlowDiagram variant: ${variant}`);
+const definedVariants = new Set(
+  [...component.matchAll(/^\s{2}"([^"]+)":\s*\{/gm)].map(
+    (match) => match[1],
+  ),
+);
+const usedVariants = new Set(
+  [...lesson.matchAll(/<TeachingFlowDiagram\s+variant="([^"]+)"/g)].map(
+    (match) => match[1],
+  ),
+);
+
+for (const variant of usedVariants) {
+  if (!definedVariants.has(variant)) {
+    failures.push(`TeachingFlowDiagram uses an undefined variant: ${variant}`);
   }
 }
 

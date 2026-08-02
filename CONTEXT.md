@@ -34,7 +34,7 @@ The course uses prepared email/password accounts for core authentication exercis
 
 ## Teaching Materials Format
 
-The course website is the main hands-on material. It should contain the hourly lessons, code placement, snippets, checkpoints, and troubleshooting notes. Slides remain as short framing material for opening concepts, diagrams, recaps, and discussion-heavy topics such as web workflow, auth flow, RLS, and OWASP.
+The course website is the main hands-on material. It should contain the hourly lessons, code placement, snippets, checkpoints, and troubleshooting notes. Slide mode is the shared live-teaching path for both instructor and learners, so each slide must present one clear teaching beat: concept, action, check, or recap. Document mode keeps the same lesson in a continuous reading format for review and reference.
 
 ## Course Website Layout
 
@@ -42,7 +42,7 @@ The course website uses a course-book layout as the primary reading experience. 
 
 ## Hourly Lesson Rhythm
 
-Each one-hour lesson should follow a repeated hands-on rhythm: goal and recap, short concept, guided implementation steps, checkpoint with debugging notes, and recap with the next step. The website uses this lesson template as the main material, while slide mode stays short and supports opening concepts, diagrams, and summaries.
+Each one-hour lesson should follow a repeated hands-on rhythm: goal and recap, short concept, guided implementation steps, checkpoint with debugging notes, and recap with the next step. Slide mode may contain guided code steps, but each slide should keep one primary action and split dense sections rather than shrinking text or combining unrelated tasks.
 
 ## Learner Repository Workflow
 
@@ -58,7 +58,7 @@ Extension topics are discussed or demonstrated only after the core path is stabl
 
 ## Five-Day Teaching Sequence
 
-The course sequence is Day 1 static prototype and Git, Day 2 Next.js with TypeScript models and components, Day 3 Tailwind with client-side mock CRUD and validation, Day 4 Supabase schema with read/create and a deployment checkpoint, and Day 5 update status through admin flow with authentication, protected pages, roles, guided RLS, security, and recap. Day 4 prioritizes reaching deployment reliably.
+The course sequence is Day 1 static prototype and Git, Day 2 Next.js with TypeScript models and components, Day 3 Tailwind with client-side mock CRUD and validation, Day 4 Supabase schema with demo read/create/update and a deployment checkpoint, and Day 5 authentication, protected pages, roles, guided RLS, and a secured admin-only update flow followed by security review and recap. Day 4 demonstrates the complete database flow before access control; Day 5 restricts that flow using the signed-in user and role.
 
 ## Code Delivery Style
 

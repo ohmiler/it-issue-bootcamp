@@ -32,13 +32,13 @@ export const courseDays: CourseDay[] = [
   },
   {
     day: 4,
-    title: "Supabase Read/Create and Deploy",
-    goal: "Connect the app to a real database and reach a deployment checkpoint."
+    title: "Supabase CRUD and Deploy",
+    goal: "Connect the app to a real database, complete the demo data flow, and reach a deployment checkpoint."
   },
   {
     day: 5,
-    title: "Admin Update, Auth, RLS, and Security",
-    goal: "Add real-world access control and security thinking around the CRUD system."
+    title: "Auth, Admin, RLS, and Security",
+    goal: "Protect the existing CRUD flow with login, roles, row-level security, and an admin-only update path."
   }
 ];
 
@@ -183,9 +183,9 @@ export const lessons: Lesson[] = [
     day: 4,
     hour: 4,
     title: "Deploy Checkpoint",
-    summary: "Production environment variables, Vercel deployment, and deploy verification.",
+    summary: "Update with Server Actions, demo permissions, production checks, and Vercel deployment.",
     sourceFile: "day-4-hour-4-update-delete-and-deploy.md",
-    checkpoint: "Learners have a deployed app that can read and create issues."
+    checkpoint: "Learners have a deployed app with demo read, create, and update flows."
   },
   {
     slug: "day-5/hour-1",

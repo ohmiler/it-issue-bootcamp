@@ -193,6 +193,29 @@ async function verifyLesson(lesson) {
     );
   }
 
+  const slideHeadings = [
+    ...contentWithoutCode.matchAll(/^##\s+Slide\s+(\d+):?\s*(.+)$/gm)
+  ];
+
+  if (slideHeadings.length === 0) {
+    errors.push(`${relativePath}: expected at least 1 slide heading`);
+  }
+
+  for (const [index, match] of slideHeadings.entries()) {
+    const actualNumber = Number(match[1]);
+    const expectedNumber = index + 1;
+
+    if (actualNumber !== expectedNumber) {
+      errors.push(
+        `${relativePath}: slide heading ${index + 1} is numbered ${actualNumber}, expected ${expectedNumber}`
+      );
+    }
+
+    if (!match[2].trim()) {
+      errors.push(`${relativePath}: Slide ${actualNumber} is missing a title`);
+    }
+  }
+
   return errors;
 }
 
