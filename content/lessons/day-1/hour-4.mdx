@@ -82,7 +82,7 @@ Issue List ที่กำลังจะสร้างจึงใช้ข้
 >
 
 ```html
-<section aria-labelledby="issue-list-title">
+<section class="issue-list" aria-labelledby="issue-list-title">
   <h2 id="issue-list-title">รายการปัญหาล่าสุด</h2>
   <p>ตัวอย่างรายการปัญหาที่ถูกแจ้งเข้ามาในระบบ</p>
 
@@ -168,12 +168,11 @@ Issue List ที่กำลังจะสร้างจึงใช้ข้
 
 ## Slide 6: เตรียมพื้นที่ให้ Table บนทุกขนาดจอ
 
-<LessonCallout type="action">เพิ่ม Style ของ `main` และ Wrapper ต่อใน `style.css`</LessonCallout>
+<LessonCallout type="action">เพิ่ม Style ของ `.issue-list` และ Wrapper ต่อใน `style.css`</LessonCallout>
 
 ```css
-main {
-  display: grid;
-  gap: 24px;
+.issue-list {
+  margin-top: 24px;
 }
 
 .table-wrapper {
@@ -184,7 +183,7 @@ main {
 }
 ```
 
-`gap` เว้นระยะเฉพาะระหว่าง Form กับ Issue List โดยไม่เพิ่มช่องว่างก่อน Section แรก
+`.issue-list` เพิ่มระยะจาก Form โดยไม่เปลี่ยน Layout ของ `main` จึงไม่ดันความกว้างของ Table บนหน้าจอเล็ก
 
 `.table-wrapper` จำกัดพื้นที่และเปิด Scroll แนวนอนเฉพาะ Table ทำให้หน้าเว็บทั้งหน้าไม่ล้นออกด้านข้าง
 
