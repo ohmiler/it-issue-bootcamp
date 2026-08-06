@@ -1,5 +1,6 @@
 import type { MDXComponents } from "mdx/types";
-import { codeToTokens } from "shiki";
+import { Children, isValidElement, type ReactNode } from "react";
+import { codeToTokens, type BundledLanguage } from "shiki";
 import { BoxModelDiagram } from "@/components/box-model-diagram";
 import { MermaidDiagram } from "@/components/mermaid-diagram";
 import {
@@ -9,10 +10,29 @@ import {
 
 type CodeChangeProps = {
   addedLines?: string;
-  code?: string;
+  children?: ReactNode;
   highlightLines?: string;
+  language?: BundledLanguage;
   removedLines?: string;
 };
+
+function readCodeText(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node);
+  }
+
+  if (!isValidElement(node)) {
+    return Children.toArray(node).map(readCodeText).join("");
+  }
+
+  const props = node.props as {
+    children?: ReactNode;
+    "data-line"?: unknown;
+  };
+  const text = readCodeText(props.children);
+
+  return props["data-line"] === undefined ? text : `${text}\n`;
+}
 
 type LessonCalloutType = "action" | "check" | "concept" | "review";
 
@@ -43,9 +63,7 @@ function LessonCallout({
 }: LessonCalloutProps) {
   return (
     <aside className={`lesson-callout lesson-callout--${type}`}>
-      <strong className="lesson-callout__label">
-        {lessonCalloutLabels[type]}
-      </strong>
+      <strong className="lesson-callout__label">{lessonCalloutLabels[type]}</strong>
       <div className="lesson-callout__content">{children}</div>
     </aside>
   );
@@ -53,16 +71,20 @@ function LessonCallout({
 
 async function CodeChange({
   addedLines = "",
-  code = "",
+  children,
   highlightLines = "",
+  language = "tsx",
   removedLines = "",
 }: CodeChangeProps) {
-  const normalizedCode = code.replaceAll("\\n", "\n");
+  const normalizedCode = readCodeText(children)
+    .replaceAll("\\n", "\n")
+    .replace(/\n[ \t]*\n/g, "\n")
+    .trimEnd();
   const lines = normalizedCode.split("\n");
   const addedLineNumbers = parseLineNumbers(highlightLines, addedLines);
   const removedLineNumbers = parseLineNumbers(removedLines);
   const { tokens } = await codeToTokens(normalizedCode, {
-    lang: "tsx",
+    lang: language,
     theme: "dark-plus",
   });
 

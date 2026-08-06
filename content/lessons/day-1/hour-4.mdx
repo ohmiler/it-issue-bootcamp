@@ -70,24 +70,16 @@ Issue List ที่กำลังจะสร้างจึงใช้ข้
 
 ---
 
-## Slide 3: หนึ่งรายการควรแสดงข้อมูลอะไร
+## Slide 3: เพิ่ม Section สำหรับ Issue List
 
-ในหน้า List ผู้ใช้ต้องมองเห็นข้อมูลสำคัญได้อย่างรวดเร็ว:
+<LessonCallout type="action">แก้บางส่วนใน `index.html`: เพิ่ม Section ต่อจาก Form และก่อน `</main>`</LessonCallout>
 
-| ข้อมูล | ตัวอย่าง |
-|---|---|
-| รหัส | `#001` |
-| หัวข้อ | Login เข้าระบบไม่ได้ |
-| ผู้แจ้ง | Anan |
-| สถานะ | `OPEN` |
+แต่ละแถวจะแสดงรหัส หัวข้อ ผู้แจ้ง และสถานะ เพื่อให้เปรียบเทียบหลายรายการได้ง่าย
 
-เราจะใช้ Table เพราะแต่ละรายการมี Field ชุดเดียวกัน และผู้ใช้สามารถเปรียบเทียบหลายรายการได้ง่าย
-
----
-
-## Slide 4: เพิ่ม Section สำหรับ Issue List
-
-แก้บางส่วน: วาง Code นี้ใน `<main>` ต่อจาก Section ของ Form และก่อน `</main>`
+<CodeChange
+  language="html"
+  addedLines="1,2,3,5,6,7,8"
+>
 
 ```html
 <section aria-labelledby="issue-list-title">
@@ -100,13 +92,20 @@ Issue List ที่กำลังจะสร้างจึงใช้ข้
 </section>
 ```
 
+</CodeChange>
+
 `aria-labelledby` เชื่อม Section กับหัวข้อ `issue-list-title` ทำให้เครื่องมือช่วยการเข้าถึงรู้ว่า Section นี้เกี่ยวกับอะไร
 
 ---
 
-## Slide 5: สร้าง Table รายการแรก
+## Slide 4: สร้าง Table รายการแรก
 
-แทน Comment `<!-- เพิ่ม table ตรงนี้ -->` ด้วย Code นี้:
+<LessonCallout type="action">แก้บางส่วนใน `index.html`: แทน Comment ใน `.table-wrapper` ด้วย Table หนึ่งแถว</LessonCallout>
+
+<CodeChange
+  language="html"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18"
+>
 
 ```html
 <table>
@@ -129,51 +128,52 @@ Issue List ที่กำลังจะสร้างจึงใช้ข้
 </table>
 ```
 
-- `thead` เก็บแถวหัวตาราง
-- `tbody` เก็บแถวข้อมูล
-- `tr` คือหนึ่งแถว
-- `th` คือหัว Column และ `td` คือข้อมูลแต่ละช่อง
+</CodeChange>
+
+`thead` เก็บหัวตาราง ส่วน `tbody` เก็บข้อมูล โดยหนึ่ง `tr` คือหนึ่งแถว และแต่ละช่องใช้ `th` หรือ `td`
 
 ---
 
-## Slide 6: เพิ่มข้อมูลตัวอย่างให้ครบสามสถานะ
+## Slide 5: เพิ่มข้อมูลตัวอย่างให้ครบสามสถานะ
 
-แก้บางส่วน: แทน `<tbody>...</tbody>` เดิมทั้งก้อน
+<LessonCallout type="action">แก้บางส่วนใน `index.html`: เพิ่มอีกสองแถวก่อน `</tbody>`</LessonCallout>
+
+แถว `#001` ยังอยู่เหมือนเดิม เพิ่มเฉพาะ Mock Data อีกสองแถว:
+
+<CodeChange
+  language="html"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+>
 
 ```html
-<tbody>
-  <tr>
-    <td>#001</td>
-    <td>Login เข้าระบบไม่ได้</td>
-    <td>Anan</td>
-    <td><span class="status status-open">OPEN</span></td>
-  </tr>
-  <tr>
-    <td>#002</td>
-    <td>ส่งแบบฟอร์มไม่ได้</td>
-    <td>Mali</td>
-    <td><span class="status status-progress">IN_PROGRESS</span></td>
-  </tr>
-  <tr>
-    <td>#003</td>
-    <td>ขอสิทธิ์เข้า Dashboard</td>
-    <td>Kanda</td>
-    <td><span class="status status-done">DONE</span></td>
-  </tr>
-</tbody>
+<tr>
+  <td>#002</td>
+  <td>ส่งแบบฟอร์มไม่ได้</td>
+  <td>Mali</td>
+  <td><span class="status status-progress">IN_PROGRESS</span></td>
+</tr>
+<tr>
+  <td>#003</td>
+  <td>ขอสิทธิ์เข้า Dashboard</td>
+  <td>Kanda</td>
+  <td><span class="status status-done">DONE</span></td>
+</tr>
 ```
 
-ข้อมูลทั้งสามแถวเป็น Mock Data จึงแก้ได้ใน Code เท่านั้น และจะกลับมาเป็นข้อมูลจาก TypeScript และ Database ในวันถัดไป
+</CodeChange>
+
+ข้อมูลทั้งสามแถวเป็น Mock Data จึงแก้ได้ใน Code เท่านั้น และจะย้ายไปเป็นข้อมูล TypeScript ใน Day 2 ก่อนเชื่อม Database ใน Day 4
 
 ---
 
-## Slide 7: เตรียมพื้นที่ให้ Table บนทุกขนาดจอ
+## Slide 6: เตรียมพื้นที่ให้ Table บนทุกขนาดจอ
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Style ของ `main` และ Wrapper ต่อใน `style.css`</LessonCallout>
 
 ```css
-section + section {
-  margin-top: 24px;
+main {
+  display: grid;
+  gap: 24px;
 }
 
 .table-wrapper {
@@ -184,19 +184,18 @@ section + section {
 }
 ```
 
-- `section + section` เพิ่มช่องว่างให้ Section ที่อยู่ต่อจาก Section อื่น
-- `width` และ `max-width` จำกัด Wrapper ไม่ให้กว้างเกินพื้นที่ของ Section
-- `overflow-x: auto` ทำให้เลื่อน Table แนวนอนได้เมื่อ Table กว้างกว่าหน้าจอ
+`gap` เว้นระยะเฉพาะระหว่าง Form กับ Issue List โดยไม่เพิ่มช่องว่างก่อน Section แรก
 
-เมื่อ Table กว้างเกินพื้นที่ Scrollbar จะอยู่ใต้ Table เท่านั้น ส่วนทั้งหน้าเว็บจะไม่ขยายออกด้านข้าง
+`.table-wrapper` จำกัดพื้นที่และเปิด Scroll แนวนอนเฉพาะ Table ทำให้หน้าเว็บทั้งหน้าไม่ล้นออกด้านข้าง
 
 ---
 
-## Slide 8: ทำให้ Table อ่านง่าย
+## Slide 7: ทำให้ Table อ่านง่าย
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Style ของ Table ต่อใน `style.css`</LessonCallout>
 
 ```css
+
 table {
   width: 100%;
   min-width: 680px;
@@ -217,16 +216,14 @@ th {
 }
 ```
 
-- `width: 100%` ทำให้ Table กว้างเต็มพื้นที่ของ Wrapper เมื่อหน้าจอมีพื้นที่เพียงพอ
-- `min-width: 680px` บอกว่า Table ห้ามแคบกว่า `680px` เพื่อไม่ให้ข้อความในแต่ละ Column ถูกบีบจนอ่านยาก
-- หากหน้าจอแคบกว่า `680px` Table จะยังคงกว้าง `680px` และ `.table-wrapper` จาก Slide ก่อนหน้าจะเป็นส่วนที่เลื่อนแนวนอน
-- `680px` เป็นขนาดเริ่มต้นที่ให้พื้นที่กับ Table สี่ Column ของเรา และสามารถปรับได้ตามจำนวนหรือความยาวของข้อมูล
-
-`border-collapse: collapse` รวมเส้นขอบของ Cell ที่อยู่ติดกันให้เป็นเส้นเดียว ทำให้ Table ดูเรียบร้อยขึ้น
+- `min-width: 680px` กัน Column ถูกบีบจนอ่านยาก
+- `border-collapse` รวมเส้นขอบที่ติดกันให้เป็นเส้นเดียว
 
 ---
 
-## Slide 9: Status Badge ประกอบด้วยสอง Class
+## Slide 8: สร้าง Status Badge สามสถานะ
+
+<LessonCallout type="action">เพิ่ม Style พื้นฐานและสีของ Badge ต่อใน `style.css`</LessonCallout>
 
 จาก HTML ใน Table:
 
@@ -247,17 +244,7 @@ th {
   font-size: 12px;
   font-weight: 700;
 }
-```
 
-`border-radius: 999px` ทำให้ขอบ Badge โค้งเป็นทรงแคปซูล โดยไม่ต้องคำนวณรัศมีตามความกว้างของข้อความ
-
----
-
-## Slide 10: กำหนดสีให้แต่ละสถานะ
-
-เพิ่มต่อจาก `.status` ใน `style.css`
-
-```css
 .status-open {
   background: #fee2e2;
   color: #991b1b;
@@ -274,11 +261,11 @@ th {
 }
 ```
 
-สีช่วยให้มองหาสถานะได้เร็วขึ้น แต่ Badge ยังต้องมีข้อความ `OPEN`, `IN_PROGRESS` และ `DONE` เพราะผู้ใช้บางคนอาจแยกสีได้ยาก
+`status` คือ Style ที่ใช้ร่วมกัน ส่วน Class ที่สองกำหนดสีเฉพาะสถานะ สีช่วยให้มองหาได้เร็ว แต่ยังต้องมีข้อความ `OPEN`, `IN_PROGRESS` และ `DONE` เพราะผู้ใช้บางคนอาจแยกสีได้ยาก
 
 ---
 
-## Slide 11: ตรวจ Static Prototype ให้ครบ
+## Slide 9: ตรวจ Static Prototype ให้ครบ
 
 เปิด `index.html` แล้วตรวจผลลัพธ์:
 
@@ -293,7 +280,7 @@ th {
 
 ---
 
-## Slide 12: Git และ GitHub ต่างกันอย่างไร
+## Slide 10: Git และ GitHub ต่างกันอย่างไร
 
 | คำ | ความหมาย |
 |---|---|
@@ -307,7 +294,7 @@ Git ใช้งานบนเครื่องได้โดยไม่ต�
 
 ---
 
-## Slide 13: Workflow ที่ใช้บันทึกงาน
+## Slide 11: Workflow ที่ใช้บันทึกงาน
 
 ```text
 แก้ไฟล์
@@ -325,9 +312,9 @@ git push         ส่ง Commit ขึ้น GitHub
 
 ---
 
-## Slide 14: เริ่มให้ Git ติดตาม Project
+## Slide 12: เริ่มให้ Git ติดตาม Project
 
-เปิด Terminal ใน Folder ที่มี `index.html` และ `style.css` แล้วรัน:
+<LessonCallout type="action">เปิด Terminal ใน Folder ที่มี `index.html` และ `style.css` แล้วตรวจสถานะ Repository</LessonCallout>
 
 ```bash
 git init
@@ -341,9 +328,9 @@ git status
 
 ---
 
-## Slide 15: สร้าง Commit แรก
+## Slide 13: สร้าง Commit แรก
 
-เลือกไฟล์ทั้งหมดของ Project แล้วสร้างจุดบันทึก:
+<LessonCallout type="action">เลือกไฟล์ ตรวจรายการ แล้วสร้างจุดบันทึกแรก</LessonCallout>
 
 ```bash
 git add .
@@ -363,9 +350,9 @@ git log --oneline
 
 ---
 
-## Slide 16: Push งานขึ้น GitHub
+## Slide 14: เชื่อมและ Push งานขึ้น GitHub
 
-สร้าง Repository ใหม่บน GitHub โดยยังไม่เพิ่ม README หรือไฟล์เริ่มต้น จากนั้นคัดลอก URL ของ Repository มาแทนที่ URL ตัวอย่าง:
+<LessonCallout type="action">สร้าง Repository ว่างบน GitHub โดยไม่เพิ่ม README แล้วเชื่อมกับ Project นี้</LessonCallout>
 
 ```bash
 git branch -M main
@@ -379,7 +366,7 @@ git push -u origin main
 
 ---
 
-## Slide 17: ตรวจผลงาน Day 1
+## Slide 15: ตรวจผลงาน Day 1
 
 เปิดหน้า Repository บน GitHub แล้วตรวจว่าเห็น:
 

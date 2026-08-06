@@ -964,44 +964,55 @@ code {
 }
 
 .lesson-callout {
-  display: grid;
-  grid-template-columns: minmax(7rem, auto) minmax(0, 1fr);
-  gap: 0.85rem;
-  align-items: start;
-  margin: 1.25rem 0;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent-strong);
-  border-radius: 8px;
-  background: var(--panel);
-  padding: 0.9rem 1rem;
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  margin: 0.8rem 0 1rem;
+  line-height: 1.55;
 }
 
 .lesson-callout__label {
-  color: var(--text-strong);
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--accent-strong) 42%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-strong) 14%, transparent);
+  padding: 0.1rem 0.5rem;
+  color: var(--accent-strong);
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
-.lesson-callout__content > :first-child {
-  margin-top: 0;
+.lesson-callout__content {
+  min-width: 0;
 }
 
+.lesson-callout__content > :first-child,
 .lesson-callout__content > :last-child {
+  margin-top: 0;
   margin-bottom: 0;
 }
 
-.lesson-callout--action {
-  border-left-color: var(--accent-strong);
+.lesson-callout--action .lesson-callout__label {
+  border-color: color-mix(in srgb, var(--accent-strong) 42%, var(--border));
+  background: color-mix(in srgb, var(--accent-strong) 14%, transparent);
+  color: var(--accent-strong);
 }
 
-.lesson-callout--check {
-  border-left-color: var(--success);
+.lesson-result-preview {
+  margin: 1.25rem 0 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: #fff;
 }
 
-.lesson-callout--review {
-  border-left-color: var(--warning);
-}
-
-.lesson-callout--concept {
-  border-left-color: var(--muted-strong);
+.lesson-result-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .lesson-prose :not(pre) > code {
@@ -1722,6 +1733,21 @@ code {
   margin: 1rem 0;
 }
 
+.slide-prose .lesson-result-preview {
+  max-width: 960px;
+  margin: 1rem auto 0;
+}
+
+.slide-prose .lesson-result-preview img {
+  height: min(56svh, 430px);
+  object-fit: cover;
+  object-position: top;
+}
+
+.slide-prose .lesson-result-preview--wide img {
+  object-fit: contain;
+}
+
 .slide-prose .mermaid-diagram {
   overflow: hidden;
 }
@@ -1893,11 +1919,6 @@ code {
 }
 
 @media (max-width: 760px) {
-  .lesson-callout {
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-  }
-
   .slide-topbar {
     align-items: flex-start;
     flex-direction: column;

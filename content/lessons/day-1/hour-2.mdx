@@ -81,7 +81,7 @@ HTML ย่อมาจาก **HyperText Markup Language** ใช้กำห�
 
 ## Slide 3: สร้างโครงเริ่มต้นของ `index.html`
 
-สร้างไฟล์ใหม่ทั้งไฟล์: `index.html`
+<LessonCallout type="action">สร้างไฟล์ใหม่ทั้งไฟล์: `index.html`</LessonCallout>
 
 ```html
 <!doctype html>
@@ -149,27 +149,32 @@ Semantic HTML คือการเลือก Tag ให้ตรงกับ�
 
 ## Slide 7: สร้างโครงหน้าระบบแจ้งปัญหา
 
-แก้บางส่วน: แทนเนื้อหาเดิมภายใน `<body>...</body>` ของ `index.html`
+<LessonCallout type="action">แก้บางส่วนใน `index.html`: แทนเนื้อหาเดิมภายใน `<body>...</body>`</LessonCallout>
+
+<CodeChange
+  language="html"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"
+>
 
 ```html
-<body>
-  <header>
-    <h1>ระบบแจ้งปัญหา IT</h1>
-    <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
-  </header>
+<header>
+  <h1>ระบบแจ้งปัญหา IT</h1>
+  <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
+</header>
 
-  <main>
-    <section>
-      <h2>แจ้งปัญหาใหม่</h2>
-      <!-- เพิ่ม form ตรงนี้ -->
-    </section>
-  </main>
+<main>
+  <section>
+    <h2>แจ้งปัญหาใหม่</h2>
+    <!-- เพิ่ม form ตรงนี้ -->
+  </section>
+</main>
 
-  <footer>
-    <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
-  </footer>
-</body>
+<footer>
+  <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
+</footer>
 ```
+
+</CodeChange>
 
 ---
 
@@ -246,7 +251,12 @@ Project นี้ใช้เฉพาะ Control ที่จำเป็นต
 
 ## Slide 12: เพิ่มข้อมูลผู้แจ้งใน Form
 
-แก้บางส่วน: วาง Code นี้แทน `<!-- เพิ่ม form ตรงนี้ -->` ใน `index.html`
+<LessonCallout type="action">แก้บางส่วน: แทน Comment `<!-- เพิ่ม form ตรงนี้ -->` ใน `index.html`</LessonCallout>
+
+<CodeChange
+  language="html"
+  addedLines="1,2,3,5,6,7,8,10,11,12,13,15,16,17"
+>
 
 ```html
 <form>
@@ -268,6 +278,8 @@ Project นี้ใช้เฉพาะ Control ที่จำเป็นต
 </form>
 ```
 
+</CodeChange>
+
 `fieldset` ใช้รวม Field ที่เกี่ยวข้องกันเป็นกลุ่ม ส่วน `legend` คือชื่อที่อธิบายว่ากลุ่มนี้เก็บข้อมูลอะไร
 
 `form-group` เตรียมไว้ให้ CSS จัด Label และ Input ในชั่วโมงถัดไป
@@ -276,7 +288,12 @@ Project นี้ใช้เฉพาะ Control ที่จำเป็นต
 
 ## Slide 13: เพิ่มข้อมูลปัญหาและปุ่ม Submit
 
-แก้บางส่วน: แทน Comment `<!-- เพิ่มข้อมูลปัญหาต่อจากนี้ -->`
+<LessonCallout type="action">แก้บางส่วนใน `index.html`: แทน Comment `<!-- เพิ่มข้อมูลปัญหาต่อจากนี้ -->`</LessonCallout>
+
+<CodeChange
+  language="html"
+  addedLines="1,2,3,4,6,7,8,9,11"
+>
 
 ```html
 <div class="form-group">
@@ -292,22 +309,20 @@ Project นี้ใช้เฉพาะ Control ที่จำเป็นต
 <button type="submit">ส่งข้อมูล</button>
 ```
 
+</CodeChange>
+
 ลองกด Submit โดยไม่กรอกข้อมูล Browser ควรแจ้งให้กรอก Field ที่มี `required`
 
 ---
 
-## Slide 14: ตรวจผลลัพธ์ก่อนเริ่ม CSS
+## Slide 14: ผลลัพธ์เมื่อจบชั่วโมงนี้
 
-ชื่อ Field ทั้ง 4 ต้องตรงกันตั้งแต่ HTML จนถึง TypeScript ในวันถัดไป:
+เมื่อเปิด `index.html` ใน Browser หน้าตาจะได้ประมาณนี้ ก่อนเพิ่ม CSS ในชั่วโมงถัดไป
 
-| HTML `name` | ข้อมูล |
-|---|---|
-| `reporterName` | ชื่อผู้แจ้ง |
-| `reporterEmail` | อีเมลผู้แจ้ง |
-| `title` | หัวข้อปัญหา |
-| `description` | รายละเอียดปัญหา |
-
-เปิด `index.html` แล้วตรวจว่าเห็นส่วนหัว Form ทั้ง 4 Field ปุ่ม Submit และส่วนท้ายครบ
-
-ชั่วโมงถัดไปเราจะสร้าง `style.css` และใช้ `form-group` จัดหน้า Form ให้อ่านง่ายขึ้น
+<figure className="lesson-result-preview">
+  <img
+    src="/lessons/day-1/hour-2/html-form-result.png"
+    alt="หน้าเว็บระบบแจ้งปัญหา IT ที่มีส่วนหัว แบบฟอร์มแจ้งปัญหา และส่วนท้าย"
+  />
+</figure>
 

@@ -4,19 +4,19 @@
 
 ## ลำดับการทำงานปัจจุบัน
 
-1. ปรับ Day 5 Hour 2-4 ทีละ Hour โดยใช้กติกา Slide และ Code Diff ชุดใหม่
-2. ตรวจ dependency ย้อนจาก Day 5 แล้วปรับ Day 1 ถึง Day 4 ตามลำดับการเรียนจริง
-3. ตรวจความต่อเนื่องทั้งหลักสูตรตั้งแต่เริ่ม project จนถึง deploy และ security
+1. ตรวจ Day 1 ถึง Day 4 รอบถัดไปตามลำดับการเรียนจริง
+2. ตรวจ dependency ย้อนจาก Day 5 ให้ทุกขั้นนำไปสู่ Project สุดท้าย
+3. ตรวจความต่อเนื่องทั้งหลักสูตรตั้งแต่เริ่ม Project จนถึง Deploy และ Security
 
 ## สถานะเนื้อหา
 
 | Day | สถานะ | หมายเหตุ |
 |---|---|---|
-| Day 1 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 ใช้ flow จากภาพรวมระบบ ไปสู่ HTML Form, CSS, Static Issue List และ Git/GitHub; Hour 4 ลดเหลือ 17 slides และแก้คำอธิบายให้ชัดว่า Form/List ยังเป็น Static Prototype |
+| Day 1 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 ใช้ flow จากภาพรวมระบบ ไปสู่ HTML Form, CSS, Static Issue List และ Git/GitHub; ใช้ badge `ลงมือทำ` ขนาดเล็กเฉพาะ slide ที่ให้แก้ code หรือรันคำสั่ง พร้อมชี้ไฟล์และตำแหน่งให้ชัด; Hour 4 เหลือ 15 slides โดย Form/List ยังเป็น Static Prototype |
 | Day 2 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-3 เหลือ Hour ละ 15 slides และ Hour 4 เหลือ 18 slides; สร้าง Next.js 16 แบบ root-level `app/`, ย้าย Static TSX และ Custom CSS, สร้าง `Issue` และ `.map()`, แล้วแยก `types`, `data`, Components และ Routes โดยยังไม่เปิด Tailwind |
 | Day 3 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Tailwind และ Responsive UI ไปสู่ Client Component, FormData, Validation, Mock Create และ Immutable Status Update; Hour 4 ลดเหลือ 13 slides และใช้ Optional Props เพื่อให้ `IssueList` ทำงานได้ทั้งหน้า Home และ `/issues` |
 | Day 4 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Supabase Setup ไปสู่ Read, Create, Update และ Deploy; เหลือ 15, 13, 12 และ 11 slides ตามลำดับ พร้อมตัด Mock Flow ที่ไม่ใช้และระบุข้อจำกัดของ Demo RLS ก่อนเข้าสู่ Auth ใน Day 5 |
-| Day 5 | ปรับ Hour 1-3 แล้ว | Hour 1 เหลือ 12 slides สำหรับ Auth และ Supabase SSR Setup; Hour 2 เหลือ 13 slides สำหรับ Login, Protected Page/Action และ Logout; Hour 3 มี 20 slides สำหรับเจ้าของ Issue, Profile Role, RLS และหน้า Admin โดยตัด Type/SQL Helper ที่ไม่ได้ใช้ แยกแต่ละ Operation ให้อ่านง่าย และปิด Demo Access หลังเตรียมระบบครบ; Hour 4 ยังรอปรับรอบใหม่ |
+| Day 5 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1 เหลือ 12 slides สำหรับ Auth และ Supabase SSR Setup; Hour 2 เหลือ 13 slides สำหรับ Login, Protected Page/Action และ Logout; Hour 3 มี 20 slides สำหรับเจ้าของ Issue, Profile Role, RLS และหน้า Admin; Hour 4 ลดเหลือ 9 slides แบบทบทวน Theory, Security Layers, Secret, AI Code Review และแนวทาง Debug โดยไม่เพิ่ม Feature ใหม่ |
 
 ## สถานะ Project เมื่อจบ Day 4
 

@@ -90,7 +90,7 @@ CSS เปลี่ยนเฉพาะหน้าตา ข้อความ
 
 ## Slide 3: เชื่อม `style.css` เข้ากับหน้าเว็บ
 
-สร้างไฟล์ใหม่ `style.css` ไว้ระดับเดียวกับ `index.html`
+<LessonCallout type="action">สร้าง `style.css` ไว้ระดับเดียวกับ `index.html` แล้วเพิ่ม Link ก่อน `</head>`</LessonCallout>
 
 ```text
 project/
@@ -98,11 +98,16 @@ project/
   style.css
 ```
 
-แก้บางส่วน: เพิ่มบรรทัดนี้ใน `<head>` ของ `index.html`
+<CodeChange
+  language="html"
+  addedLines="1"
+>
 
 ```html
 <link rel="stylesheet" href="style.css" />
 ```
+
+</CodeChange>
 
 หากชื่อไฟล์หรือ Path ไม่ตรง Browser จะเปิด HTML ได้ แต่ Style จะไม่แสดง
 
@@ -142,29 +147,34 @@ Selector แบบ Tag เช่น `h1` เลือกทุก Tag ชนิ�
 - **Border** คือขอบของกล่อง
 - **Margin** คือระยะห่างจากกล่องอื่น
 
-เพิ่มไว้บรรทัดแรกของ `style.css` เพื่อให้ Width รวม Padding และ Border แล้ว:
+---
+
+## Slide 6: ตั้งค่า Box Model และล้างระยะเริ่มต้น
+
+<LessonCallout type="action">เพิ่ม CSS Reset นี้ไว้บรรทัดแรกของ `style.css`</LessonCallout>
 
 ```css
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 ```
 
-ปกติถ้ากำหนดกล่องกว้าง `300px` แล้วเพิ่ม Padding ซ้ายและขวาด้านละ `20px` กล่องจริงจะกว้างเป็น `340px` จนอาจเกินพื้นที่ที่เตรียมไว้
+`box-sizing: border-box` ทำให้ Width ที่กำหนดรวม Padding และ Border อยู่ภายในกล่องแล้ว
 
-`box-sizing: border-box` เปลี่ยนวิธีคำนวณให้ Padding และ Border รวมอยู่ภายใน `300px` กล่องจึงไม่ขยายเกิน Width ที่กำหนด ส่วน `*` หมายถึงให้ใช้กฎนี้กับทุก Element
+`*` เลือกทุก Element ส่วน `margin: 0` และ `padding: 0` ล้างระยะห่างเริ่มต้นของ Browser จากนั้นเราจะกำหนดระยะที่ต้องการเองในแต่ละส่วน
 
 ---
 
-## Slide 6: กำหนด Style พื้นฐานของหน้า
+## Slide 7: กำหนด Style พื้นฐานของหน้า
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Style พื้นฐานต่อใน `style.css`</LessonCallout>
 
 ```css
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
-  background: #f6f7fb;
+  background-color: #f6f7fb;
   color: #111827;
   line-height: 1.5;
 }
@@ -185,27 +195,23 @@ main {
 
 ---
 
-## Slide 7: แยกส่วนหัวและพื้นที่ Form
+## Slide 8: แยกส่วนหัวและพื้นที่ Form
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Style ของ `header` และ `section` ต่อใน `style.css`</LessonCallout>
 
 ```css
 header {
-  background: #0f766e;
-  color: white;
+  background-color: #0f766e;
+  color: #fff;
   padding: 32px 24px;
 }
 
 header h1 {
-  margin: 0 0 8px;
-}
-
-header p {
-  margin: 0;
+  margin-bottom: 8px;
 }
 
 section {
-  background: white;
+  background-color: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 24px;
@@ -216,9 +222,9 @@ section {
 
 ---
 
-## Slide 8: ตกแต่งส่วนท้ายของหน้า
+## Slide 9: ตกแต่งส่วนท้ายของหน้า
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Style ของ `footer` ต่อใน `style.css`</LessonCallout>
 
 ```css
 footer {
@@ -227,24 +233,18 @@ footer {
   padding: 24px;
   text-align: center;
 }
-
-footer p {
-  margin: 0;
-}
 ```
 
 `text-align: center` จัดข้อความไว้กึ่งกลาง ส่วนสีและขนาดตัวอักษรที่เบาลงช่วยให้ Footer อ่านได้โดยไม่เด่นกว่าส่วนหลัก
 
 ---
 
-## Slide 9: จัด Field ใน Form ให้เป็นกลุ่ม
+## Slide 10: จัด Field ใน Form ให้เป็นกลุ่ม
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Style ของ Field และ Label ต่อใน `style.css`</LessonCallout>
 
 ```css
 fieldset {
-  margin: 0;
-  padding: 0;
   border: 0;
 }
 
@@ -270,9 +270,9 @@ label {
 
 ---
 
-## Slide 10: ตกแต่ง Input และ Textarea
+## Slide 11: ตกแต่ง Input และ Textarea
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Style ของ Input และ Textarea ต่อใน `style.css`</LessonCallout>
 
 ```css
 input,
@@ -282,7 +282,7 @@ textarea {
   border-radius: 6px;
   padding: 10px 12px;
   font: inherit;
-  background: white;
+  background-color: #fff;
 }
 
 textarea {
@@ -296,9 +296,9 @@ textarea {
 
 ---
 
-## Slide 11: แสดง Focus ให้รู้ว่ากำลังกรอก Field ใด
+## Slide 12: แสดง Focus ให้รู้ว่ากำลังกรอก Field ใด
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Focus State ต่อใน `style.css` แล้วทดสอบด้วยปุ่ม `Tab`</LessonCallout>
 
 ```css
 input:focus,
@@ -314,9 +314,9 @@ textarea:focus {
 
 ---
 
-## Slide 12: ทำให้ปุ่ม Submit มองเห็นและตอบสนอง
+## Slide 13: ทำให้ปุ่ม Submit มองเห็นและตอบสนอง
 
-เพิ่มต่อใน `style.css`
+<LessonCallout type="action">เพิ่ม Style พื้นฐานและ Hover State ของปุ่มต่อใน `style.css`</LessonCallout>
 
 ```css
 button {
@@ -325,13 +325,13 @@ button {
   padding: 12px 16px;
   font: inherit;
   font-weight: 700;
-  background: #0f766e;
-  color: white;
+  background-color: #0f766e;
+  color: #fff;
   cursor: pointer;
 }
 
 button:hover {
-  background: #115e59;
+  background-color: #115e59;
 }
 ```
 
@@ -339,9 +339,14 @@ button:hover {
 
 ---
 
-## Slide 13: เตรียมสอง Field สำหรับหน้าจอกว้าง
+## Slide 14: เตรียมสอง Field สำหรับหน้าจอกว้าง
 
-แก้บางส่วน: ใน `index.html` ครอบ `reporterName` และ `reporterEmail` ด้วย `form-row`
+<LessonCallout type="action">แก้บางส่วนใน `index.html`: ครอบ Field ชื่อและอีเมลด้วย `.form-row`</LessonCallout>
+
+<CodeChange
+  language="html"
+  addedLines="1,11"
+>
 
 ```html
 <div class="form-row">
@@ -357,13 +362,15 @@ button:hover {
 </div>
 ```
 
+</CodeChange>
+
 ตอนนี้หน้าตายังเหมือนเดิม เพราะเรายังไม่ได้กำหนด Style ให้ `form-row`
 
 ---
 
-## Slide 14: เปลี่ยนเป็นสองคอลัมน์ด้วย Media Query
+## Slide 15: เปลี่ยนเป็นสองคอลัมน์ด้วย Media Query
 
-เพิ่มไว้ท้ายไฟล์ `style.css`
+<LessonCallout type="action">เพิ่ม Media Query ไว้ท้าย `style.css`</LessonCallout>
 
 ```css
 @media (min-width: 720px) {
@@ -381,17 +388,13 @@ button:hover {
 
 ---
 
-## Slide 15: ตรวจหน้าเว็บก่อนเพิ่ม Issue List
+## Slide 16: ผลลัพธ์เมื่อจบชั่วโมงนี้
 
-เปิด `index.html` แล้วตรวจผลลัพธ์:
+เมื่อเปิด `index.html` ใน Browser หน้าตาจะได้ประมาณนี้ โดยชื่อและอีเมลจะแสดงสองคอลัมน์บนหน้าจอกว้าง
 
-- หน้าเว็บโหลด `style.css` สำเร็จ
-- เนื้อหาอยู่กลางหน้าและไม่กว้างเกินไป
-- Form มีระยะห่างสม่ำเสมอ
-- Footer อยู่กึ่งกลางและแยกจากเนื้อหาหลักชัดเจน
-- กด `Tab` แล้วเห็น Focus ชัดเจน
-- ปุ่มเปลี่ยนสีเมื่อ Hover
-- จอเล็กแสดง Field แนวตั้ง
-- จอกว้างแสดงชื่อและอีเมลสองคอลัมน์
-
-Hour ถัดไปเราจะเพิ่ม Issue List และ Status Badge ก่อนบันทึก Project ด้วย Git
+<figure className="lesson-result-preview lesson-result-preview--wide">
+  <img
+    src="/lessons/day-1/hour-3/styled-form-result.png"
+    alt="หน้าเว็บระบบแจ้งปัญหา IT หลังตกแต่งด้วย CSS และจัดชื่อกับอีเมลเป็นสองคอลัมน์"
+  />
+</figure>
