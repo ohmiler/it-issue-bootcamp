@@ -118,11 +118,18 @@ const total: number = "สาม";
 
 ระบบของเรารองรับ Status เพียงสามค่า:
 
-สร้าง Union Type ใหม่ชื่อ `IssueStatus` ไว้ด้านบนของ `app/page.tsx` ก่อน `export default function Home()`:
+<LessonCallout type="action">เพิ่ม Type ใหม่ชื่อ `IssueStatus` ด้านบนของ `app/page.tsx` ก่อน `export default function Home()`</LessonCallout>
+
+<CodeChange
+  language="ts"
+  addedLines="1"
+>
 
 ```ts
 type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
 ```
+
+</CodeChange>
 
 เครื่องหมาย `|` อ่านว่า “หรือ” ดังนั้น `IssueStatus` จึงรับได้เฉพาะ:
 
@@ -130,27 +137,22 @@ type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
 - `"IN_PROGRESS"`
 - `"DONE"`
 
-หากเขียนค่าที่ไม่อยู่ในรายการ TypeScript จะแจ้งเตือน:
-
-```ts
-const status: IssueStatus = "FINISHED";
-```
-
-Union Type เหมาะกับข้อมูลที่มีตัวเลือกจำกัด เพราะช่วยป้องกันค่าที่สะกดผิดหรือระบบไม่รองรับ
+หากใส่ค่าอื่น เช่น `"FINISHED"` TypeScript จะแจ้งเตือนก่อนเปิดหน้าเว็บ
 
 ---
 
 ## Slide 6: สร้าง Type `Issue`
 
-`Issue` คือ Type ที่อธิบายว่า **ข้อมูลปัญหาหนึ่งรายการต้องมีหน้าตาอย่างไร** เช่น ต้องมี `id`, `title`, `status` และแต่ละ Field ต้องเก็บข้อมูลชนิดใด
+`Issue` กำหนดว่า Issue หนึ่งรายการต้องมี Property ใดและแต่ละค่าต้องเป็นชนิดอะไร
 
-เราสร้าง Type นี้เพื่อให้ Issue ทุกตัวใช้โครงสร้างเดียวกัน หาก Object ใดลืม Field สำคัญ ใส่ข้อมูลผิดชนิด หรือใช้ Status ที่ระบบไม่รองรับ TypeScript จะช่วยแจ้งเตือน
+<LessonCallout type="action">เพิ่ม Type `Issue` ต่อจาก `IssueStatus` และก่อน `export default function Home()` ใน `app/page.tsx`</LessonCallout>
 
-เพิ่ม Code นี้ด้านบนของ `app/page.tsx` ก่อน `export default function Home()`:
+<CodeChange
+  language="ts"
+  addedLines="1,2,3,4,5,6,7,8,9,10"
+>
 
 ```ts
-type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
-
 type Issue = {
   id: string;
   reporterName: string;
@@ -163,17 +165,21 @@ type Issue = {
 };
 ```
 
-ทุก Property ใช้ `string` ยกเว้น `status` ที่ต้องเป็น `IssueStatus`
+</CodeChange>
 
-เครื่องหมาย `?` ใน `adminComment?: string` หมายถึง Property นี้มีก็ได้ ไม่มีก็ได้ เพราะ Issue ใหม่อาจยังไม่มีความเห็นจาก Admin
-
-Type `Issue` ยังไม่ได้สร้างข้อมูลจริง หน้าที่ของมันคือใช้ตรวจโครงสร้างของ Mock Data ที่เราจะสร้างใน Slide ถัดไป
+- `status` รับได้เฉพาะค่าจาก `IssueStatus`
+- `adminComment?` เป็น Optional Property เพราะ Issue ใหม่อาจยังไม่มีความเห็นจาก Admin
 
 ---
 
 ## Slide 7: สร้าง Mock Data รายการแรก
 
-เพิ่ม `issues` ต่อจาก Type และก่อน `Home()`:
+<LessonCallout type="action">เพิ่ม Array `issues` ต่อจาก Type `Issue` และก่อน `Home()` ใน `app/page.tsx`</LessonCallout>
+
+<CodeChange
+  language="ts"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11"
+>
 
 ```ts
 const issues: Issue[] = [
@@ -189,31 +195,56 @@ const issues: Issue[] = [
 ];
 ```
 
+</CodeChange>
+
 `Issue[]` หมายถึง Array ที่สมาชิกทุกตัวต้องมีโครงสร้างตรงกับ Type `Issue`
 
 ข้อมูลชุดนี้เป็น Mock Data สำหรับฝึกเขียน UI ยังไม่ได้มาจาก Form หรือ Database
 
 ---
 
-## Slide 8: เติมข้อมูลรายการที่สองและสาม
+## Slide 8: เพิ่ม Mock Data รายการที่สอง
 
-เพิ่ม Object สองตัวนี้ต่อจากรายการแรกและก่อน `];`
+<LessonCallout type="action">เพิ่ม Object รายการที่สองต่อจากรายการแรกและก่อน `];` ภายใน `issues`</LessonCallout>
+
+<CodeChange
+  language="ts"
+  addedLines="1,2,3,4,5,6,7,8,9"
+>
 
 ```ts
 {
   id: "002",
   reporterName: "Mali",
   reporterEmail: "mali@example.com",
-  title: "ส่งแบบฟอร์มสมัครไม่ได้",
+  title: "ส่งแบบฟอร์มไม่ได้",
   description: "กดส่งข้อมูลแล้วระบบขึ้น error",
   status: "IN_PROGRESS",
   createdAt: "2026-05-08",
 },
+```
+
+</CodeChange>
+
+รายการนี้ใช้ `status: "IN_PROGRESS"` ซึ่ง TypeScript ตรวจว่าเป็นค่าที่ `IssueStatus` รองรับ
+
+---
+
+## Slide 9: เพิ่มรายการที่สามและ Optional Property
+
+<LessonCallout type="action">เพิ่ม Object รายการที่สามต่อจากรายการที่สองและก่อน `];` ภายใน `issues`</LessonCallout>
+
+<CodeChange
+  language="ts"
+  addedLines="1,2,3,4,5,6,7,8,9,10"
+>
+
+```ts
 {
   id: "003",
   reporterName: "Kanda",
   reporterEmail: "kanda@example.com",
-  title: "ขอสิทธิ์เข้าใช้งาน Dashboard",
+  title: "ขอสิทธิ์เข้า Dashboard",
   description: "ต้องการสิทธิ์สำหรับตรวจสอบข้อมูลหลังบ้าน",
   status: "DONE",
   adminComment: "อนุมัติสิทธิ์และแจ้งผู้ใช้เรียบร้อยแล้ว",
@@ -221,11 +252,13 @@ const issues: Issue[] = [
 },
 ```
 
-รายการที่สามมี `adminComment` ส่วนสองรายการแรกไม่มี ซึ่งทำได้เพราะ Property นี้เป็น Optional
+</CodeChange>
+
+รายการที่สามมี `adminComment` ส่วนสองรายการแรกไม่มี ซึ่งทำได้เพราะ Property นี้เป็น Optional Property
 
 ---
 
-## Slide 9: Type ช่วยตรวจ Mock Data ทุกตัว
+## Slide 10: Type ช่วยตรวจ Mock Data ทุกตัว
 
 เพราะเราประกาศ Array เป็น `Issue[]` TypeScript จะตรวจทุก Object ภายใน Array
 
@@ -248,9 +281,14 @@ TypeScript จะแจ้งว่า Property `title` หายไป แต�
 
 ---
 
-## Slide 10: เปลี่ยน Static Rows เป็น `.map()`
+## Slide 11: เปลี่ยน Static Rows เป็น `.map()`
 
-ใน `app/page.tsx` ให้แทน `<tbody>` เดิมทั้งหมดด้วย Code นี้:
+<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: แทน `<tbody>` เดิมทั้งหมดด้วย Rows ที่สร้างจาก `issues.map()`</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9,10"
+>
 
 ```tsx
 <tbody>
@@ -265,6 +303,8 @@ TypeScript จะแจ้งว่า Property `title` หายไป แต�
 </tbody>
 ```
 
+</CodeChange>
+
 ข้อความภายใน `{ }` คือ JavaScript Expression ที่ใช้ใน TSX ได้ เช่น `{issue.title}` จะนำค่า `title` ของ Issue ปัจจุบันมาแสดง
 
 ตอนนี้ให้แสดง `{issue.status}` เป็นข้อความธรรมดาก่อน เพื่อดูการทำงานของ `.map()` ให้ชัดเจน ส่วน `<span className="status ...">` จะนำกลับมาครอบ Status ใน Slide 14 หลังจากเราสร้าง Function สำหรับเลือก Class แล้ว
@@ -273,7 +313,7 @@ Table List ไม่จำเป็นต้องแสดงทุก Field �
 
 ---
 
-## Slide 11: `.map()` ทำงานทีละรายการ
+## Slide 12: `.map()` ทำงานทีละรายการ
 
 เมื่อ Array มีสามรายการ `.map()` จะทำงานสามรอบ:
 
@@ -281,14 +321,6 @@ Table List ไม่จำเป็นต้องแสดงทุก Field �
 issues[0] → issue → <tr> ของ Anan
 issues[1] → issue → <tr> ของ Mali
 issues[2] → issue → <tr> ของ Kanda
-```
-
-ใน Code นี้:
-
-```tsx
-issues.map((issue) => (
-  <tr>...</tr>
-))
 ```
 
 - `issues` คือ Array ต้นทาง
@@ -299,7 +331,7 @@ issues.map((issue) => (
 
 ---
 
-## Slide 12: ทำไมแต่ละ Row ต้องมี `key`
+## Slide 13: ทำไมแต่ละ Row ต้องมี `key`
 
 จาก Code ใน Slide ก่อนหน้า:
 
@@ -315,9 +347,14 @@ React ใช้ `key` เพื่อแยกแต่ละรายการ�
 
 ---
 
-## Slide 13: แปลง Status เป็นชื่อ Class
+## Slide 14: แปลง Status เป็นชื่อ Class
 
-เพิ่ม Function นี้ต่อจาก `issues` และก่อน `Home()`:
+<LessonCallout type="action">เพิ่ม `getStatusClass()` ต่อจาก `issues` และก่อน `Home()` ใน `app/page.tsx`</LessonCallout>
+
+<CodeChange
+  language="ts"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11"
+>
 
 ```ts
 function getStatusClass(status: IssueStatus): string {
@@ -333,19 +370,20 @@ function getStatusClass(status: IssueStatus): string {
 }
 ```
 
-Function รับ Status หนึ่งค่า แล้วคืนชื่อ Class ที่มีอยู่แล้วใน `globals.css`:
+</CodeChange>
 
-```text
-OPEN        → status-open
-IN_PROGRESS → status-progress
-DONE        → status-done
-```
+Function รับ Status หนึ่งค่า แล้วคืน `status-open`, `status-progress` หรือ `status-done` ที่มีอยู่แล้วใน `globals.css`
 
 ---
 
-## Slide 14: คืน Status Badge ให้แต่ละ Row
+## Slide 15: คืน Status Badge ให้แต่ละ Row
 
-ภายใน `.map()` ให้แทน `<td>{issue.status}</td>` ด้วย:
+<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: แทน `<td>{issue.status}</td>` ภายใน `.map()` ด้วย Status Badge</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5"
+>
 
 ```tsx
 <td>
@@ -355,6 +393,8 @@ DONE        → status-done
 </td>
 ```
 
+</CodeChange>
+
 - `status` คือ Class พื้นฐานของ Badge
 - `${getStatusClass(issue.status)}` เพิ่ม Class สีตาม Status
 - `{issue.status}` แสดงข้อความ Status
@@ -363,21 +403,15 @@ DONE        → status-done
 
 ---
 
-## Slide 15: ตรวจว่า Table สร้างจากข้อมูลแล้ว
+## Slide 16: ตรวจว่า Table สร้างจากข้อมูลแล้ว
 
-ตรวจผลลัพธ์ใน Browser:
+ตรวจผลลัพธ์ใน Browser และ `app/page.tsx`:
 
 - Form จาก Hour 2 ยังแสดงเหมือนเดิม
-- Table แสดงข้อมูลครบ 3 รายการ
-- Status Badge แสดง `OPEN`, `IN_PROGRESS` และ `DONE`
-- Badge แต่ละสถานะมีสีถูกต้อง
+- Table แสดงข้อมูลครบ 3 รายการและ Badge มีสีถูกต้อง
 - Terminal และ Browser ไม่มี Error หรือ Warning
-
-ตรวจใน `app/page.tsx`:
-
 - `IssueStatus`, `Issue`, `issues` และ `getStatusClass()` อยู่ก่อน `Home()`
-- `<tbody>` ไม่มี Static Rows เดิม
-- `<tbody>` ใช้ `issues.map(...)`
-- `<tr>` มี `key={issue.id}`
+- `<tbody>` ไม่มี Static Rows เดิมและใช้ `issues.map(...)`
+- ทุก `<tr>` มี `key={issue.id}`
 
 ตอนนี้ UI สร้างจาก Mock Data แล้ว แต่ทุกอย่างยังอยู่ในไฟล์เดียว Hour ถัดไปเราจะแยก Type, Data, Form, List และ Badge ออกเป็นไฟล์ที่นำกลับมาใช้ซ้ำได้

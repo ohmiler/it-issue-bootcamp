@@ -104,7 +104,7 @@ Hour นี้เราจะสร้าง Project และทำความ
 
 ## Slide 5: ตรวจ Node.js และ npm
 
-เปิด Terminal แล้วรัน:
+<LessonCallout type="action">เปิด Terminal แล้วตรวจ Version ของ Node.js และ npm</LessonCallout>
 
 ```bash
 node -v
@@ -120,7 +120,7 @@ Next.js เวอร์ชันที่ใช้ในคอร์สต้อ
 
 ## Slide 6: สร้าง Next.js Project ใหม่
 
-สร้าง Folder ว่างชื่อ `it-issue-nextjs` แยกจาก Static Project ของ Day 1 แล้วเปิด Folder ใหม่นี้ใน VS Code
+<LessonCallout type="action">สร้าง Folder ว่างชื่อ `it-issue-nextjs` แยกจาก Static Project ของ Day 1 แล้วเปิด Folder ใหม่นี้ใน VS Code</LessonCallout>
 
 เมื่อ Terminal อยู่ภายใน Folder `it-issue-nextjs` ให้รัน:
 
@@ -144,7 +144,7 @@ npx create-next-app@latest .
 
 ## Slide 7: เปิด Dev Server
 
-เราอยู่ใน Folder Project แล้ว จึงเปิด Development Server ได้ทันที:
+<LessonCallout type="action">เปิด Terminal ภายใน `it-issue-nextjs` แล้วเริ่ม Development Server</LessonCallout>
 
 ```bash
 npm run dev
@@ -267,7 +267,12 @@ Hour ถัดไปเราจะลบบรรทัดนี้ออกช
 
 ## Slide 13: เปลี่ยนหน้าเริ่มต้นของ Next.js
 
-แก้ทั้งไฟล์: `app/page.tsx`
+<LessonCallout type="action">แทน Code ทั้งไฟล์ `app/page.tsx` ด้วยหน้าเริ่มต้นของระบบแจ้งปัญหา</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8"
+>
 
 ```tsx
 export default function Home() {
@@ -279,6 +284,8 @@ export default function Home() {
   );
 }
 ```
+
+</CodeChange>
 
 หลังบันทึกไฟล์ Browser ควรแสดงเนื้อหาใหม่โดยไม่ต้องปิดและเปิด `npm run dev` อีกครั้ง
 

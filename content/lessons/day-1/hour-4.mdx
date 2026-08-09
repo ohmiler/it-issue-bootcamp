@@ -170,22 +170,27 @@ Issue List ที่กำลังจะสร้างจึงใช้ข้
 
 <LessonCallout type="action">เพิ่ม Style ของ `.issue-list` และ Wrapper ต่อใน `style.css`</LessonCallout>
 
+<CodeChange
+  language="css"
+  addedLines="1,2,3,4,5,6,7,8"
+>
+
 ```css
 .issue-list {
   margin-top: 24px;
 }
 
 .table-wrapper {
-  width: 100%;
-  max-width: 100%;
   margin-top: 16px;
   overflow-x: auto;
 }
 ```
 
+</CodeChange>
+
 `.issue-list` เพิ่มระยะจาก Form โดยไม่เปลี่ยน Layout ของ `main` จึงไม่ดันความกว้างของ Table บนหน้าจอเล็ก
 
-`.table-wrapper` จำกัดพื้นที่และเปิด Scroll แนวนอนเฉพาะ Table ทำให้หน้าเว็บทั้งหน้าไม่ล้นออกด้านข้าง
+`overflow-x: auto` เปิด Scroll แนวนอนเฉพาะ Wrapper เมื่อ Table กว้างกว่าพื้นที่ ทำให้หน้าเว็บทั้งหน้าไม่ล้นออกด้านข้าง
 
 ---
 
@@ -193,8 +198,12 @@ Issue List ที่กำลังจะสร้างจึงใช้ข้
 
 <LessonCallout type="action">เพิ่ม Style ของ Table ต่อใน `style.css`</LessonCallout>
 
-```css
+<CodeChange
+  language="css"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18"
+>
 
+```css
 table {
   width: 100%;
   min-width: 680px;
@@ -215,6 +224,8 @@ th {
 }
 ```
 
+</CodeChange>
+
 - `min-width: 680px` กัน Column ถูกบีบจนอ่านยาก
 - `border-collapse` รวมเส้นขอบที่ติดกันให้เป็นเส้นเดียว
 
@@ -234,6 +245,11 @@ th {
 - `status-open` คือสีเฉพาะของสถานะ `OPEN`
 
 เพิ่ม Style พื้นฐานต่อใน `style.css`
+
+<CodeChange
+  language="css"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22"
+>
 
 ```css
 .status {
@@ -259,6 +275,8 @@ th {
   color: #166534;
 }
 ```
+
+</CodeChange>
 
 `status` คือ Style ที่ใช้ร่วมกัน ส่วน Class ที่สองกำหนดสีเฉพาะสถานะ สีช่วยให้มองหาได้เร็ว แต่ยังต้องมีข้อความ `OPEN`, `IN_PROGRESS` และ `DONE` เพราะผู้ใช้บางคนอาจแยกสีได้ยาก
 

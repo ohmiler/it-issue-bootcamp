@@ -92,30 +92,41 @@ export function StatusBadge() {
 <StatusBadge status="OPEN" />
 ```
 
-```text
-Parent ส่ง Props → Component รับข้อมูล → Component สร้าง UI
-```
+Parent ส่ง `status` ผ่าน Props แล้ว `StatusBadge` ใช้ค่านั้นสร้าง UI ที่เหมาะกับแต่ละ Issue
 
-คำว่า `export` ทำให้ไฟล์อื่น Import Component นี้ไปใช้ได้ ส่วนชื่อ Prop เช่น `status` บอกว่า Component ต้องการข้อมูลอะไร
+คำว่า `export` ทำให้ไฟล์อื่น Import Component นี้ไปใช้ได้ ส่วนชื่อ Prop บอกว่า Component ต้องการข้อมูลอะไร
 
 ---
 
-## Slide 3: ย้าย Type ไปไว้ในไฟล์กลาง
+## Slide 3: แยก `IssueStatus` ไปไว้ในไฟล์กลาง
 
-สร้าง Folder `types` ไว้ที่ **Root ของ Project** ระดับเดียวกับ Folder `app` แล้วสร้างไฟล์ `issue.ts` ไว้ข้างใน:
+<LessonCallout type="action">สร้างไฟล์ใหม่ `types/issue.ts` ที่ Project Root แล้วคัดลอก `IssueStatus` จาก `app/page.tsx` มาเพิ่ม `export`</LessonCallout>
 
-```text
-project/
-├── app/
-└── types/
-    └── issue.ts
-```
-
-Copy `IssueStatus` และ `Issue` จาก `app/page.tsx` มาไว้ในไฟล์ใหม่ แล้วเพิ่ม `export`:
+<CodeChange
+  language="ts"
+  addedLines="1"
+>
 
 ```ts
 export type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
+```
 
+</CodeChange>
+
+`export` ทำให้ไฟล์อื่น Import Type นี้ไปกำหนดค่าของ Status ได้
+
+---
+
+## Slide 4: เพิ่ม Type `Issue` ในไฟล์กลาง
+
+<LessonCallout type="action">คัดลอก Type `Issue` จาก `app/page.tsx` มาต่อท้าย `types/issue.ts` แล้วเพิ่ม `export`</LessonCallout>
+
+<CodeChange
+  language="ts"
+  addedLines="1,2,3,4,5,6,7,8,9,10"
+>
+
+```ts
 export type Issue = {
   id: string;
   reporterName: string;
@@ -128,83 +139,81 @@ export type Issue = {
 };
 ```
 
-เราต้อง `export` เพราะไฟล์ Component และ Data จะ Import Type ทั้งสองตัวไปใช้ร่วมกัน
+</CodeChange>
 
-ยังไม่ต้องลบ Type เดิมจาก `app/page.tsx` เพื่อให้หน้าเดิมทำงานต่อระหว่าง Refactor เราจะลบพร้อม Code เดิมทั้งหมดใน Slide 9
+ยังไม่ต้องลบ Type เดิมจาก `app/page.tsx` เพื่อให้หน้า Home ทำงานต่อระหว่าง Refactor
 
 ---
 
-## Slide 4: สร้าง Folder สำหรับ Mock Data
+## Slide 5: แยก Mock Data ไปไว้ในไฟล์กลาง
 
-สร้าง Folder `data` ไว้ที่ **Root ของ Project** ระดับเดียวกับ `app` และ `types` แล้วสร้างไฟล์ `issue.ts` ไว้ข้างใน:
+<LessonCallout type="action">สร้างไฟล์ใหม่ `data/issue.ts` ที่ Project Root แล้วคัดลอก Array `issues` ทั้งก้อนจาก `app/page.tsx` มาไว้ในไฟล์นี้</LessonCallout>
 
-```text
-project/
-├── app/
-├── types/
-│   └── issue.ts
-└── data/
-    └── issue.ts
-```
+เพิ่ม Import Type ด้านบนและเติม `export` หน้า `const issues` โดยเก็บ Object ทั้งสามรายการไว้เหมือนเดิม:
 
-Folder `data` ใช้เก็บข้อมูลตัวอย่างที่ Component หลายตัวต้องนำไปใช้ร่วมกัน ทำให้เราไม่ต้องประกาศข้อมูลชุดเดิมซ้ำในแต่ละหน้า
-
-`create-next-app` ตั้งค่า Import Alias `@/` ให้แล้ว เราจึงใช้ `@/types/issue` เพื่ออ้างถึงไฟล์ `types/issue.ts` จาก Project Root ได้ทันที
-
-1. Copy `const issues` ทั้งหมดจาก `app/page.tsx`
-2. เพิ่ม Import Type ไว้ด้านบน
-3. เติม `export` หน้า `const issues`
-
-โครงของไฟล์หลังย้าย:
+<CodeChange
+  language="ts"
+  addedLines="1,3"
+>
 
 ```ts
 import type { Issue } from "@/types/issue";
 
 export const issues: Issue[] = [
-  // ย้าย Object ทั้ง 3 รายการจาก app/page.tsx มาไว้ที่นี่
+  // คัดลอก Object ทั้ง 3 รายการจาก app/page.tsx มาไว้ที่นี่
 ];
 ```
 
-Object ทั้งสามรายการไม่ต้องพิมพ์ใหม่ ให้ Copy แล้ว Paste เพื่อรักษาข้อมูลเดิมและลดโอกาสสะกดผิด
+</CodeChange>
 
-ยังไม่ต้องลบ `const issues` เดิมจาก `app/page.tsx` เพราะหน้าเดิมยังใช้อยู่ เราจะเปลี่ยนให้ Import จากไฟล์ใหม่นี้ใน Slide 9
+`@/` อ้างถึง Project Root ส่วนการคัดลอก Array เดิมทั้งก้อนช่วยรักษาข้อมูล Mock ทั้งสามรายการไว้ครบ
+
+ยังไม่ต้องลบ `issues` เดิมจาก `app/page.tsx` เพราะหน้าเดิมจะเปลี่ยนมา Import ไฟล์ใหม่นี้ใน Slide 11
 
 ---
 
-## Slide 5: สร้าง Component `StatusBadge`
+## Slide 6: สร้าง Component `StatusBadge`
 
-สร้าง Folder `components` ไว้ที่ **Root ของ Project** ระดับเดียวกับ `app`, `types` และ `data` แล้วสร้างไฟล์ `StatusBadge.tsx` ไว้ข้างใน:
+<LessonCallout type="action">สร้างไฟล์ใหม่ `components/StatusBadge.tsx` แล้วเพิ่ม Import และ Helper เลือก Class ตาม Status</LessonCallout>
 
-```text
-project/
-├── app/
-├── types/
-├── data/
-└── components/
-    └── StatusBadge.tsx
-```
-
-Copy `getStatusClass()` จาก `app/page.tsx` มาไว้ในไฟล์นี้ แล้วสร้าง Component:
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9,10"
+>
 
 ```tsx
 import type { IssueStatus } from "@/types/issue";
-
-type StatusBadgeProps = {
-  status: IssueStatus;
-};
 
 function getStatusClass(status: IssueStatus): string {
   if (status === "OPEN") {
     return "status-open";
   }
-
   if (status === "IN_PROGRESS") {
     return "status-progress";
   }
-
   return "status-done";
 }
+```
 
+</CodeChange>
+
+Helper นี้ย้าย Logic เลือก Class ออกจากหน้า Home และรับได้เฉพาะค่าจาก `IssueStatus`
+
+---
+
+## Slide 7: เติม UI ให้ `StatusBadge`
+
+<LessonCallout type="action">เพิ่ม Props Type และ Component ต่อท้าย `components/StatusBadge.tsx` เพื่อรับ `status` แล้วคืน Badge</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9,10"
+>
+
+```tsx
+type StatusBadgeProps = {
+  status: IssueStatus;
+};
 export function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <span className={`status ${getStatusClass(status)}`}>
@@ -214,17 +223,22 @@ export function StatusBadge({ status }: StatusBadgeProps) {
 }
 ```
 
+</CodeChange>
+
 `StatusBadgeProps` กำหนดว่า Component ต้องได้รับ Prop ชื่อ `status` และค่านั้นต้องเป็น `IssueStatus`
 
-ยังไม่ต้องลบ `getStatusClass()` เดิมจาก `app/page.tsx` จนกว่า Table จะเปลี่ยนมาใช้ `StatusBadge`
+Helper เดิมใน `app/page.tsx` ยังเก็บไว้จนกว่า Table จะเปลี่ยนมาใช้ Component นี้
 
 ---
 
-## Slide 6: เตรียม Component `IssueList`
+## Slide 8: เตรียม Component `IssueList`
 
-สร้างไฟล์ใหม่: `components/IssueList.tsx`
+<LessonCallout type="action">สร้างไฟล์ใหม่ `components/IssueList.tsx` และใส่ Code เริ่มต้นต่อไปนี้ทั้งไฟล์</LessonCallout>
 
-เพิ่ม Import และกำหนด Props ไว้ด้านบน:
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9,10"
+>
 
 ```tsx
 import { StatusBadge } from "./StatusBadge";
@@ -239,22 +253,22 @@ export function IssueList({ issues }: IssueListProps) {
 }
 ```
 
-- เมื่อ Component รับ **Props** เราควรกำหนด Type ของ Props ให้ชัดเจน ในตัวอย่างนี้ `IssueListProps` บอกว่า `IssueList` ต้องได้รับ `issues` ซึ่งเป็น `Issue[]`
-- Type ช่วยให้ TypeScript ตรวจได้ตั้งแต่ตอนเขียน Code หากลืมส่ง `issues` หรือส่งข้อมูลผิดรูปแบบ แต่ถ้า Component ไม่ได้รับ Props เช่น `IssueForm` ในตอนนี้ ก็ไม่จำเป็นต้องสร้าง Props Type
-- ชื่อใน Type และชื่อที่ Component รับต้องตรงกัน ในที่นี้ต้องใช้ `issues` แบบพหูพจน์ทั้งสองตำแหน่ง หากเขียน `issue: Issue[]` แต่รับ `{ issues }` TypeScript จะแจ้ง Error
-- `return null` เป็นจุดพักที่หมายถึง “Component ยังไม่แสดงอะไร” และทำให้ไฟล์ยัง Compile ได้ ส่วน `return ()` แบบไม่มี Element อยู่ข้างในจะเกิด Syntax Error
-- ยังไม่ต้อง Cut Table ใน Slide นี้ เพราะ Slide ถัดไปจะนำ Section มาใส่ระหว่าง `return (` และ `);` ให้สมบูรณ์ในครั้งเดียว
+</CodeChange>
+
+`IssueListProps` กำหนดว่า Component ต้องได้รับ `issues` ซึ่งเป็น `Issue[]` ส่วน `return null` เป็นจุดพักที่ทำให้ไฟล์ Compile ได้ก่อนย้าย Table
 
 ---
 
-## Slide 7: ย้าย Table มาไว้ใน `IssueList`
+## Slide 9: ย้าย Table มาไว้ใน `IssueList`
 
-1. Cut `<section aria-labelledby="issue-list-title">...</section>` ออกจาก `app/page.tsx`
-2. แทน `return null;` ด้วย `return ( ... );`
-3. Paste Section ที่ Cut มาไว้ภายในวงเล็บ
-4. อย่า Cut `<main>` มาด้วย เพราะ `main` ยังเป็นโครงของหน้า
+<LessonCallout type="action">แก้ `components/IssueList.tsx`: แทน `return null` ด้วย Section ของ Issue List ที่ย้ายมาจาก `app/page.tsx` โดยไม่ย้าย `<main>`</LessonCallout>
 
-ภายใน `<tbody>` ให้ใช้ Code นี้ เพื่อวนสร้างแถวจาก `issues` และส่ง Status ไปให้ `StatusBadge`:
+หลัง Paste แล้ว ให้แทน `<tbody>` ภายใน Table ด้วย Code นี้:
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11"
+>
 
 ```tsx
 <tbody>
@@ -263,45 +277,28 @@ export function IssueList({ issues }: IssueListProps) {
       <td>#{issue.id}</td>
       <td>{issue.title}</td>
       <td>{issue.reporterName}</td>
-      <td>
-        <StatusBadge status={issue.status} />
-      </td>
+      <td><StatusBadge status={issue.status} /></td>
     </tr>
   ))}
 </tbody>
 ```
 
-Flow ของข้อมูลตอนนี้คือ:
+</CodeChange>
 
-```text
-IssueList รับ issues
-   ↓
-.map() อ่าน issue ทีละตัว
-   ↓
-ส่ง issue.status ให้ StatusBadge
-```
-
-`IssueList` รับผิดชอบโครง Table ส่วน `StatusBadge` รับผิดชอบข้อความและสีของ Status แต่ละรายการ
-
-หลังเปลี่ยนแล้ว `IssueList.tsx` จะใช้ `issues`, `issue` และ `StatusBadge` ครบทุกตัวโดยไม่มี Code ที่เว้นว่าง ส่วน Helper เดิมใน `app/page.tsx` จะถูกลบเมื่อเราแทนทั้งไฟล์ใน Slide 9
+`IssueList` รับผิดชอบโครง Table และส่ง `issue.status` ให้ `StatusBadge` สร้าง Badge ของแต่ละแถว
 
 ---
 
-## Slide 8: แยก Form เป็น `IssueForm`
+## Slide 10: แยก Form เป็น `IssueForm`
 
-สร้างไฟล์ใหม่: `components/IssueForm.tsx`
+<LessonCallout type="action">สร้างไฟล์ใหม่ `components/IssueForm.tsx` แล้วย้าย Section ของ Form ทั้งก้อนจาก `app/page.tsx` มาไว้ใน Component นี้</LessonCallout>
 
-ให้ Cut ตั้งแต่ Tag เปิด `<section>` จนถึง Tag ปิด `</section>` เพื่อย้ายทั้งหัวข้อและ Form ไปด้วย:
+เริ่มไฟล์ใหม่ด้วยโครงนี้:
 
-```tsx
-<section>
-  <h2>แจ้งปัญหาใหม่</h2>
-  <form>{/* fieldset และช่องกรอกข้อมูลทั้งหมด */}</form>
-</section>
-```
-
-1. Cut Section ของ Form ทั้งก้อนออกจาก `app/page.tsx` โดยไม่เอา `<main>` มาด้วย
-2. สร้าง Component เริ่มต้นด้วย `return null`
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3"
+>
 
 ```tsx
 export function IssueForm() {
@@ -309,8 +306,9 @@ export function IssueForm() {
 }
 ```
 
-3. แทน `return null;` ด้วย `return ( ... );`
-4. Paste Section ของ Form ไว้ภายในวงเล็บ
+</CodeChange>
+
+จากนั้นแทน `return null` ด้วย `return ( ... );` และ Paste ตั้งแต่ `<section>` ถึง `</section>` ไว้ภายในวงเล็บ โดยไม่ย้าย `<main>`
 
 ไม่ต้องพิมพ์ Form ใหม่ ให้เก็บ Section, `fieldset`, Label, Input, Textarea และ Button เดิมไว้ครบ
 
@@ -318,49 +316,71 @@ export function IssueForm() {
 
 ---
 
-## Slide 9: หน้า Home เหลือหน้าที่จัดวาง Component
+## Slide 11: ให้ Home จัดวาง Component
 
-แทน Code ทั้งไฟล์: `app/page.tsx`
+<LessonCallout type="action">แทน Code ทั้งไฟล์ `app/page.tsx` ให้เหลือ Import และ Component ที่หน้า Home ต้องจัดวาง</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9"
+>
 
 ```tsx
 import { IssueForm } from "@/components/IssueForm";
 import { IssueList } from "@/components/IssueList";
 import { issues } from "@/data/issue";
-
 export default function Home() {
-  return (
-    <>
-      <header>
-        <h1>ระบบแจ้งปัญหา IT</h1>
-        <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
-      </header>
-
-      <main>
-        <IssueForm />
-        <IssueList issues={issues} />
-      </main>
-
-      <footer>
-        <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
-      </footer>
-    </>
-  );
+  return <main>
+    <IssueForm />
+    <IssueList issues={issues} />
+  </main>;
 }
 ```
 
-`page.tsx` ไม่ต้องรู้รายละเอียดภายใน Form หรือ Table เพียง Import แล้วจัดวาง Component พร้อมส่ง `issues` เข้า `IssueList`
+</CodeChange>
+
+การแทนทั้งไฟล์นี้ลบ Type, Mock Data, Helper และ JSX เดิมที่ย้ายออกไปแล้ว พร้อม Import ทุกส่วนกลับมาใช้
 
 ---
 
-## Slide 10: App Router ใช้ Folder สร้าง URL
+## Slide 12: คืน Header และ Footer ให้หน้า Home
 
-**App Router** คือระบบ Routing ของ Next.js ที่ใช้โครงสร้าง Folder ภายใน `app` เป็นตัวกำหนดว่าหน้าแต่ละหน้าจะเปิดด้วย URL อะไร
+<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: ครอบ `<main>` ด้วย Fragment แล้วเพิ่ม Header ก่อนหน้าและ Footer ต่อท้าย</LessonCallout>
 
-- `app` คือจุดเริ่มต้นของ Route
-- ชื่อ Folder แต่ละชั้นจะกลายเป็นส่วนหนึ่งของ URL
-- `page.tsx` คือ UI ที่จะแสดงเมื่อผู้ใช้เปิด URL ของ Folder นั้น
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5"
+>
 
-จึงไม่ต้องเขียนรายการ Route แยกเอง เพียงสร้าง Folder ตาม URL ที่ต้องการ แล้วใส่ `page.tsx` ไว้ภายใน:
+```tsx
+<>
+  <header>
+    <h1>ระบบแจ้งปัญหา IT</h1>
+    <p>แจ้งและติดตามปัญหาการใช้งานระบบภายใน</p>
+  </header>
+```
+
+</CodeChange>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4"
+>
+
+```tsx
+  <footer>
+    <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
+  </footer>
+</>
+```
+
+</CodeChange>
+
+---
+
+## Slide 13: App Router ใช้ Folder สร้าง URL
+
+**App Router** ใช้ Folder ภายใน `app` กำหนดแต่ละ Segment ของ URL และใช้ `page.tsx` เป็น UI ของ Route นั้น:
 
 | ไฟล์ | URL |
 |---|---|
@@ -369,37 +389,44 @@ export default function Home() {
 | `app/issues/new/page.tsx` | `/issues/new` |
 | `app/issues/[id]/page.tsx` | `/issues/001`, `/issues/002`, ... |
 
-เมื่อสร้างหน้าใหม่ เราจึงสร้าง Folder ตาม URL แล้วใส่ `page.tsx` ไว้ภายใน
-
 Folder `[id]` เป็น Dynamic Segment เครื่องหมาย `[ ]` บอกว่า Segment นี้เปลี่ยนค่าได้ตาม Issue ที่ผู้ใช้เปิด
 
 ---
 
-## Slide 11: สร้างหน้ารายการปัญหา
+## Slide 14: สร้างหน้ารายการปัญหา
 
-สร้างไฟล์ใหม่: `app/issues/page.tsx`
+<LessonCallout type="action">สร้างไฟล์ใหม่ `app/issues/page.tsx` แล้วใส่ Code ต่อไปนี้ทั้งไฟล์</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8"
+>
 
 ```tsx
 import { IssueList } from "@/components/IssueList";
 import { issues } from "@/data/issue";
-
 export default function IssuesPage() {
-  return (
-    <main>
-      <h1>รายการปัญหา</h1>
-      <IssueList issues={issues} />
-    </main>
-  );
+  return <main>
+    <h1>รายการปัญหา</h1>
+    <IssueList issues={issues} />
+  </main>;
 }
 ```
+
+</CodeChange>
 
 เปิด `http://localhost:3000/issues` แล้วควรเห็น Table เดิม เพราะเรานำ `IssueList` กลับมาใช้ซ้ำแทนการเขียน Table ใหม่
 
 ---
 
-## Slide 12: สร้างหน้าแจ้งปัญหาใหม่
+## Slide 15: สร้างหน้าแจ้งปัญหาใหม่
 
-สร้างไฟล์ใหม่: `app/issues/new/page.tsx`
+<LessonCallout type="action">สร้างไฟล์ใหม่ `app/issues/new/page.tsx` แล้วใส่ Code ต่อไปนี้ทั้งไฟล์</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11"
+>
 
 ```tsx
 import { IssueForm } from "@/components/IssueForm";
@@ -414,29 +441,52 @@ export default function NewIssuePage() {
 }
 ```
 
+</CodeChange>
+
 เปิด `http://localhost:3000/issues/new` แล้วควรเห็น Form เดิม เพราะ `IssueForm` ถูกนำกลับมาใช้ซ้ำ
 
 หน้า Home ยังมีทั้ง Form และ List เพื่อใช้ฝึก Mock CRUD ใน Day 3 ส่วน Route ที่แยกไว้จะนำไปต่อกับ Database ใน Day 4
 
 ---
 
-## Slide 13: เพิ่ม Link ไปหน้ารายละเอียด
+## Slide 16: เตรียม Column รายละเอียด
 
-แก้บางส่วน: `components/IssueList.tsx`
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: Import `Link` ด้านบนและเพิ่มหัว Column ต่อจาก `<th>สถานะ</th>`</LessonCallout>
 
-เพิ่ม Import ด้านบน:
+<CodeChange
+  language="tsx"
+  addedLines="1"
+>
 
 ```tsx
 import Link from "next/link";
 ```
 
-เพิ่มหัว Column ต่อจาก `<th>สถานะ</th>`:
+</CodeChange>
+
+<CodeChange
+  language="tsx"
+  addedLines="1"
+>
 
 ```tsx
 <th>รายละเอียด</th>
 ```
 
-เพิ่ม Cell ต่อจาก Status ภายในแต่ละ Row:
+</CodeChange>
+
+`Link` เป็น Component หลักสำหรับเชื่อม Route ภายใน Next.js
+
+---
+
+## Slide 17: เพิ่ม Link ในแต่ละ Row
+
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เพิ่ม Cell ต่อจาก Status ภายในแต่ละ Row</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3"
+>
 
 ```tsx
 <td>
@@ -444,52 +494,36 @@ import Link from "next/link";
 </td>
 ```
 
-หาก `issue.id` เป็น `"001"` ค่า `href` จะกลายเป็น `/issues/001` ส่วน `<Link>` ใช้เปลี่ยนหน้าใน Next.js โดยไม่ต้อง Reload หน้าเว็บทั้งหมด
+</CodeChange>
+
+หาก `issue.id` เป็น `"001"` ค่า `href` จะกลายเป็น `/issues/001` ส่วน `<Link>` ช่วยนำทางแบบ Client-side โดยไม่ Reload เอกสารทั้งหน้า
 
 ---
 
-## Slide 14: Dynamic Route รับ `id` จาก URL
+## Slide 18: Dynamic Route รับ `id` จาก URL
 
-สร้าง Folder และไฟล์ใหม่:
-
-```text
-app/issues/[id]/page.tsx
-```
+Folder ที่ครอบชื่อด้วย `[ ]` คือ **Dynamic Segment** ดังนั้น `app/issues/[id]/page.tsx` จึงใช้ Route เดียวรองรับ Issue ได้หลายรายการ
 
 เมื่อเปิด `/issues/001` Next.js จะส่งค่า `{ id: "001" }` เข้ามาทาง `params`
 
-ใน Next.js เวอร์ชันนี้ `params` เป็น Promise หน้า Dynamic Route จึงต้องเป็น `async` และใช้ `await` ก่อนอ่านค่า:
+ใน Next.js เวอร์ชันนี้ `params` เป็น Promise หน้า Dynamic Route จึงต้องเป็น `async` และใช้ `await` ก่อนอ่านค่า
 
-- **Promise** คือค่าที่อาจยังไม่พร้อมทันที แต่จะส่งผลลัพธ์กลับมาเมื่อทำงานเสร็จ
-- `Promise<{ id: string }>` บอกว่าผลลัพธ์ที่จะได้รับภายหลังมี `id` เป็น String
-- `async` ทำให้ Function สามารถใช้ `await` ได้
-- `await params` รอจน `params` พร้อม แล้วจึงนำ `id` ออกมาใช้
-
-```tsx
-type IssueDetailPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
-
-export default async function IssueDetailPage({
-  params,
-}: IssueDetailPageProps) {
-  const { id } = await params;
-  // ใช้ id ค้นหา Issue
-}
-```
+- `Promise<{ id: string }>` กำหนดว่า `params` จะให้ Object ที่มี `id`
+- `async` ทำให้ Page Function ใช้ `await` ได้
+- `const { id } = await params` รอค่าแล้วดึง `id` ออกมา
 
 ---
 
-## Slide 15: สร้างหน้ารายละเอียดจาก `id`
+## Slide 19: สร้าง Dynamic Page และอ่าน `id`
 
-แทน Code ทั้งไฟล์: `app/issues/[id]/page.tsx`
+<LessonCallout type="action">สร้างไฟล์ใหม่ `app/issues/[id]/page.tsx` แล้วใส่ Code เริ่มต้นต่อไปนี้ทั้งไฟล์</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9,10,11,12,13"
+>
 
 ```tsx
-import { notFound } from "next/navigation";
-import { issues } from "@/data/issue";
-
 type IssueDetailPageProps = {
   params: Promise<{ id: string }>;
 };
@@ -498,12 +532,61 @@ export default async function IssueDetailPage({
   params,
 }: IssueDetailPageProps) {
   const { id } = await params;
+  return <main><h1>Issue #{id}</h1></main>;
+}
+```
+
+</CodeChange>
+
+หน้า `/issues/001` จะแสดง `Issue #001` ยืนยันว่า Page อ่าน `id` จาก URL ได้แล้ว
+
+---
+
+## Slide 20: ค้นหา Issue และรองรับกรณีไม่พบ
+
+<LessonCallout type="action">แก้บางส่วนใน `app/issues/[id]/page.tsx`: เพิ่ม Import ด้านบนและค้นหา Issue ต่อจากบรรทัด `await params`</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2"
+>
+
+```tsx
+import { notFound } from "next/navigation";
+import { issues } from "@/data/issue";
+```
+
+</CodeChange>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5"
+>
+
+```tsx
   const issue = issues.find((item) => item.id === id);
 
   if (!issue) {
     notFound();
   }
+```
 
+</CodeChange>
+
+`.find()` คืน Issue ที่มี `id` ตรงกับ URL ส่วน `notFound()` แสดงหน้า 404 เมื่อค้นหาไม่พบ
+
+---
+
+## Slide 21: แสดงข้อมูลของ Issue ที่ค้นพบ
+
+<LessonCallout type="action">แก้บางส่วนใน `app/issues/[id]/page.tsx`: แทน `return` เดิมด้วย UI รายละเอียดต่อไปนี้</LessonCallout>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8,9,10"
+>
+
+```tsx
   return (
     <main>
       <h1>{issue.title}</h1>
@@ -513,53 +596,78 @@ export default async function IssueDetailPage({
       <p>สถานะ: {issue.status}</p>
     </main>
   );
-}
 ```
 
-`.find()` คืน Issue ที่มี `id` ตรงกับ URL หากไม่พบ `notFound()` จะแสดงหน้า 404 แทนการใช้ข้อมูลที่ไม่มีอยู่
+</CodeChange>
 
 ---
 
-## Slide 16: เพิ่ม Navigation ที่ทุกหน้าใช้ร่วมกัน
+## Slide 22: เพิ่ม Navigation ที่ทุกหน้าใช้ร่วมกัน
 
-แก้บางส่วน: `app/layout.tsx`
+<LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เพิ่ม Import และวาง Navigation ภายใน `<body>` ก่อน `{children}`</LessonCallout>
 
-เพิ่ม Import:
+<CodeChange
+  language="tsx"
+  addedLines="1"
+>
 
 ```tsx
 import Link from "next/link";
 ```
 
-วาง `<nav>` ภายใน `<body>` และก่อน `{children}`:
+</CodeChange>
+
+<CodeChange
+  language="tsx"
+  addedLines="1,2,3,4,5,6,7,8"
+>
 
 ```tsx
-<body>
-  <nav className="app-nav" aria-label="เมนูหลัก">
-    <div className="app-nav-inner">
-      <Link href="/">หน้าแรก</Link>
-      <Link href="/issues">รายการปัญหา</Link>
-      <Link href="/issues/new">แจ้งปัญหาใหม่</Link>
-    </div>
-  </nav>
-
-  {children}
-</body>
+<nav className="app-nav" aria-label="เมนูหลัก">
+  <div className="app-nav-inner">
+    <Link href="/">หน้าแรก</Link>
+    <Link href="/issues">รายการปัญหา</Link>
+    <Link href="/issues/new">แจ้งปัญหาใหม่</Link>
+  </div>
+</nav>
 ```
 
-สิ่งที่อยู่ใน `layout.tsx` จะครอบทุก Route เราจึงเขียน Navigation เพียงครั้งเดียวแต่เห็นได้ทุกหน้า
+</CodeChange>
 
 ---
 
-## Slide 17: ตกแต่ง Navigation
+## Slide 23: ตกแต่งกรอบ Navigation
 
-เพิ่มต่อท้าย: `app/globals.css`
+<LessonCallout type="action">เพิ่ม `.app-nav` ต่อท้าย `app/globals.css` เพื่อสร้างพื้นหลังและเส้นแบ่งของ Navigation</LessonCallout>
+
+<CodeChange
+  language="css"
+  addedLines="1,2,3,4"
+>
 
 ```css
 .app-nav {
   border-bottom: 1px solid #e5e7eb;
-  background: white;
+  background-color: #fff;
 }
+```
 
+</CodeChange>
+
+`background-color: #fff` ทำให้ Navigation แยกจากพื้นหลังของเนื้อหาหลักอย่างชัดเจน
+
+---
+
+## Slide 24: จัด Link ให้รองรับหน้าจอแคบ
+
+<LessonCallout type="action">เพิ่ม `.app-nav-inner` ต่อท้าย `app/globals.css` เพื่อจัดระยะและการเรียง Link</LessonCallout>
+
+<CodeChange
+  language="css"
+  addedLines="1,2,3,4,5,6,7,8"
+>
+
+```css
 .app-nav-inner {
   max-width: 760px;
   margin: 0 auto;
@@ -570,18 +678,19 @@ import Link from "next/link";
 }
 ```
 
-Navigation ใช้ความกว้างเดียวกับเนื้อหาหลัก `display: flex` จัด Link เป็นแถว และ `flex-wrap` ยอมให้ Link ขึ้นบรรทัดใหม่เมื่อหน้าจอแคบ
+</CodeChange>
+
+`display: flex` จัด Link เป็นแถว ส่วน `flex-wrap` ยอมให้ Link ขึ้นบรรทัดใหม่เมื่อหน้าจอแคบ
 
 ---
 
-## Slide 18: ตรวจ Project หลังจบ Day 2
+## Slide 25: ตรวจ Project หลังจบ Day 2
 
-ตรวจว่า:
+<LessonCallout type="action">เปิดแต่ละ Route ใน Browser และตรวจว่า Project ทำงานครบโดยไม่มี Error หรือ Warning</LessonCallout>
 
-- Navigation กดไป `/`, `/issues` และ `/issues/new` ได้
-- `/issues` แสดง `IssueList`
+- Navigation เปิด `/`, `/issues` และ `/issues/new` ได้
+- `/issues` แสดง `IssueList` และ Link เปิด `/issues/001` ได้
 - `/issues/new` แสดง `IssueForm`
-- Link ใน Table เปิด `/issues/001` และแสดงรายละเอียดถูกต้อง
 - `/issues/999` แสดงหน้า 404
 - Terminal และ Browser ไม่มี Error หรือ Warning
 
