@@ -184,21 +184,23 @@ it-issue-nextjs/
 
 ## Slide 9: `app/page.tsx` คือหน้า `/`
 
-ใน App Router ไฟล์ `page.tsx` ใช้สร้างหน้าที่ผู้ใช้เปิดดูได้
+ใน App Router ไฟล์ `app/page.tsx` ใช้สร้างหน้า `/` ที่เปิดผ่าน `http://localhost:3000/`
 
-```text
-app/page.tsx  →  http://localhost:3000/
-```
-
-Code ในไฟล์นี้เป็น React Component ที่ `return` UI ของหน้าแรก
+ไฟล์ที่ติดตั้งมาจริงมี Code เริ่มต้นยาวกว่านี้ ตัวอย่างย่อเก็บไว้เฉพาะ `<div>`, `<main>` และ `className` ที่ใช้จัด Layout:
 
 ```tsx
 export default function Home() {
-  return <h1>ระบบแจ้งปัญหา IT</h1>;
+  return (
+    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+        {/* ... */}
+      </main>
+    </div>
+  );
 }
 ```
 
-Folder จะเป็นตัวกำหนดส่วนของ URL ส่วนไฟล์ชื่อ `page.tsx` ทำให้ URL นั้นเปิดเป็นหน้าเว็บได้
+`Home` คือ Component ของหน้า `/` ส่วน `{/* ... */}` แทน Code ภายในที่ตัดออกให้สไลด์อ่านง่าย ใน Slide 13 เราจะนำหน้า Project ของเราไปแทน Code เดิมทั้งไฟล์
 
 ---
 
