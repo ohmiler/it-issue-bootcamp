@@ -30,154 +30,124 @@ components/IssueList.tsx
 
 ---
 
-## โครงสร้างเวลา 60 นาที
+## Slide 1: เพิ่มการเปลี่ยนสถานะต่อจาก Hour 3
 
-| เวลา | เนื้อหา |
-|---|---|
-| 0-10 นาที | ทบทวน CRUD และ State |
-| 10-25 นาที | Update State แบบ Immutable |
-| 25-45 นาที | ส่ง Handler เข้า `IssueList` และสร้างปุ่ม |
-| 45-55 นาที | ทดสอบทุก Route และทุก Status |
-| 55-60 นาที | สรุป Day 3 และเตรียมเข้า Database |
+หน้า Home สร้าง Issue ใหม่ได้แล้ว โดย `IssueBoard` เก็บ `items` และส่งให้ `IssueList`
 
----
+ชั่วโมงนี้จะให้ List ส่ง `id` และสถานะที่เลือกกลับไปให้ Board เปลี่ยน State
 
-## Slide 1: Recap จาก Hour 3
+- **Create:** เพิ่มรายการจาก Form ได้แล้ว
+- **Read:** แสดงรายการจาก State ได้แล้ว
+- **Update:** กำลังจะเพิ่มการเปลี่ยนสถานะ
+- **Delete:** ไม่เพิ่มใน Project นี้ ใช้ `DONE` เพื่อระบุว่างานเสร็จแล้ว
 
-ตอนนี้หน้า Home ทำงานตาม Flow นี้:
-
-```text
-IssueForm Submit
-      ↓
-อ่านและตรวจข้อมูล
-      ↓
-IssueBoard เพิ่ม Issue เข้า State
-      ↓
-IssueList แสดงรายการใหม่
-```
-
-สิ่งที่ทำได้แล้ว:
-
-| งาน | สถานะ |
-|---|---|
-| Create | เพิ่ม Issue เข้า Mock State ได้ |
-| Read | แสดงรายการจาก State ได้ |
-| Update | ยังเปลี่ยน Status ไม่ได้ |
-
-Hour นี้เราจะเพิ่ม Update โดยยังเก็บข้อมูลไว้ใน Browser เหมือนเดิม
+ทั้งสี่คำเรียกรวมกันว่า CRUD ส่วนข้อมูลยังอยู่ชั่วคราวใน Browser
 
 ---
 
-## Slide 2: ระบบนี้ไม่จำเป็นต้องลบ Issue
+## Slide 2: เปลี่ยน State ด้วยข้อมูลชุดใหม่
 
-CRUD ย่อมาจาก:
-
-| ตัวอักษร | ความหมาย | ตัวอย่างในระบบ |
-|---|---|---|
-| C — Create | สร้างข้อมูล | แจ้งปัญหาใหม่ |
-| R — Read | อ่านข้อมูล | ดูรายการและรายละเอียด |
-| U — Update | แก้ข้อมูล | เปลี่ยน Status |
-| D — Delete | ลบข้อมูล | ไม่ใช้เป็น Flow หลักของระบบนี้ |
-
-เมื่อแก้ปัญหาเสร็จ เราจะเปลี่ยน Status เป็น `DONE` แทนการลบ Issue:
-
-```text
-OPEN → IN_PROGRESS → DONE
-```
-
-การเก็บรายการเดิมไว้ทำให้ยังย้อนดูประวัติได้ จึงไม่ต้องสร้างปุ่ม “ลบ” หรือ “ปิดงาน” แยก เพราะ `DONE` สื่อว่าปิดงานแล้ว
-
----
-
-## Slide 3: ห้ามแก้ State เดิมโดยตรง
-
-ตัวอย่างที่ไม่ควรทำ:
+ตัวอย่างอธิบายที่ไม่ควรใช้ ไม่ต้องนำไปแก้ Project:
 
 ```tsx
 issue.status = "DONE";
 setItems(items);
 ```
 
-โค้ดนี้แก้ Object และ Array เดิม React อาจตรวจไม่พบว่าข้อมูลเปลี่ยน ทำให้ UI ไม่ Render ตามที่คาดไว้
+การส่ง Array เดิมกลับเข้า State อาจทำให้ React ข้ามการ Render เพราะ Reference ยังเป็นตัวเดิม
 
-วิธีที่ควรใช้คือสร้างข้อมูลชุดใหม่:
+วิธีที่เราจะใช้:
 
-```text
-Array เดิม
-   ↓ .map()
-Array ใหม่
-   ↓ ...issue
-Object ใหม่เฉพาะรายการที่ต้องแก้
-```
+1. `.map()` สร้าง Array ใหม่จากรายการเดิม
+2. ถ้า `id` ตรง ให้สร้าง Object ใหม่ด้วย `{ ...issue, status }`
+3. ถ้า `id` ไม่ตรง ให้คืน Object เดิม
 
-แนวทางนี้เรียกว่า **Immutable Update** คือไม่แก้ค่าต้นฉบับ แต่สร้างค่าชุดใหม่จากข้อมูลเดิม
+เรียกว่า **Immutable Update** คือสร้างข้อมูลชุดใหม่โดยไม่แก้ต้นฉบับ
 
 ---
 
-## Slide 4: เพิ่ม Handler สำหรับเปลี่ยน Status
+## Slide 3: เพิ่ม Handler ที่เป็นเจ้าของ State
 
-แก้ `components/IssueBoard.tsx`
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueBoard.tsx`: เพิ่ม `IssueStatus` ใน Type Import เดิม และเพิ่ม Handler ตามตำแหน่งด้านล่าง</LessonCallout>
 
-เพิ่ม `IssueStatus` ใน Type Import เดิม:
+<CodeChange language="tsx" addedLines="1">
 
 ```tsx
 import type { Issue, IssueStatus } from "@/types/issue";
 ```
 
-เพิ่ม Function นี้ต่อจาก `handleCreateIssue()` และก่อน `return`:
+</CodeChange>
+
+เพิ่ม Function นี้ภายใน `IssueBoard` หลัง `handleCreateIssue` และก่อน `return`:
+
+<CodeChange language="tsx" addedLines="1,2,3,4,5,6,7">
 
 ```tsx
 function handleUpdateStatus(id: string, status: IssueStatus) {
   setItems((currentItems) =>
     currentItems.map((issue) =>
-      issue.id === id
-        ? {
-            ...issue,
-            status,
-          }
-        : issue
+      issue.id === id ? { ...issue, status } : issue
     )
   );
 }
 ```
 
-Function รับข้อมูลสองค่า:
+</CodeChange>
 
-- `id` บอกว่าต้องแก้ Issue รายการไหน
-- `status` คือ Status ใหม่ที่ต้องการ
-
-อ่านการทำงานจากด้านนอกเข้าไปด้านใน:
-
-1. `setItems(...)` ใช้เปลี่ยน State ของรายการปัญหา
-2. `currentItems` คือ Array ล่าสุดก่อนแก้ไข
-3. `.map()` วนอ่าน `issue` ทีละรายการและสร้าง Array ใหม่
-4. `issue.id === id` ตรวจว่าเป็นรายการที่ผู้ใช้ต้องการเปลี่ยนหรือไม่
-5. ถ้า ID ตรงกัน จะ Copy ข้อมูลเดิมด้วย `...issue` แล้วแทนค่า `status`
-6. ถ้า ID ไม่ตรงกัน จะคืน `issue` เดิมโดยไม่แก้ไข
-
-ผลลัพธ์คือได้ Array ใหม่ที่เปลี่ยน Status เพียงรายการเดียว แล้ว React Render `IssueList` ใหม่ตาม State ล่าสุด
+`id` ระบุรายการที่จะเปลี่ยน ส่วน `status` คือค่าใหม่; เก็บ State และ Handler สร้างรายการเดิมไว้
 
 ---
 
-## Slide 5: `IssueList` ถูกใช้สองรูปแบบ
+## Slide 4: อ่านการอัปเดตทีละขั้น
 
-ก่อนส่ง `handleUpdateStatus` เข้า `IssueList` ต้องย้อนดูว่า Component นี้ถูกเรียกใช้ที่ไหนบ้าง:
-
-```text
-หน้า Home
-└─ IssueBoard เรียก IssueList → ต้องการปุ่มเปลี่ยน Status
-
-หน้า /issues
-└─ page.tsx เรียก IssueList   → แสดงรายการแบบอ่านอย่างเดียว
-```
-
-ถ้าบังคับให้ทุก `IssueList` ต้องได้รับ `onUpdateStatus` หน้า `/issues` ซึ่งใช้โค้ดนี้จะเกิด TypeScript Error:
+ตัวอย่างอธิบายจาก Handler ที่เพิ่งเพิ่ม:
 
 ```tsx
-<IssueList issues={issues} />
+issue.id === id ? { ...issue, status } : issue
 ```
 
-แต่หน้า `/issues` ไม่ต้องมีปุ่มเปลี่ยน Status จึงไม่ควรสร้าง Handler ที่ไม่ได้ใช้ วิธีแก้คือกำหนด `onUpdateStatus` เป็น **Optional Prop** ใน `components/IssueList.tsx`:
+- `เงื่อนไข ? ค่าถ้าจริง : ค่าถ้าเท็จ` เลือกว่าจะคืนค่าใด
+- `...issue` คัดลอกทุก Field เดิม เช่นหัวข้อและผู้แจ้ง
+- `status` ที่เขียนตามหลังแทนเฉพาะสถานะด้วยค่าใหม่
+
+`setItems` ส่งรายการล่าสุดให้ `currentItems` และ `.map()` คืน Array ใหม่ โดยจำนวนรายการเท่าเดิม
+
+เมื่อกดเปลี่ยนสถานะ จึงควรเปลี่ยนเพียง Badge ของรายการที่เลือก ไม่สร้าง Row เพิ่ม
+
+---
+
+## Slide 5: List เดียวรองรับสองหน้า
+
+`IssueList` ถูกใช้สองจุด และต้องรองรับทั้งคู่:
+
+| จุดที่เรียกใช้ | พฤติกรรมที่ต้องการ |
+|---|---|
+| Home ผ่าน `IssueBoard` | แสดงปุ่มและเปลี่ยน State ได้ |
+| `/issues` ผ่าน `app/issues/page.tsx` | แสดงข้อมูลอย่างเดียว |
+
+เราจะเพิ่ม Callback ชื่อ `onUpdateStatus` เป็น **Optional Prop** ด้วย `?` เหมือน Callback ของ Form ใน Hour 3
+
+ส่ง Callback มา → แสดง Column จัดการ; ไม่ส่งมา → ซ่อนทั้งหัว Column และช่องปุ่ม
+
+หน้า `/issues` จึงยังใช้ `<IssueList issues={issues} />` เดิมได้
+
+---
+
+## Slide 6: ประกาศ Callback ของ IssueList
+
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เพิ่ม `"use client"` ก่อน Import แล้วเพิ่ม `IssueStatus` และ Prop ตามโค้ดด้านล่าง</LessonCallout>
+
+<CodeChange language="tsx" addedLines="1">
+
+```tsx
+"use client";
+```
+
+</CodeChange>
+
+แก้ Type Import และ Props เดิม โดยคง Import อื่นไว้:
+
+<CodeChange language="tsx" addedLines="1,5">
 
 ```tsx
 import type { Issue, IssueStatus } from "@/types/issue";
@@ -188,109 +158,138 @@ type IssueListProps = {
 };
 ```
 
-เครื่องหมาย `?` หมายถึง Parent จะส่ง Function นี้มาหรือไม่ก็ได้
+</CodeChange>
 
-```text
-ส่ง onUpdateStatus มา     → แสดงปุ่มและเปลี่ยน Status ได้
-ไม่ส่ง onUpdateStatus มา  → แสดงรายการแบบอ่านอย่างเดียว
-```
+List กำลังจะรับ `onClick` และยังถูก Server Page `/issues` Import โดยตรง จึงกำหนดขอบเขต Client ที่ไฟล์นี้ด้วย
 
 ---
 
-## Slide 6: ให้ `IssueList` รับ Handler
+## Slide 7: รับ Callback และเตรียมสถานะ
 
-เมื่อ `IssueList` กำลังจะมี `onClick` ให้เพิ่ม `"use client"` เป็นบรรทัดแรกของไฟล์ `components/IssueList.tsx` ก่อน Import:
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เพิ่ม `statuses` หลัง Props Type ก่อน Component และรับ `onUpdateStatus` ใน Parameter เดิม</LessonCallout>
 
-```tsx
-"use client";
-```
-
-จากนั้นแก้ Parameter ของ Function `IssueList`:
-
-```tsx
-export function IssueList({
-  issues,
-  onUpdateStatus,
-}: IssueListProps) {
-```
-
-จากนั้นเพิ่มรายการ Status ไว้เหนือ Function `IssueList`:
+<CodeChange language="tsx" addedLines="1">
 
 ```tsx
 const statuses: IssueStatus[] = ["OPEN", "IN_PROGRESS", "DONE"];
 ```
 
-Array นี้ใช้สร้างปุ่มสามปุ่มด้วย `.map()` แทนการเขียนปุ่มซ้ำทีละสถานะ
+</CodeChange>
 
-`IssueList` ต้องเป็น Client Component เพราะปุ่มใน Slide ถัดไปจะใช้ Event Handler `onClick` ส่วนหน้า `/issues` ยัง Import Client Component นี้จาก Server Component ได้ตามปกติ
+แก้เฉพาะบรรทัดประกาศ Function เดิมเป็น:
+
+<CodeChange language="tsx" addedLines="1">
+
+```tsx
+export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
+```
+
+</CodeChange>
+
+เก็บเงื่อนไข Empty State และ `return` ของตารางภายใน Function ไว้ทั้งหมด
+
+Array `statuses` จะใช้สร้างปุ่มสามปุ่ม โดยแต่ละปุ่มส่งสถานะของตัวเองให้ Callback
 
 ---
 
-## Slide 7: เพิ่ม Column จัดการเมื่อมี Handler
+## Slide 8: เพิ่มหัว Column เมื่อมี Callback
 
-แก้ `<thead>` ใน `components/IssueList.tsx`
+<LessonCallout type="action">เพิ่ม JSX ใหม่ใน `components/IssueList.tsx`: ภายใน `<thead>` และ `<tr>` วางเงื่อนไขต่อจาก `<th>` รายละเอียด ก่อน `</tr>`</LessonCallout>
 
-เพิ่มหัว Column ต่อจาก “รายละเอียด”:
+<CodeChange language="tsx" addedLines="2,3,4">
 
 ```tsx
 <th className="px-3 py-3 font-semibold">รายละเอียด</th>
-
 {onUpdateStatus && (
   <th className="px-3 py-3 font-semibold">จัดการ</th>
 )}
 ```
 
-`onUpdateStatus && (...)` หมายถึง:
+</CodeChange>
 
-- ถ้ามี Handler ให้แสดง Column “จัดการ”
-- ถ้าไม่มี Handler ไม่ต้องสร้าง Column นี้
+บรรทัด “รายละเอียด” เป็นจุดอ้างอิงเดิม ไม่เพิ่มซ้ำ
 
-หน้า `/issues` จึงยังเป็นตารางอ่านอย่างเดียว ส่วนหน้า Home จะแสดงปุ่มเปลี่ยน Status
+`onUpdateStatus && (...)` แสดงหัว Column เมื่อมี Callback เท่านั้น ตอนนี้ยังไม่เห็น Column เพราะ Board ยังไม่ได้ส่ง Callback
 
 ---
 
-## Slide 8: สร้างปุ่มเปลี่ยน Status
+## Slide 9: เพิ่มปุ่มในแต่ละแถว
 
-ภายใน `<tbody>` ให้เพิ่มโค้ดนี้ต่อจาก `<td>` ที่มี Link “ดูรายละเอียด”:
+<LessonCallout type="action">เพิ่ม JSX ใหม่ใน `components/IssueList.tsx`: ภายใน `issues.map()` วางหลัง `<td>` รายละเอียด และก่อน `</tr>` ของแถวนั้น</LessonCallout>
+
+<CodeChange language="tsx" addedLines="1,2,3,4,5,6,7,8,9,10">
 
 ```tsx
 {onUpdateStatus && (
-  <td className="px-3 py-4">
-    <div className="flex flex-wrap gap-2">
+  <td className="px-3 py-4"><div className="flex flex-wrap gap-2">
       {statuses.map((status) => (
-        <button
-          key={status}
-          type="button"
+        <button key={status} type="button"
           disabled={issue.status === status}
-          onClick={() => onUpdateStatus(issue.id, status)}
-          className="rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-        >
-          {status}
-        </button>
+          onClick={() => onUpdateStatus(issue.id, status)}>
+          {status}</button>
       ))}
-    </div>
-  </td>
+  </div></td>
 )}
 ```
 
-- `.map()` สร้างปุ่มจาก `statuses`
-- `onClick` ส่ง ID และ Status ใหม่กลับไปที่ `IssueBoard`
-- `disabled` ปิดปุ่มของ Status ปัจจุบัน เพราะกดแล้วข้อมูลจะไม่เปลี่ยน
-- `type="button"` ป้องกันปุ่มทำหน้าที่ Submit หาก Component ถูกวางอยู่ใกล้ Form
+</CodeChange>
 
-เมื่อเพิ่ม Column “จัดการ” แล้ว ให้เพิ่มพื้นที่ขั้นต่ำของตารางจาก `min-w-[720px]` เป็น `min-w-[920px]`:
+`onClick={() => ...}` เรียก Callback ตอนคลิก; `disabled` ปิดปุ่มของสถานะปัจจุบัน
+
+`type="button"` ระบุว่าเป็นปุ่มทั่วไป ไม่ใช่ปุ่มส่ง Form
+
+---
+
+## Slide 10: ตกแต่งปุ่มสถานะ
+
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เพิ่ม `className` ให้ Tag เปิดของปุ่มภายใน `statuses.map()`</LessonCallout>
+
+<CodeChange language="tsx" addedLines="4,5,6,7">
+
+```tsx
+<button key={status} type="button"
+  disabled={issue.status === status}
+  onClick={() => onUpdateStatus(issue.id, status)}
+  className="rounded-md border border-slate-300 px-2 py-1 text-xs
+    font-semibold text-slate-700 hover:bg-slate-50
+    focus-visible:outline-2 focus-visible:outline-teal-700
+    disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+>
+```
+
+</CodeChange>
+
+แสดงเฉพาะ Tag เปิด ให้เก็บ `{status}`, `</button>` และโครง `.map()` เดิมไว้
+
+`disabled:*` ทำให้ปุ่มที่กดไม่ได้ดูจางลง ส่วน `focus-visible:*` ช่วยเห็นตำแหน่งเมื่อใช้ Keyboard
+
+---
+
+## Slide 11: เพิ่มพื้นที่ให้ Column จัดการ
+
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เปลี่ยนเฉพาะ Class ความกว้างขั้นต่ำที่ Tag เปิด `<table>` เดิม</LessonCallout>
+
+<CodeChange language="tsx" addedLines="1">
 
 ```tsx
 <table className="w-full min-w-[920px] border-collapse text-sm">
 ```
 
-Wrapper เดิมมี `overflow-x-auto` อยู่แล้ว บนจอเล็กจึงเลื่อนเฉพาะตารางโดยไม่ดันทั้งหน้าให้ล้น
+</CodeChange>
+
+เปลี่ยนจาก `min-w-[720px]` เป็น `min-w-[920px]` โดยเก็บเนื้อหาและ Tag ปิดเดิม
+
+Wrapper ต้องยังมี `overflow-x-auto` เพื่อให้เลื่อนเฉพาะตารางบนจอเล็ก
+
+ค่าขั้นต่ำนี้ใช้ทั้ง Home และ `/issues` เพราะใช้ Table เดียวกัน แม้ `/issues` ไม่มี Column จัดการ
 
 ---
 
-## Slide 9: ส่ง Handler จาก `IssueBoard`
+## Slide 12: ต่อ Callback จาก Board
 
-กลับไปที่ `components/IssueBoard.tsx` แล้วแทน `<IssueList>` เดิมด้วย:
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueBoard.tsx`: เพิ่ม Prop `onUpdateStatus` ให้ `<IssueList>` ภายใน Main เดิม</LessonCallout>
+
+<CodeChange language="tsx" addedLines="3">
 
 ```tsx
 <IssueList
@@ -299,122 +298,56 @@ Wrapper เดิมมี `overflow-x-auto` อยู่แล้ว บนจ�
 />
 ```
 
-Flow ตอนกดปุ่มจะเป็น:
+</CodeChange>
 
-```text
-ผู้ใช้กด Status ใน IssueList
-        ↓
-onUpdateStatus(issue.id, status)
-        ↓
-IssueBoard เรียก handleUpdateStatus()
-        ↓
-setItems() สร้าง Array ใหม่
-        ↓
-IssueList Render ด้วย items ชุดใหม่
-```
+เก็บ `<IssueForm onCreateIssue={handleCreateIssue} />` เดิมไว้
 
-`IssueBoard` เป็นเจ้าของ State จึงเป็น Component ที่มีสิทธิ์เปลี่ยน `items` ส่วน `IssueList` เพียงแจ้งว่าผู้ใช้ต้องการทำอะไร
+หน้า Home ควรเห็น Column จัดการแล้ว: คลิกปุ่ม → List ส่ง `id` และ `status` → Board เปลี่ยน `items` → List แสดง Badge ใหม่
+
+`app/issues/page.tsx` ไม่ต้องแก้ เพราะยังแสดงข้อมูลอย่างเดียว
 
 ---
 
-## Slide 10: ทดสอบ Update และ Component Reuse
+## Slide 13: ลองเปลี่ยนสถานะที่ Home
 
-### ทดสอบหน้า Home `/`
+<LessonCallout type="action">เปิดหน้า Home `/` แล้วทดสอบปุ่มกับทั้งรายการเดิมและรายการที่เพิ่มใหม่</LessonCallout>
 
-1. กด `IN_PROGRESS` ของ Issue ที่เป็น `OPEN`
-2. ตรวจว่า Badge เปลี่ยนเป็นสีเหลือง
-3. กด `DONE` แล้วตรวจว่า Badge เปลี่ยนเป็นสีเขียว
-4. ตรวจว่าปุ่มของ Status ปัจจุบันกดไม่ได้
-5. เพิ่ม Issue ใหม่จาก Form แล้วลองเปลี่ยน Status
+1. เลือกรายการที่เป็น `OPEN` แล้วกด `IN_PROGRESS`: Badge ต้องเป็นสีเหลือง
+2. กด `DONE`: Badge ต้องเป็นสีเขียว และปุ่ม `DONE` กดไม่ได้
+3. ตรวจว่าจำนวน Row และข้อมูลของรายการอื่นไม่เปลี่ยน
+4. เพิ่มรายการใหม่จาก Form แล้วลองเปลี่ยนสถานะของรายการใหม่นั้น
+5. กด Tab ไปยังปุ่มสถานะ ต้องเห็นตำแหน่ง Focus และใช้ Enter กดได้
 
-### ทดสอบหน้า `/issues`
-
-1. ตารางยังแสดงรายการครบ
-2. ไม่มี Column “จัดการ”
-3. Link “ดูรายละเอียด” ยังทำงาน
-4. ไม่มี TypeScript Error จากการไม่ส่ง `onUpdateStatus`
-
-### ทดสอบจอเล็ก
-
-ตรวจว่าตารางเลื่อนภายใน Wrapper และหน้าเว็บไม่มี Scrollbar แนวนอนทั้งหน้า
+Demo นี้เลือกกลับไปสถานะอื่นได้ ยังไม่ได้จำกัดลำดับการเปลี่ยนสถานะ
 
 ---
 
-## Slide 11: ข้อจำกัดของ Mock State
+## Slide 14: ตรวจหน้าอ่านอย่างเดียวและจอเล็ก
 
-ตอนนี้ Create และ Update เกิดใน State ของ `IssueBoard`:
+<LessonCallout type="action">เปิด `/issues` แล้วใช้ DevTools ตรวจทั้ง `/` และ `/issues` ที่ความกว้าง 375px และ 1024px</LessonCallout>
 
-```text
-IssueForm / ปุ่ม Status
-          ↓
-       useState
-          ↓
-      IssueList
-```
+- `/issues` ต้องมีห้า Column เดิม ไม่มีหัวข้อ “จัดการ” และไม่มีปุ่มสถานะ
+- Link รายละเอียดของ Mock Data ต้องยังเปิดได้
+- Empty State เดิมยังอยู่ก่อน `return` หลักและไม่ขึ้นกับ Callback
+- ที่ 375px และ 1024px ตารางที่กว้างเกินพื้นที่ต้องเลื่อนภายในกล่อง ไม่ดันทั้งหน้า
+- Console และ Terminal ต้องไม่มี Error
 
-ข้อจำกัด:
-
-- Refresh แล้วข้อมูลกลับเป็น Mock Data เดิม
-- หน้า Home กับ `/issues` ไม่ได้ใช้ State ชุดเดียวกัน
-- หน้า Detail ยังอ่านข้อมูลจาก `data/issue.ts`
-- Browser เครื่องอื่นไม่เห็นข้อมูลที่เราเพิ่มหรือแก้
-- Client Code ไม่ควรเป็นผู้ตรวจสิทธิ์สุดท้าย
-
-State เหมาะสำหรับเรียนรู้การไหลของข้อมูลและการโต้ตอบ แต่ยังไม่ใช่แหล่งเก็บข้อมูลถาวร
+สถานะที่เปลี่ยนใน Home ยังไม่แสดงใน `/issues` เพราะหน้านี้อ่าน Mock Data เดิม
 
 ---
 
-## Slide 12: Day 4 จะเปลี่ยนอะไร
+## Slide 15: จาก State ชั่วคราวไปสู่ Database
 
-Day 3:
+ตอนนี้ Home เพิ่มรายการและเปลี่ยนสถานะได้ แต่ข้อมูลยังอยู่ใน State ของ `IssueBoard`
 
-```text
-Component → useState → UI
-```
-
-Day 4:
-
-```text
-Component → Server → Database → UI
-```
-
-สิ่งที่จะเปลี่ยน:
-
-- Database เป็นแหล่งข้อมูลหลักแทน `useState`
-- Refresh แล้วข้อมูลยังอยู่
-- ทุก Route อ่านข้อมูลชุดเดียวกัน
-- Server ตรวจข้อมูลก่อนบันทึก
-- การเปลี่ยน Status ต้องบันทึกลง Database
-
-Hour นี้ยังไม่ต้องสร้าง Server Action หรือ Database Schema เพราะเราจะเริ่มจากการสร้าง Supabase Project และ Table อย่างเป็นขั้นตอนใน Day 4
-
----
-
-## Slide 13: สรุป Day 3
-
-สิ่งที่ทำได้ใน Day 3:
-
-- เปลี่ยน UI จาก Custom CSS มาใช้ Tailwind
-- ทำให้ Form และ Table Responsive
-- แยก Server Component และ Client Component
-- อ่าน Form ด้วย `FormData`
-- ตรวจข้อมูลและแสดง Error
-- Create Issue ใน Mock State
-- Update Status แบบ Immutable
-- ใช้ Optional Props เพื่อให้ Component เดิมรองรับหลายหน้า
-
-ตอนนี้โปรเจกต์เป็น Frontend Prototype ที่โต้ตอบได้แล้ว แต่ข้อมูลยังอยู่ใน Browser เท่านั้น
-
-ขั้นต่อไปคือเปลี่ยนจาก Mock Data ไปใช้ Supabase เป็นแหล่งข้อมูลจริง
-
----
-
-## คำศัพท์สำคัญ
-
-| คำศัพท์ | ความหมาย |
+| ตอนนี้ | หลังเชื่อม Database ใน Day 4 |
 |---|---|
-| CRUD | Create, Read, Update และ Delete |
-| Immutable Update | สร้างข้อมูลชุดใหม่แทนการแก้ Array หรือ Object เดิม |
-| Optional Prop | Props ที่ Parent จะส่งมาหรือไม่ก็ได้ |
-| Source of Truth | แหล่งข้อมูลหลักที่ระบบเชื่อถือ |
-| Mock State | ข้อมูลจำลองที่เก็บชั่วคราวใน Browser |
+| Refresh แล้วการเพิ่มและแก้หาย | บันทึกแล้วอ่านกลับได้ |
+| Route อื่นอ่าน Mock Data เดิม | ทุก Route อ่านแหล่งข้อมูลเดียวกัน |
+| เปลี่ยนเฉพาะใน Browser นี้ | Browser อื่นอ่านค่าที่บันทึกแล้วได้ |
+
+ขั้นต่อไปคือสร้าง Supabase Project และ Table ก่อนย้ายการอ่านและบันทึกไปฝั่ง Server
+
+Server ยังต้องตรวจข้อมูลและสิทธิ์; การซ่อนปุ่มใน Client เป็นเพียงการจัด UI
+
+---
