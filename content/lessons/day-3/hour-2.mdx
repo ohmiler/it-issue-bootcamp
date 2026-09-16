@@ -417,17 +417,13 @@ CSS ส่วนอื่นถูกลบไปพร้อมกับ Compon
 
 เมื่อ `IssueForm` และ `IssueList` มี Tailwind Class ที่กล่อง `<section>` ของตัวเองแล้ว จึงลบ `section { ... }` เดิมได้เป็นรายการสุดท้าย
 
-เก็บ Global Style ที่ยังใช้งาน:
+เก็บ Global Style ที่ยังใช้งานภายใน `@layer base` รวมถึง `main` สำหรับ Route ที่ยังไม่ได้ย้าย โดยตัวอย่างนี้แสดงเพียงบางส่วน:
 
 ```css
 @import "tailwindcss";
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
+@layer base {
+  /* เก็บ *, body และ main เดิมไว้ครบ */
 }
 ```
 
@@ -437,7 +433,7 @@ body {
 
 ## Slide 13: ปรับหน้า `/issues` แล้วตรวจ Responsive
 
-หลังลบ Global Style ของ `main` หน้า `/issues` อาจกว้างเต็มจอ เพราะไฟล์นี้ยังไม่ได้ใส่ Tailwind Class ให้ Layout ของตัวเอง
+Hour 1 ยังเก็บ Style พื้นฐานของ `main` ไว้ให้ Route อื่น ตอนนี้ให้หน้า `/issues` กำหนด Layout ด้วย Tailwind เพื่อให้ความกว้างตรงกับหน้า Home
 
 แทนโค้ดทั้งไฟล์ `app/issues/page.tsx` ด้วย:
 
