@@ -472,22 +472,26 @@ Textarea เพิ่ม `resize-y` เพื่อให้ปรับขน�
 
 ## Slide 20: ลบ Style ของโครงหน้าที่แทนแล้ว
 
-<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบกฎของ Navigation, Header และ Footer ที่ย้ายแล้วออกจากภายใน `@layer base`</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ Block ของ Navigation, Header, Footer และ `.issue-list` ออกจากภายใน `@layer base`</LessonCallout>
 
-ตัวอย่างย่อระบุ Block ที่ต้องลบ: ลบ Selector พร้อม Property ทั้ง Block ไม่คัดลอก Comment ไปแทน CSS จริง
+ตัวอย่างย่ออ้างอิงโครงสร้าง CSS ปัจจุบัน ให้ลบ Selector พร้อม Property ทั้ง Block ไม่คัดลอก Comment ไปแทน CSS จริง
 
-<CodeChange language="css" removedLines="1,2,3,4,5,6">
+<CodeChange language="css" removedLines="1,2,3,4,5,6,7,8">
 
 ```css
 .app-nav { /* Property เดิม */ }
 .app-nav-inner { /* Property เดิม */ }
-header { /* Property เดิม */ }
-header h1 { /* Property เดิม */ }
+header {
+  /* Property เดิม */
+  h1 { /* Property เดิม */ }
+}
 footer { /* Property เดิม */ }
-section + section { /* ลบหากยังมีอยู่ */ }
+.issue-list { /* margin-top: 24px; */ }
 ```
 
 </CodeChange>
+
+ลบ `header` ทั้ง Block รวม `h1` ที่ซ้อนอยู่ด้านใน ส่วน `.issue-list` ต้องลบตอนนี้เพราะ `gap-6` ของ `<main>` ทำหน้าที่เว้นระยะระหว่าง Form กับ List แล้ว หากเก็บไว้จะเกิดระยะซ้ำ
 
 เก็บ `main` ไว้ให้ `/issues`, `/issues/new`, `/issues/[id]` และหน้า Not Found ที่ยังไม่ได้ใส่ Utility ของ Layout
 
@@ -495,13 +499,13 @@ section + section { /* ลบหากยังมีอยู่ */ }
 
 ---
 
-## Slide 21: ลบ Style เดิมของ Form
+## Slide 21: ลบ Style เดิมของ Field
 
-<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบกฎต่อไปนี้ภายใน `@layer base` หลังทุก Field และปุ่มใน `IssueForm.tsx` มี Utility แล้ว</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ Block ของ Field ต่อไปนี้ภายใน `@layer base` หลังทุกช่องใน `IssueForm.tsx` มี Utility แล้ว</LessonCallout>
 
 ตัวอย่างย่อระบุ Block ที่ต้องลบทั้งก้อน ไม่คัดลอก Comment ไปแทน CSS จริง
 
-<CodeChange language="css" removedLines="1,2,3,4,5,6,7,8,9,10">
+<CodeChange language="css" removedLines="1,2,3,4,5,6,7">
 
 ```css
 fieldset { /* Property เดิม */ }
@@ -509,22 +513,43 @@ legend { /* Property เดิม */ }
 .form-group { /* Property เดิม */ }
 label { /* Property เดิม */ }
 input, textarea { /* Property เดิม */ }
-textarea { /* Property เดิม */ }
 input:focus, textarea:focus { /* Property เดิม */ }
-button { /* Property เดิม */ }
-button:hover { /* Property เดิม */ }
-.form-row { /* ลบกฎนี้ภายใน @media (min-width: 720px) */ }
+textarea { /* resize: vertical; */ }
 ```
 
 </CodeChange>
 
-ถ้า Media Query มีเพียง `.form-row` ให้ลบทั้ง `@media` แต่ถ้ามีกฎอื่น ให้เก็บกฎเหล่านั้นไว้
+หลังลบ ช่องกรอกควรยังมีเส้นขอบ ระยะภายใน และ Focus Ring จาก Utility ที่เพิ่มไว้
+
+---
+
+## Slide 22: ลบ Style เดิมของปุ่มและ Form Row
+
+<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ `button` ทั้ง Block รวม `&:hover` ที่ซ้อนอยู่ แล้วลบ `@media` ที่มี `.form-row`</LessonCallout>
+
+ตัวอย่างย่ออ้างอิง Nested CSS ปัจจุบัน ให้ลบทั้งสอง Block ไม่คัดลอก Comment ไปแทน CSS จริง
+
+<CodeChange language="css" removedLines="1,2,3,4,5,6,7">
+
+```css
+button {
+  /* Property เดิม */
+  &:hover { /* Property เดิม */ }
+}
+@media (min-width: 720px) {
+  .form-row { /* Property เดิม */ }
+}
+```
+
+</CodeChange>
+
+Media Query นี้มีเพียง `.form-row` จึงลบทั้ง `@media` ได้ หลังลบปุ่มควรยังมีสี Hover และ Focus Ring จาก Tailwind
 
 หลังลบ Form ควรยังมี Style จาก Utility ส่วน Import, `@layer base`, `*`, `body`, `main`, `section`, Table และ Status ยังอยู่
 
 ---
 
-## Slide 22: ตรวจผลลัพธ์หลังจบ Hour 1
+## Slide 23: ตรวจผลลัพธ์หลังจบ Hour 1
 
 <LessonCallout type="action">รัน `npm run dev` ที่ Project Root หาก Server ยังไม่ทำงาน แล้วเปิด `/`, `/issues`, `/issues/new` และ `/issues/001` เพื่อลอง UI</LessonCallout>
 

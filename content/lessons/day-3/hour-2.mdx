@@ -34,12 +34,13 @@ app/issues/page.tsx
 
 ## Slide 1: ต่อจาก UI ใน Hour 1
 
-Navigation และ Form ใช้ Tailwind แล้ว ส่วน `StatusBadge` และ `IssueList` ยังใช้ CSS เดิมภายใน `@layer base`
+Navigation และ Form ใช้ Tailwind แล้ว ส่วน `StatusBadge` และ Table ใน `IssueList` ยังใช้ CSS เดิมภายใน `@layer base`
 
 ชั่วโมงนี้จะย้ายสอง Component ที่เหลือ แล้วเพิ่มข้อความเมื่อไม่มีรายการ
 
 - ใช้ `issues` และ Props เดิมจาก Day 2
 - เก็บ Import, Type และ Link รายละเอียดไว้
+- CSS ของ `.issue-list` ถูกลบใน Hour 1 แล้ว เพราะ `<main>` ใช้ `gap-6` แทนระยะด้านบน
 - `main` ยังเป็น Style พื้นฐานของ Route ที่ยังไม่ได้ย้าย
 
 ลำดับงาน: สีสถานะ → ตารางบนจอเล็ก → ข้อความเมื่อไม่มีข้อมูล
@@ -263,10 +264,9 @@ Badge ควรยังแสดงข้อความ `OPEN`, `IN_PROGRESS` 
 
 ตัวอย่างย่อระบุ Block ที่ลบทั้งก้อน ไม่คัดลอก Comment ไปแทนโค้ดจริง
 
-<CodeChange language="css" removedLines="1,2,3,4,5,6">
+<CodeChange language="css" removedLines="1,2,3,4,5">
 
 ```css
-.issue-list { /* Property เดิม */ }
 .table-wrapper { /* Property เดิม */ }
 table { /* Property เดิม */ }
 th, td { /* Property เดิมของกฎร่วม */ }
@@ -276,7 +276,7 @@ section { /* Property เดิม */ }
 
 </CodeChange>
 
-`IssueForm` และ `IssueList` มี Utility ที่ Section แล้ว จึงลบ `section` กลางได้
+`.issue-list` ถูกลบไปแล้วใน Hour 1 ส่วน `IssueForm` และ `IssueList` มี Utility ที่ Section แล้ว จึงลบ `section` กลางได้
 
 เก็บ Import, วงเล็บของ `@layer base`, `*`, `body` และ `main` ไว้; หลังลบ Form และตารางควรยังมี Style ครบ
 
