@@ -8,7 +8,7 @@ source: "day-3-hour-4-mock-crud-and-database-prep.md"
 
 # Mock CRUD and Database Prep
 
-## Day 3 - ชั่วโมงที่ 4: เปลี่ยนสถานะใน Mock State
+## Day 3 - ชั่วโมงที่ 4: เปลี่ยนสถานะในข้อมูลชั่วคราว
 
 ### เป้าหมายของชั่วโมงนี้
 
@@ -16,10 +16,10 @@ source: "day-3-hour-4-mock-crud-and-database-prep.md"
 
 1. อธิบาย Create, Read และ Update ในโปรเจกต์ปัจจุบันได้
 2. เปลี่ยน Status ของ Issue ใน State ได้
-3. Update Array และ Object แบบไม่แก้ค่าเดิมโดยตรง
-4. ส่ง Event Handler จาก Parent ไปยัง Child ผ่าน Props
+3. เปลี่ยนข้อมูลใน Array และ Object โดยสร้างชุดใหม่แทนการแก้ชุดเดิม
+4. ส่งฟังก์ชันจาก Component ที่ครอบอยู่ไปให้ Component ลูกเรียกใช้
 5. ทำให้ `IssueList` ใช้ได้ทั้งแบบอ่านอย่างเดียวและแบบแก้สถานะได้
-6. อธิบายข้อจำกัดของ Mock State ก่อนเชื่อม Database ได้
+6. อธิบายข้อจำกัดของข้อมูลชั่วคราว ก่อนเชื่อมฐานข้อมูลได้
 
 ### ไฟล์ที่แก้
 
@@ -32,14 +32,14 @@ components/IssueList.tsx
 
 ## Slide 1: เพิ่มการเปลี่ยนสถานะต่อจาก Hour 3
 
-หน้า Home สร้าง Issue ใหม่ได้แล้ว โดย `IssueBoard` เก็บ `items` และส่งให้ `IssueList`
+หน้า Home สร้าง Issue ใหม่ได้แล้ว โดย `IssueBoard` เก็บ `items` ใน State หรือข้อมูลที่ Component จำไว้ แล้วส่งให้ `IssueList`
 
 ชั่วโมงนี้จะให้ List ส่ง `id` และสถานะที่เลือกกลับไปให้ Board เปลี่ยน State
 
-- **Create:** เพิ่มรายการจาก Form ได้แล้ว
-- **Read:** แสดงรายการจาก State ได้แล้ว
-- **Update:** กำลังจะเพิ่มการเปลี่ยนสถานะ
-- **Delete:** ไม่เพิ่มใน Project นี้ ใช้ `DONE` เพื่อระบุว่างานเสร็จแล้ว
+- **Create (เพิ่ม):** เพิ่มรายการจากฟอร์มได้แล้ว
+- **Read (อ่าน):** แสดงรายการจาก State ได้แล้ว
+- **Update (แก้ไข):** กำลังจะเพิ่มการเปลี่ยนสถานะ
+- **Delete (ลบ):** ไม่เพิ่มการลบใน Project นี้ ใช้ `DONE` เพื่อระบุว่างานเสร็จแล้ว
 
 ทั้งสี่คำเรียกรวมกันว่า CRUD ส่วนข้อมูลยังอยู่ชั่วคราวใน Browser
 
@@ -54,7 +54,7 @@ issue.status = "DONE";
 setItems(items);
 ```
 
-การส่ง Array เดิมกลับเข้า State อาจทำให้ React ข้ามการ Render เพราะ Reference ยังเป็นตัวเดิม
+การส่ง Array เดิมกลับเข้า State อาจทำให้ React ข้ามการคำนวณหน้าจอใหม่ เพราะยังอ้างถึงข้อมูลก้อนเดิม แม้ค่าภายในจะเปลี่ยนแล้ว
 
 วิธีที่เราจะใช้:
 
@@ -66,9 +66,9 @@ setItems(items);
 
 ---
 
-## Slide 3: เพิ่ม Handler ที่เป็นเจ้าของ State
+## Slide 3: เพิ่มฟังก์ชันเปลี่ยนสถานะใน Board
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueBoard.tsx`: เพิ่ม `IssueStatus` ใน Type Import เดิม และเพิ่ม Handler ตามตำแหน่งด้านล่าง</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueBoard.tsx`: นำเข้า Type `IssueStatus` เพิ่มใน Import เดิม และเพิ่มฟังก์ชันตามตำแหน่งด้านล่าง</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1">
 
@@ -107,12 +107,12 @@ issue.id === id ? { ...issue, status } : issue
 ```
 
 - `เงื่อนไข ? ค่าถ้าจริง : ค่าถ้าเท็จ` เลือกว่าจะคืนค่าใด
-- `...issue` คัดลอกทุก Field เดิม เช่นหัวข้อและผู้แจ้ง
+- `...issue` คัดลอกข้อมูลทุกช่องของ Object เดิม เช่นหัวข้อและผู้แจ้ง
 - `status` ที่เขียนตามหลังแทนเฉพาะสถานะด้วยค่าใหม่
 
 `setItems` ส่งรายการล่าสุดให้ `currentItems` และ `.map()` คืน Array ใหม่ โดยจำนวนรายการเท่าเดิม
 
-เมื่อกดเปลี่ยนสถานะ จึงควรเปลี่ยนเพียง Badge ของรายการที่เลือก ไม่สร้าง Row เพิ่ม
+เมื่อกดเปลี่ยนสถานะ จึงควรเปลี่ยนเพียงป้ายสถานะของรายการที่เลือก ไม่สร้างแถวเพิ่ม
 
 ---
 
@@ -125,9 +125,9 @@ issue.id === id ? { ...issue, status } : issue
 | Home ผ่าน `IssueBoard` | แสดงปุ่มและเปลี่ยน State ได้ |
 | `/issues` ผ่าน `app/issues/page.tsx` | แสดงข้อมูลอย่างเดียว |
 
-เราจะเพิ่ม Callback ชื่อ `onUpdateStatus` เป็น **Optional Prop** ด้วย `?` เหมือน Callback ของ Form ใน Hour 3
+เราจะเพิ่ม Callback ชื่อ `onUpdateStatus` ให้ List เรียกเมื่อกดปุ่ม โดยเป็น **Optional Prop** หรือค่าที่จะส่งมาก็ได้ ไม่ส่งก็ได้ ใช้ `?` เหมือนฟอร์มใน Hour 3
 
-ส่ง Callback มา → แสดง Column จัดการ; ไม่ส่งมา → ซ่อนทั้งหัว Column และช่องปุ่ม
+ส่ง Callback มา → แสดงคอลัมน์จัดการ; ไม่ส่งมา → ซ่อนทั้งหัวคอลัมน์และช่องปุ่ม
 
 หน้า `/issues` จึงยังใช้ `<IssueList issues={issues} />` เดิมได้
 
@@ -160,13 +160,13 @@ type IssueListProps = {
 
 </CodeChange>
 
-List กำลังจะรับ `onClick` และยังถูก Server Page `/issues` Import โดยตรง จึงกำหนดขอบเขต Client ที่ไฟล์นี้ด้วย
+List กำลังจะรับการคลิกผ่าน `onClick` และหน้า `/issues` ที่ทำงานฝั่ง Server ยังนำไปใช้โดยตรง จึงใส่ `"use client"` ที่ไฟล์นี้ด้วย
 
 ---
 
 ## Slide 7: รับ Callback และเตรียมสถานะ
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เพิ่ม `statuses` หลัง Props Type ก่อน Component และรับ `onUpdateStatus` ใน Parameter เดิม</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เพิ่ม `statuses` หลัง Type ของ Props ก่อน Component และรับ `onUpdateStatus` เพิ่มในค่าที่ฟังก์ชันรับเข้ามา</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1">
 
@@ -192,7 +192,7 @@ Array `statuses` จะใช้สร้างปุ่มสามปุ่ม
 
 ---
 
-## Slide 8: เพิ่มหัว Column เมื่อมี Callback
+## Slide 8: เพิ่มหัวคอลัมน์เมื่อมี Callback
 
 <LessonCallout type="action">เพิ่ม JSX ใหม่ใน `components/IssueList.tsx`: ภายใน `<thead>` และ `<tr>` วางเงื่อนไขต่อจาก `<th>` รายละเอียด ก่อน `</tr>`</LessonCallout>
 
@@ -209,7 +209,7 @@ Array `statuses` จะใช้สร้างปุ่มสามปุ่ม
 
 บรรทัด “รายละเอียด” เป็นจุดอ้างอิงเดิม ไม่เพิ่มซ้ำ
 
-`onUpdateStatus && (...)` แสดงหัว Column เมื่อมี Callback เท่านั้น ตอนนี้ยังไม่เห็น Column เพราะ Board ยังไม่ได้ส่ง Callback
+`onUpdateStatus && (...)` แสดงหัวคอลัมน์เมื่อมี Callback เท่านั้น ตอนนี้ยังไม่เห็นคอลัมน์ เพราะ Board ยังไม่ได้ส่ง Callback
 
 ---
 
@@ -231,7 +231,7 @@ Array `statuses` จะใช้สร้างปุ่มสามปุ่ม
 
 </CodeChange>
 
-เมื่อมี Callback จึงสร้างช่องจัดการให้ตรงกับหัว Column; เก็บ Cell รายละเอียดและ Link เดิมไว้
+เมื่อมี Callback จึงสร้างช่องจัดการให้ตรงกับหัวคอลัมน์; เก็บช่องรายละเอียดและลิงก์เดิมไว้
 
 Comment เป็นจุดวางปุ่มในขั้นถัดไป ส่วน `flex-wrap` จะช่วยให้ปุ่มขึ้นบรรทัดใหม่ได้
 
@@ -285,11 +285,11 @@ Comment เป็นจุดวางปุ่มในขั้นถัดไ
 
 แสดงเฉพาะ Tag เปิด ให้เก็บ `{status}`, `</button>` และโครง `.map()` เดิมไว้
 
-`disabled:*` ทำให้ปุ่มที่กดไม่ได้ดูจางลง ส่วน `focus-visible:*` ช่วยเห็นตำแหน่งเมื่อใช้ Keyboard
+`disabled:*` ทำให้ปุ่มที่กดไม่ได้ดูจางลง ส่วน `focus-visible:*` ช่วยเห็นตำแหน่งเมื่อใช้แป้นพิมพ์
 
 ---
 
-## Slide 12: เพิ่มพื้นที่ให้ Column จัดการ
+## Slide 12: เพิ่มพื้นที่ให้คอลัมน์จัดการ
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เปลี่ยนเฉพาะ Class ความกว้างขั้นต่ำที่ Tag เปิด `<table>` เดิม</LessonCallout>
 
@@ -303,9 +303,9 @@ Comment เป็นจุดวางปุ่มในขั้นถัดไ
 
 เปลี่ยนจาก `min-w-[720px]` เป็น `min-w-[920px]` โดยเก็บเนื้อหาและ Tag ปิดเดิม
 
-Wrapper ต้องยังมี `overflow-x-auto` เพื่อให้เลื่อนเฉพาะตารางบนจอเล็ก
+กล่องที่ครอบตารางต้องยังมี `overflow-x-auto` เพื่อให้เลื่อนเฉพาะตารางบนจอเล็ก
 
-ค่าขั้นต่ำนี้ใช้ทั้ง Home และ `/issues` เพราะใช้ Table เดียวกัน แม้ `/issues` ไม่มี Column จัดการ
+ค่าขั้นต่ำนี้ใช้ทั้ง Home และ `/issues` เพราะใช้ตารางเดียวกัน แม้ `/issues` ไม่มีคอลัมน์จัดการ
 
 ---
 
@@ -326,7 +326,7 @@ Wrapper ต้องยังมี `overflow-x-auto` เพื่อให้�
 
 เก็บ `<IssueForm onCreateIssue={handleCreateIssue} />` เดิมไว้
 
-หน้า Home ควรเห็น Column จัดการแล้ว: คลิกปุ่ม → List ส่ง `id` และ `status` → Board เปลี่ยน `items` → List แสดง Badge ใหม่
+หน้า Home ควรเห็นคอลัมน์จัดการแล้ว: คลิกปุ่ม → List ส่ง `id` และ `status` → Board เปลี่ยน `items` → List แสดงป้ายสถานะใหม่
 
 `app/issues/page.tsx` ไม่ต้องแก้ เพราะยังแสดงข้อมูลอย่างเดียว
 
@@ -336,21 +336,21 @@ Wrapper ต้องยังมี `overflow-x-auto` เพื่อให้�
 
 <LessonCallout type="action">เปิดหน้า Home `/` แล้วทดสอบปุ่มกับทั้งรายการเดิมและรายการที่เพิ่มใหม่</LessonCallout>
 
-1. เลือกรายการที่เป็น `OPEN` แล้วกด `IN_PROGRESS`: Badge ต้องเป็นสีเหลือง
-2. กด `DONE`: Badge ต้องเป็นสีเขียว และปุ่ม `DONE` กดไม่ได้
-3. ตรวจว่าจำนวน Row และข้อมูลของรายการอื่นไม่เปลี่ยน
+1. เลือกรายการที่เป็น `OPEN` แล้วกด `IN_PROGRESS`: ป้ายสถานะต้องเป็นสีเหลือง
+2. กด `DONE`: ป้ายสถานะต้องเป็นสีเขียว และปุ่ม `DONE` กดไม่ได้
+3. ตรวจว่าจำนวนแถวและข้อมูลของรายการอื่นไม่เปลี่ยน
 4. เพิ่มรายการใหม่จาก Form แล้วลองเปลี่ยนสถานะของรายการใหม่นั้น
-5. กด Tab ไปยังปุ่มสถานะ ต้องเห็นตำแหน่ง Focus และใช้ Enter กดได้
+5. กด Tab ไปยังปุ่มสถานะ ต้องเห็นเส้นรอบปุ่มที่ถูกเลือก และใช้ Enter กดได้
 
-Demo นี้เลือกกลับไปสถานะอื่นได้ ยังไม่ได้จำกัดลำดับการเปลี่ยนสถานะ
+ตัวอย่างนี้เลือกกลับไปสถานะอื่นได้ ยังไม่ได้จำกัดลำดับการเปลี่ยนสถานะ
 
 ---
 
 ## Slide 15: ตรวจหน้าอ่านอย่างเดียวและจอเล็ก
 
-<LessonCallout type="action">เปิด `/issues` แล้วใช้ DevTools ตรวจทั้ง `/` และ `/issues` ที่ความกว้าง 375px และ 1024px</LessonCallout>
+<LessonCallout type="action">เปิด `/issues` แล้วใช้เครื่องมือนักพัฒนาใน Browser (DevTools) ตรวจทั้ง `/` และ `/issues` ที่ความกว้าง 375px และ 1024px</LessonCallout>
 
-- `/issues` ต้องมีห้า Column เดิม ไม่มีหัวข้อ “จัดการ” และไม่มีปุ่มสถานะ
+- `/issues` ต้องมีห้าคอลัมน์เดิม ไม่มีหัวข้อ “จัดการ” และไม่มีปุ่มสถานะ
 - Link รายละเอียดของ Mock Data ต้องยังเปิดได้
 - Empty State เดิมยังอยู่ก่อน `return` หลักและไม่ขึ้นกับ Callback
 - ที่ 375px และ 1024px ตารางที่กว้างเกินพื้นที่ต้องเลื่อนภายในกล่อง ไม่ดันทั้งหน้า
@@ -367,11 +367,11 @@ Demo นี้เลือกกลับไปสถานะอื่นได
 | ตอนนี้ | หลังเชื่อม Database ใน Day 4 |
 |---|---|
 | Refresh แล้วการเพิ่มและแก้หาย | บันทึกแล้วอ่านกลับได้ |
-| Route อื่นอ่าน Mock Data เดิม | ทุก Route อ่านแหล่งข้อมูลเดียวกัน |
+| หน้าอื่นอ่านข้อมูลตัวอย่างเดิม | ทุกหน้าอ่านแหล่งข้อมูลเดียวกัน |
 | เปลี่ยนเฉพาะใน Browser นี้ | Browser อื่นอ่านค่าที่บันทึกแล้วได้ |
 
-ขั้นต่อไปคือสร้าง Supabase Project และ Table ก่อนย้ายการอ่านและบันทึกไปฝั่ง Server
+ขั้นต่อไปคือสร้างโปรเจกต์บน Supabase และตารางในฐานข้อมูล ก่อนย้ายการอ่านและบันทึกไปฝั่ง Server
 
-Server ยังต้องตรวจข้อมูลและสิทธิ์; การซ่อนปุ่มใน Client เป็นเพียงการจัด UI
+Server ยังต้องตรวจข้อมูลและตรวจว่าใครมีสิทธิ์แก้ไข การซ่อนปุ่มในหน้าเว็บอย่างเดียวไม่ได้ป้องกันการแก้ข้อมูล
 
 ---

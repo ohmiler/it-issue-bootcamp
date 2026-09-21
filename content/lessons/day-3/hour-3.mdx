@@ -15,12 +15,12 @@ source: "day-3-hour-3-form-state-and-validation.md"
 หลังจบชั่วโมงนี้ นักศึกษาจะสามารถ:
 
 1. แยกความต่างระหว่าง Server Component และ Client Component ได้
-2. ใช้ `"use client"` เมื่อต้องใช้ State หรือ Event Handler
+2. ใช้ `"use client"` เมื่อต้องเก็บข้อมูลที่เปลี่ยนได้หรือรับการกดส่งฟอร์ม
 3. ใช้ `useState` เก็บรายการปัญหาชั่วคราวใน Browser
 4. อ่านค่าจาก Form ด้วย `FormData`
 5. ตรวจข้อมูลและแสดงข้อความ Error
-6. เพิ่มปัญหาใหม่เข้า Mock List โดยยังไม่ใช้ Database
-7. อธิบายได้ว่าทำไม Frontend Validation ยังไม่เพียงพอสำหรับความปลอดภัย
+6. เพิ่มปัญหาใหม่ในรายการตัวอย่าง โดยยังไม่ใช้ฐานข้อมูล
+7. อธิบายได้ว่าทำไมการตรวจข้อมูลใน Browser อย่างเดียวยังไม่เพียงพอ
 
 ### ไฟล์ที่ใช้
 
@@ -44,25 +44,29 @@ data/issue.ts
 
 ตอนนี้ Form และ List มีหน้าตาพร้อมแล้ว แต่การกดส่งยังไม่เพิ่มรายการ
 
-ชั่วโมงนี้เราจะต่อการทำงาน: อ่าน Form → ตรวจข้อมูล → เพิ่มรายการใน State → แสดง List ใหม่
+ชั่วโมงนี้เราจะต่อการทำงาน: อ่านฟอร์ม → ตรวจข้อมูล → เพิ่มรายการใน State → แสดงรายการใหม่
 
-`IssueBoard` จะเก็บรายการให้ Form และ List ใช้ร่วมกัน โดยเริ่มจาก Mock Data เดิม
+**State** คือข้อมูลที่ Component จำไว้ เช่น รายการปัญหาปัจจุบัน เมื่อเปลี่ยนผ่านฟังก์ชันที่ React ให้มา หน้าจอจะเปลี่ยนตาม
 
-ข้อมูลใหม่ยังอยู่ชั่วคราวในหน้า Home และยังไม่บันทึกลง Database
+`IssueBoard` จะเก็บรายการให้ฟอร์มและตารางใช้ร่วมกัน โดยเริ่มจากข้อมูลตัวอย่าง (Mock Data) เดิม
+
+ข้อมูลใหม่ยังอยู่ชั่วคราวในหน้า Home และยังไม่บันทึกลงฐานข้อมูล (Database)
 
 ---
 
 ## Slide 2: เลือกส่วนที่ต้องเป็น Client Component
 
-หน้าและ Layout เป็น **Server Component** โดยค่าเริ่มต้น ส่วนที่ต้องใช้ State หรือรับ Event ต้องอยู่ใน **Client Component**
+**Server Component** ทำงานฝั่ง Server ซึ่งเป็นเครื่องที่ให้บริการเว็บ โดยหน้าและ Layout เป็นแบบนี้ตั้งแต่ต้น
+
+**Client Component** ใช้ความสามารถฝั่ง Browser ได้ เช่น เก็บ State และรับการกดส่งฟอร์ม จึงใช้กับส่วนที่ผู้ใช้โต้ตอบ
 
 | ไฟล์ | หน้าที่ในชั่วโมงนี้ |
 |---|---|
 | `app/page.tsx` | Server: ส่ง Mock Data เริ่มต้น |
 | `IssueBoard.tsx` | Client: เก็บรายการที่เปลี่ยนได้ |
-| `IssueForm.tsx` | Client: รับ Submit และแสดง Error |
+| `IssueForm.tsx` | Client: รับการส่งฟอร์มและแสดงข้อผิดพลาด |
 
-Client Component ยังอาจถูก Render เป็น HTML บน Server ตอนเปิดหน้า จึงใช้ Browser API ใน Event Handler ที่ทำงานใน Browser ไม่เรียกตอน Render โดยตรง
+ตอนเปิดหน้า Next.js อาจเตรียม HTML ของ Client Component บน Server ก่อน ส่วนโค้ดรับการคลิกหรือส่งฟอร์มทำงานใน Browser
 
 ---
 
@@ -76,17 +80,17 @@ Client Component ยังอาจถูก Render เป็น HTML บน Ser
 import { useState } from "react";
 ```
 
-`"use client"` อยู่ก่อน Import เพื่อกำหนดจุดเริ่มต้นของฝั่ง Client และไฟล์ที่ Import ต่อจากจุดนี้จะอยู่ใน Client Bundle ด้วย
+`"use client"` อยู่ก่อน Import เพื่อกำหนดจุดเริ่มต้นของฝั่ง Client โค้ดที่นำเข้ามาใช้จากจุดนี้จะรวมอยู่ใน JavaScript ที่ส่งให้ Browser ด้วย
 
 `IssueForm` ถูกใช้ทั้งจาก `IssueBoard` และหน้า `/issues/new` จึงจะประกาศขอบเขต Client ที่ไฟล์ Form ด้วย
 
-`useState` เก็บข้อมูลระหว่างการ Render และให้ Function สำหรับเปลี่ยนข้อมูลแล้วแสดง UI ใหม่
+**Render** คือการที่ React คำนวณว่าหน้าจอควรแสดงอะไร `useState` ช่วยจำข้อมูลข้ามการคำนวณแต่ละครั้ง และให้ฟังก์ชันสำหรับเปลี่ยนข้อมูลนั้น
 
 ---
 
 ## Slide 4: State ของรายการควรอยู่ที่ไหน
 
-`IssueForm` สร้างรายการ ส่วน `IssueList` แสดงรายการ จึงให้ Parent ชื่อ `IssueBoard` เก็บข้อมูลร่วมกัน
+`IssueForm` สร้างรายการ ส่วน `IssueList` แสดงรายการ จึงให้ `IssueBoard` ที่ครอบทั้งคู่เก็บข้อมูลร่วมกัน ตัวที่ครอบเรียกว่า **Parent** และตัวที่อยู่ภายในเรียกว่า **Child**
 
 - `items` คือรายการปัจจุบัน
 - `initialIssues` คือรายการเริ่มต้นที่หน้า Home ส่งมา
@@ -95,7 +99,7 @@ import { useState } from "react";
 
 วิธีนี้เรียกว่า **Lifting State Up** คือย้าย State ไปไว้ที่ Parent ที่ Component ลูกใช้ร่วมกัน
 
-Error ของ Form ใช้เฉพาะใน Form จึงเก็บ State แยกไว้ใน `IssueForm`
+ข้อความผิดพลาดใช้เฉพาะในฟอร์ม จึงเก็บ State แยกไว้ใน `IssueForm`
 
 ---
 
@@ -120,11 +124,11 @@ type IssueBoardProps = {
 
 </CodeChange>
 
-เตรียม Import และ Props ก่อน ขั้นถัดไปจะเพิ่ม Component ต่อท้ายไฟล์นี้
+Props คือค่าที่ส่งให้ Component; `initialIssues` จะรับรายการเริ่มต้น ขั้นถัดไปจะเพิ่ม Component ต่อท้ายไฟล์นี้
 
 ---
 
-## Slide 6: ให้ Board เก็บรายการและแสดง UI
+## Slide 6: ให้ Board เก็บรายการและแสดงหน้าจอ
 
 <LessonCallout type="action">เพิ่มโค้ดใหม่ต่อท้าย `components/IssueBoard.tsx` หลัง `IssueBoardProps` โดยเก็บ Import เดิมไว้</LessonCallout>
 
@@ -144,7 +148,7 @@ export function IssueBoard({ initialIssues }: IssueBoardProps) {
 
 </CodeChange>
 
-`useState<Issue[]>` กำหนดว่า State เป็น Array ของ Issue และเริ่มจาก `initialIssues` ตอนสร้าง Component
+`Issue[]` คือ Array หรือชุดข้อมูลหลายรายการที่แต่ละรายการเป็น `Issue`; `useState` ใช้ `initialIssues` เป็นค่าเริ่มต้น
 
 ตอนนี้อ่าน `items` อย่างเดียว เราจะเพิ่ม Function เปลี่ยน State หลังต่อ Form แล้ว
 
@@ -174,7 +178,7 @@ import { issues } from "@/data/issue";
 
 </CodeChange>
 
-ขั้นถัดไปจะเปลี่ยน JSX ให้ตรงกับ Import ใหม่นี้
+ขั้นถัดไปจะเปลี่ยน JSX หรือโค้ดที่เขียนหน้าตาเว็บใน Component ให้เรียก `IssueBoard`
 
 ---
 
@@ -203,15 +207,15 @@ import { issues } from "@/data/issue";
 
 ส่วนสีแดงคือโค้ดเดิมที่ลบ ไม่ครอบ Board ด้วย `<main>` อีกชั้น
 
-เก็บ Header, Footer, Fragment และ Function `Home` เดิมไว้
+เก็บส่วนหัว ส่วนท้าย และ `<>...</>` ที่ครอบเนื้อหา (Fragment) รวมถึงฟังก์ชัน `Home` เดิมไว้
 
 หน้า Home ควรยังแสดง Form และรายการเดิม โดย `page.tsx` ยังเป็น Server Component
 
 ---
 
-## Slide 9: รับการ Submit ของ Form
+## Slide 9: รับการส่งฟอร์ม (Submit)
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม Directive และ Import ไว้บนสุด แล้วเพิ่ม Handler ตามตำแหน่งด้านล่าง โดยเก็บ UI เดิม</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม `"use client"` และ Import ไว้บนสุด แล้วเพิ่มฟังก์ชันรับการส่งฟอร์ม โดยเก็บหน้าตาฟอร์มเดิม</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1,3,4,5">
 
@@ -225,7 +229,7 @@ import type { Issue } from "@/types/issue";
 
 </CodeChange>
 
-เพิ่ม Handler ภายใน Function `IssueForm` ก่อน `return`:
+เพิ่มฟังก์ชันรับเหตุการณ์ (Event Handler) ภายใน `IssueForm` ก่อน `return`:
 
 <CodeChange language="tsx" addedLines="1,2,3">
 
@@ -237,7 +241,7 @@ function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 
 </CodeChange>
 
-`SubmitEvent<HTMLFormElement>` คือ Type ของ Event ที่มาจาก Form; `preventDefault()` หยุดการส่ง Form แบบเปลี่ยนหน้า
+Event คือเหตุการณ์ เช่น การส่งฟอร์ม; `SubmitEvent<HTMLFormElement>` ระบุชนิดข้อมูลของเหตุการณ์นี้ ส่วน `preventDefault()` หยุดการส่งฟอร์มแบบเปลี่ยนหน้า
 
 ---
 
@@ -253,11 +257,11 @@ function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 
 </CodeChange>
 
-เก็บ Field, `required`, `type="email"`, ปุ่ม และ Tag ปิดเดิมไว้ครบ
+เก็บช่องกรอก, `required`, `type="email"`, ปุ่ม และ Tag ปิดเดิมไว้ครบ
 
-`onSubmit` ส่ง Event ให้ `handleSubmit` ทั้งเมื่อกดปุ่มส่งและเมื่อส่งด้วย Keyboard
+`onSubmit` ส่งข้อมูลเหตุการณ์ให้ `handleSubmit` ทั้งเมื่อกดปุ่มส่งและเมื่อส่งด้วยแป้นพิมพ์
 
-เมื่อกรอกครบแล้วกดส่ง หน้าไม่ Reload แต่ยังไม่เพิ่มรายการ
+เมื่อกรอกครบแล้วกดส่ง หน้าไม่โหลดใหม่ แต่ยังไม่เพิ่มรายการ
 
 ---
 
@@ -282,7 +286,7 @@ Type นี้มีเฉพาะสิ่งที่ผู้ใช้กร
 
 ---
 
-## Slide 12: อ่านค่าผ่านชื่อ Field
+## Slide 12: อ่านค่าผ่านชื่อช่องกรอก
 
 <LessonCallout type="action">เพิ่ม Function ใหม่ `getIssueInput` ใน `components/IssueForm.tsx` ต่อจาก `NewIssueInput` และก่อน `IssueForm`</LessonCallout>
 
@@ -303,7 +307,7 @@ function getIssueInput(form: HTMLFormElement): NewIssueInput {
 
 </CodeChange>
 
-`formData.get()` ใช้ชื่อให้ตรงกับ `name` ของช่องกรอก; `?? ""` ใช้ค่าว่างเมื่อไม่พบข้อมูล
+`FormData` รวบรวมค่าจากฟอร์ม; `.get()` อ่านค่าตาม `name` ของช่องกรอก และ `?? ""` ใช้ค่าว่างเมื่อไม่พบข้อมูล
 
 `String()` แปลงค่าเป็นข้อความ และ `.trim()` ตัดช่องว่างหัวท้าย ก่อนนำไปตรวจ
 
@@ -328,7 +332,7 @@ function validateIssueInput(input: NewIssueInput): string[] {
 
 </CodeChange>
 
-แต่ละ `if` เพิ่มข้อความที่ไม่ผ่านเงื่อนไขลง Array; ถ้าผ่านทุกข้อจะได้ `[]`
+การตรวจข้อมูลตามเงื่อนไขเรียกว่า **Validation** แต่ละ `if` เพิ่มข้อความผิดพลาดลง Array; ถ้าผ่านทุกข้อจะได้ `[]`
 
 การหา `@` เป็นเพียงการตรวจเบื้องต้น และ Form ยังมี `type="email"` ของ Browser ช่วยตรวจอยู่
 
@@ -362,13 +366,13 @@ function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 
 </CodeChange>
 
-`event.currentTarget` คือ Form ที่ Submit; `setErrors` เปลี่ยน State และ `return` หยุดเมื่อข้อมูลยังผิด
+`errors` เก็บข้อความผิดพลาด และ `setErrors` เปลี่ยนข้อความนั้น; `event.currentTarget` คือฟอร์มที่ส่งมา ส่วน `return` หยุดเมื่อข้อมูลยังผิด
 
 ---
 
 ## Slide 15: แสดงข้อความที่ต้องแก้
 
-<LessonCallout type="action">เพิ่ม JSX ใหม่ใน `components/IssueForm.tsx`: ภายใน `<fieldset>` วางหลัง `</legend>` และก่อนกลุ่ม Field แรก โดยเก็บ Field ทั้งหมด</LessonCallout>
+<LessonCallout type="action">เพิ่ม JSX ใหม่ใน `components/IssueForm.tsx`: ภายใน `<fieldset>` วางหลัง `</legend>` และก่อนกลุ่มช่องกรอกแรก โดยเก็บช่องกรอกทั้งหมด</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1,2,3,4,5,6,7,8,9,10">
 
@@ -401,7 +405,7 @@ function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 2. กรอกชื่อ `A`, อีเมล `a@example.com`, หัวข้อ `abc`, รายละเอียด `short` แล้วส่ง
 3. ควรเห็นกล่อง Error สามข้อจาก State และข้อมูลใน Form ยังอยู่
 4. แก้ชื่อเป็น `An`, หัวข้อ `เครื่องพิมพ์เสีย`, รายละเอียด `เครื่องพิมพ์ชั้นสองพิมพ์งานไม่ได้` แล้วส่ง
-5. กล่อง Error ควรหาย แต่ยังไม่เพิ่มรายการ เพราะยังไม่ได้เชื่อม Callback
+5. กล่อง Error ควรหาย แต่ยังไม่เพิ่มรายการ เพราะยังไม่ได้ต่อฟังก์ชันเพิ่มรายการ
 
 Error ของ Browser และกล่องที่เราเขียนเองเป็นการตรวจคนละขั้น
 
@@ -429,13 +433,13 @@ function createIssueFormInput(input: NewIssueInput): Issue {
 
 </CodeChange>
 
-ใช้ UUID เต็มเป็นรหัสชั่วคราว, `OPEN` เป็นสถานะเริ่มต้น และเวลาแบบ ISO; Function นี้จะถูกเรียกจาก Handler ในขั้นถัดไป
+UUID คือรหัสสุ่มยาวที่ใช้แยกแต่ละรายการ; ใช้รหัสเต็มและตั้งสถานะเป็น `OPEN` ส่วน ISO คือรูปแบบข้อความวันเวลามาตรฐานที่ `toISOString()` คืนมา
 
 ---
 
 ## Slide 18: ให้ Form รับ Function จาก Parent
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม `IssueFormProps` ก่อน Component แล้วแก้ Parameter ของ `IssueForm` โดยเก็บ State, Handler และ UI ภายใน</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม `IssueFormProps` ก่อน Component แล้วแก้ค่าที่ `IssueForm` รับเข้ามา โดยเก็บ State, Handler และหน้าตาฟอร์มภายใน</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1,2,3">
 
@@ -457,13 +461,13 @@ export function IssueForm({ onCreateIssue }: IssueFormProps) {
 
 </CodeChange>
 
-`onCreateIssue` เป็น Callback ที่ Parent ส่งมาให้ Form เรียกพร้อม Issue ใหม่; `void` หมายถึงไม่ได้ใช้ค่าที่ Function คืนมา
+**Callback** คือฟังก์ชันที่ส่งให้อีกส่วนเรียกภายหลัง เช่น Parent ส่ง `onCreateIssue` ให้ฟอร์มเรียกเมื่อมี Issue ใหม่; `void` คือไม่ใช้ค่าที่ฟังก์ชันคืนมา
 
 `?` ทำให้ Prop นี้ไม่บังคับ เพราะ `/issues/new` ยังเรียก `<IssueForm />` โดยไม่มี Callback
 
 ---
 
-## Slide 19: ส่งข้อมูลเมื่อผ่าน Validation
+## Slide 19: ส่งข้อมูลเมื่อผ่านการตรวจ
 
 <LessonCallout type="action">เพิ่มโค้ดใหม่ใน `components/IssueForm.tsx`: ภายใน `handleSubmit` วางต่อจาก `if (validationErrors.length > 0) return;` ก่อนวงเล็บปิดของ Handler</LessonCallout>
 
@@ -522,12 +526,12 @@ function handleCreateIssue(issue: Issue) {
 <LessonCallout type="action">เปิดหน้า Home `/` แล้วทดสอบเพิ่มสองรายการและ Refresh เพื่อตรวจการทำงานของ State</LessonCallout>
 
 1. เปิด `/` กรอกข้อมูลให้ผ่านทุกเงื่อนไข แล้วกดส่ง
-2. Row ใหม่ต้องอยู่บนสุด มีสถานะ `OPEN` และจำนวนรายการเพิ่มหนึ่ง
+2. แถวใหม่ต้องอยู่บนสุด มีสถานะ `OPEN` และจำนวนรายการเพิ่มหนึ่ง
 3. Form ต้องว่าง และกล่อง Error เดิมหายไป
 4. เพิ่มอีกหนึ่งรายการ แล้วตรวจว่ารายการก่อนหน้ายังอยู่
 5. Refresh หน้า: รายการที่เพิ่มหาย และกลับมาเป็น Mock Data เดิม
 
-State ช่วยให้ UI เปลี่ยนทันที แต่ยังไม่ใช่การบันทึกข้อมูลถาวร
+State ช่วยให้หน้าจอเปลี่ยนทันที แต่ยังไม่ใช่การบันทึกข้อมูลถาวร
 
 ---
 
@@ -548,11 +552,11 @@ Day 4 จะเปลี่ยนมาอ่านและบันทึก D
 
 ## Slide 23: ตรวจฝั่ง Browser แล้ว ยังต้องตรวจฝั่ง Server
 
-Validation ใน Browser ช่วยให้แก้ข้อมูลได้เร็ว แต่ผู้ใช้แก้ Client Code หรือส่ง Request โดยไม่ผ่าน Form ได้
+การตรวจข้อมูลใน Browser ช่วยให้ผู้ใช้แก้ข้อมูลได้เร็ว แต่ผู้ใช้ยังแก้โค้ดฝั่งตัวเอง หรือส่งข้อมูลตรงไป Server โดยไม่ผ่านฟอร์มได้
 
-ดังนั้น ก่อนบันทึกข้อมูลจริง Server ต้องตรวจข้อมูลซ้ำ แม้ Frontend จะตรวจผ่านมาแล้ว
+ดังนั้น ก่อนบันทึกข้อมูลจริง Server ต้องตรวจข้อมูลซ้ำ แม้ฝั่งหน้าเว็บจะตรวจผ่านมาแล้ว
 
-ตอนนี้ Flow ของเราคือ: Form อ่านและตรวจข้อมูล → Callback ส่ง Issue → Board เปลี่ยน State → List แสดงผล
+ลำดับการทำงานตอนนี้: ฟอร์มอ่านและตรวจข้อมูล → Callback ส่ง Issue → Board เปลี่ยน State → List แสดงผล
 
 Hour 4 จะเพิ่มการเปลี่ยน Status ของรายการใน State ชุดเดียวกัน ก่อนเชื่อม Database ใน Day 4
 

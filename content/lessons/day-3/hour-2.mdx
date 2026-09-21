@@ -32,22 +32,22 @@ app/issues/page.tsx
 
 ---
 
-## Slide 1: ต่อจาก UI ใน Hour 1
+## Slide 1: ต่อจากหน้าตาเว็บใน Hour 1
 
-Navigation และ Form ใช้ Tailwind แล้ว ส่วน `StatusBadge` และ Table ใน `IssueList` ยังใช้ CSS เดิมภายใน `@layer base`
+เมนูนำทางและฟอร์มใช้ Tailwind แล้ว ส่วนป้ายสถานะ (`StatusBadge`) และตารางใน `IssueList` ยังใช้ CSS เดิมภายใน `@layer base`
 
 ชั่วโมงนี้จะย้ายสอง Component ที่เหลือ แล้วเพิ่มข้อความเมื่อไม่มีรายการ
 
 - ใช้ `issues` และ Props เดิมจาก Day 2
 - เก็บ Import, Type และ Link รายละเอียดไว้
 - CSS ของ `.issue-list` ถูกลบใน Hour 1 แล้ว เพราะ `<main>` ใช้ `gap-6` แทนระยะด้านบน
-- `main` ยังเป็น Style พื้นฐานของ Route ที่ยังไม่ได้ย้าย
+- `main` ยังเป็นรูปแบบพื้นฐานของหน้าที่ยังไม่ได้ย้าย
 
 ลำดับงาน: สีสถานะ → ตารางบนจอเล็ก → ข้อความเมื่อไม่มีข้อมูล
 
 ---
 
-## Slide 2: เปลี่ยนสีที่ Helper คืนค่า
+## Slide 2: ให้ฟังก์ชันเลือกคลาสสีตามสถานะ
 
 <LessonCallout type="action">แก้บางส่วนใน `components/StatusBadge.tsx`: แทน Function `getStatusClass` เดิมด้วยโค้ดนี้ โดยเก็บ Import, Props และ Component เดิมไว้</LessonCallout>
 
@@ -67,11 +67,11 @@ function getStatusClass(status: IssueStatus): string {
 
 </CodeChange>
 
-เงื่อนไขเดิมเลือกสีแดง เหลือง และเขียวตามสถานะ โดย `ring-*` กำหนดสีเส้นรอบ Badge ที่จะเพิ่มในขั้นถัดไป
+`getStatusClass` เป็นฟังก์ชันช่วยเลือกสีแดง เหลือง และเขียวตามสถานะ โดย `ring-*` กำหนดสีเส้นรอบป้ายที่จะเพิ่มในขั้นถัดไป
 
 ---
 
-## Slide 3: ใช้ Utility กับ Badge
+## Slide 3: ใช้คลาส Tailwind กับป้ายสถานะ
 
 <LessonCallout type="action">แก้บางส่วนใน `components/StatusBadge.tsx`: แทน `<span>...</span>` ภายใน `return` ของ `StatusBadge` ด้วยโค้ดนี้</LessonCallout>
 
@@ -88,7 +88,7 @@ function getStatusClass(status: IssueStatus): string {
 
 </CodeChange>
 
-`rounded-full` ทำให้มุมโค้ง ส่วน `ring-1` แสดงเส้นรอบ Badge และ Helper เลือกสีตาม `status`
+`rounded-full` ทำให้มุมโค้ง ส่วน `ring-1` แสดงเส้นรอบป้าย และ `getStatusClass` เลือกสีตาม `status`
 
 Badge ควรยังแสดงข้อความ `OPEN`, `IN_PROGRESS` และ `DONE` พร้อมสีที่ต่างกัน
 
@@ -138,7 +138,7 @@ Badge ควรยังแสดงข้อความ `OPEN`, `IN_PROGRESS` 
 
 ## Slide 6: จัดหัวข้อและจำนวนรายการ
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน `<h2>` เดิมและคำอธิบายใต้หัวข้อถ้ามี ด้วยโค้ดนี้ก่อน Wrapper ของตาราง</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน `<h2>` เดิมและคำอธิบายใต้หัวข้อถ้ามี ด้วยโค้ดนี้ก่อนกล่องที่ครอบตาราง</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1,2,5,6,7,8">
 
@@ -309,7 +309,7 @@ if (issues.length === 0) {
 
 ---
 
-## Slide 13: จัด Layout ของหน้า /issues
+## Slide 13: จัดวางเนื้อหาของหน้า /issues
 
 <LessonCallout type="action">แก้บางส่วนใน `app/issues/page.tsx`: แทน `<main>...</main>` ภายใน `return` ของ `IssuesPage` ด้วยโค้ดนี้</LessonCallout>
 
@@ -334,7 +334,7 @@ if (issues.length === 0) {
 
 ## Slide 14: ลองส่งรายการว่าง
 
-<LessonCallout type="action">แก้ชั่วคราวใน `app/issues/page.tsx`: เปลี่ยน Props ของ `IssueList` ภายใน `<main>` เป็น Array ว่าง แล้วเปิด `/issues`</LessonCallout>
+<LessonCallout type="action">แก้ชั่วคราวใน `app/issues/page.tsx`: ส่งรายการว่าง `[]` ให้ `IssueList` ภายใน `<main>` แล้วเปิด `/issues`</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1">
 
@@ -362,7 +362,7 @@ if (issues.length === 0) {
 
 ## Slide 15: ลองใช้งานทั้งสองหน้า
 
-<LessonCallout type="action">รัน `npm run dev` ที่ Project Root หาก Server ยังไม่ทำงาน แล้วเปิด `/` และ `/issues` ใช้ DevTools ปรับความกว้างและลอง Link รายละเอียด</LessonCallout>
+<LessonCallout type="action">รัน `npm run dev` ในโฟลเดอร์หลักของโปรเจกต์ หากยังไม่ได้รัน แล้วเปิด `/` และ `/issues` ใช้เครื่องมือนักพัฒนาใน Browser (DevTools) ปรับความกว้างและลองลิงก์รายละเอียด</LessonCallout>
 
 ที่ความกว้าง **375px** และ **1024px** ควรได้ผลดังนี้:
 
@@ -384,8 +384,8 @@ if (issues.length === 0) {
 - Form, Badge และ Table ใช้ Tailwind แล้ว
 - CSS พื้นฐานของ `main` ยังรองรับ Route อื่น
 
-Form ยังไม่เพิ่มรายการ เพราะเรายังไม่ได้เชื่อมการ Submit กับข้อมูล
+ฟอร์มยังไม่เพิ่มรายการ เพราะเรายังไม่ได้เชื่อมการกดส่งกับข้อมูล
 
-Hour 3 จะเพิ่ม State และ Validation เพื่อให้ข้อมูลจาก Form ปรากฏใน List
+Hour 3 จะเพิ่มการเก็บรายการที่เปลี่ยนได้และการตรวจข้อมูล เพื่อให้ข้อมูลจากฟอร์มปรากฏในตาราง
 
 ---

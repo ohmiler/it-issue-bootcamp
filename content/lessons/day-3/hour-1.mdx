@@ -33,19 +33,19 @@ components/IssueForm.tsx
 
 ---
 
-## Slide 1: Recap จาก Day 2
+## Slide 1: ต่อจากสิ่งที่สร้างใน Day 2
 
 หลังจบ Day 2 Project ของเรามี:
 
-- Component `IssueForm`, `IssueList` และ `StatusBadge`
-- Type และ Mock Data ที่แยกเป็นไฟล์กลาง
+- ส่วนของหน้าจอที่แยกใช้ซ้ำได้ (Component): `IssueForm`, `IssueList` และ `StatusBadge`
+- Type ที่กำหนดรูปแบบข้อมูล และข้อมูลตัวอย่าง (Mock Data) ที่แยกเป็นไฟล์กลาง
 - หน้า `/`, `/issues`, `/issues/new` และ `/issues/[id]`
-- Navigation ที่ใช้ร่วมกันทุกหน้าผ่าน `app/layout.tsx`
-- Custom CSS ทั้งหมดอยู่ใน `app/globals.css`
+- เมนูนำทางที่ใช้ร่วมกันทุกหน้าผ่าน `app/layout.tsx`
+- CSS ที่เขียนเอง (Custom CSS) ทั้งหมดอยู่ใน `app/globals.css`
 
 Project ทำงานได้แล้ว แต่เมื่อ Component เพิ่มขึ้น CSS กลางจะยาวขึ้นและต้องสลับไฟล์ไปมาระหว่าง TSX กับ CSS
 
-Hour นี้เราจะเริ่มย้าย Style มาไว้ใกล้ UI ด้วย Tailwind โดยยังไม่เปลี่ยนข้อมูลหรือการทำงานของระบบ
+ชั่วโมงนี้จะเริ่มใช้ Tailwind กำหนดหน้าตาเว็บใกล้กับโค้ดของแต่ละส่วน โดยยังไม่เปลี่ยนข้อมูลหรือการทำงานของระบบ
 
 ---
 
@@ -67,7 +67,7 @@ Hour นี้เราจะเริ่มย้าย Style มาไว้�
 }
 ```
 
-Tailwind ให้เราใช้ Class สำเร็จรูปที่แทน CSS Property โดยตรง:
+Tailwind มีคลาสสำเร็จรูป (Utility Class) แต่ละตัวกำหนดค่า CSS เช่น สีหรือระยะห่าง:
 
 ```tsx
 <button className="bg-teal-700 px-4 py-3 text-white">
@@ -79,7 +79,7 @@ Tailwind ให้เราใช้ Class สำเร็จรูปที่�
 
 ## Slide 3: ตรวจว่า Tailwind พร้อมใช้งาน
 
-<LessonCallout type="action">เปิด `package.json` และ `postcss.config.mjs` ที่ Project Root เพื่อตรวจว่ามี Package และ Plugin ตามตัวอย่าง โดยไม่ต้องแก้ไฟล์หากมีแล้ว</LessonCallout>
+<LessonCallout type="action">เปิด `package.json` และ `postcss.config.mjs` ในโฟลเดอร์หลักของโปรเจกต์ เพื่อตรวจว่ามีรายการตามตัวอย่าง โดยไม่ต้องแก้ไฟล์หากมีแล้ว</LessonCallout>
 
 Day 2 เลือก Recommended Defaults จึงมี Tailwind v4 มาแล้ว ไม่ต้องติดตั้งซ้ำ
 
@@ -90,7 +90,7 @@ Day 2 เลือก Recommended Defaults จึงมี Tailwind v4 มาแ
 "@tailwindcss/postcss": "^4"
 ```
 
-`postcss.config.mjs` ต้องมี Plugin นี้:
+`postcss.config.mjs` ต้องเปิดส่วนเสริม (Plugin) นี้:
 
 ```js
 const config = {
@@ -120,7 +120,7 @@ export default config;
 
 </CodeChange>
 
-Comment คือจุดวาง CSS เดิม ไม่ใช่โค้ดสำหรับแทนทั้งไฟล์ ให้เก็บทุกกฎตั้งแต่ `*` จนถึง Navigation ไว้ภายในวงเล็บนี้
+ข้อความใน `/* ... */` คือคำอธิบาย (Comment) ที่บอกจุดวาง CSS เดิม ให้เก็บทุกกฎตั้งแต่ `*` จนถึงเมนูนำทางไว้ภายในวงเล็บนี้ ไม่คัดลอกตัวอย่างทับทั้งไฟล์
 
 `@layer base` จัด CSS เดิมเป็นชั้นพื้นฐาน เพื่อให้ Utility ของ Tailwind เปลี่ยนค่าทับได้ระหว่างทยอยย้ายแต่ละส่วน
 
@@ -140,9 +140,9 @@ Comment คือจุดวาง CSS เดิม ไม่ใช่โค้
 
 | ไฟล์ | ส่วนที่จะปรับ |
 |---|---|
-| `app/layout.tsx` | Navigation ที่ทุกหน้าใช้ร่วมกัน |
-| `app/page.tsx` | Header, Main และ Footer ของหน้า Home |
-| `components/IssueForm.tsx` | โครง Form, Field และ Button |
+| `app/layout.tsx` | เมนูนำทางที่ทุกหน้าใช้ร่วมกัน |
+| `app/page.tsx` | ส่วนหัว เนื้อหาหลัก และส่วนท้ายของหน้า Home |
+| `components/IssueForm.tsx` | โครงฟอร์ม ช่องกรอก และปุ่ม |
 
 ไม่ต้อง Import Tailwind ในแต่ละไฟล์ TSX เพราะ `app/layout.tsx` โหลด `globals.css` ให้ทุกหน้าแล้ว ส่วน `IssueList` และ `StatusBadge` จะเริ่มใช้ Tailwind ใน Hour 2
 
@@ -152,11 +152,11 @@ Comment คือจุดวาง CSS เดิม ไม่ใช่โค้
 
 `globals.css` ยังโหลด Tailwind และเก็บ CSS ของส่วนที่ยังไม่ได้ย้าย
 
-1. เพิ่ม Utility ใน `className` ของ Element เดิม
+1. เพิ่ม Utility ใน `className` ของ Tag เดิม
 2. เปิดหน้าเว็บเพื่อดูผล โดย CSS เดิมอยู่ใน `@layer base`
 3. เมื่อย้ายครบส่วนแล้ว ค่อยลบกฎที่ไม่ใช้ในช่วงท้ายชั่วโมง
 
-เก็บ `main` และ `section` ไว้ก่อน เพราะหลาย Route และ `IssueList` ยังใช้ Style กลางเหล่านี้
+เก็บ `main` และ `section` ไว้ก่อน เพราะหลายหน้าและ `IssueList` ยังใช้รูปแบบกลางเหล่านี้
 
 Tailwind มี **Preflight** สำหรับปรับ Style เริ่มต้นของ Browser ให้ใกล้เคียงกัน เช่น หัวข้อจะไม่หนาหรือใหญ่โดยอัตโนมัติ จึงต้องกำหนด Utility ให้หัวข้อที่ย้ายแล้ว
 
@@ -175,12 +175,12 @@ Tailwind มี **Preflight** สำหรับปรับ Style เริ่�
 <div className="grid gap-6">ระยะห่างระหว่างลูก</div>
 ```
 
-- `p` หมายถึง Padding ทุกด้าน
-- `px` และ `py` หมายถึง Padding ตามแกน X และ Y
-- `m` หมายถึง Margin
-- `gap` หมายถึงช่องว่างระหว่างลูกของ Flex หรือ Grid
+- `p` คือระยะด้านในกล่อง (Padding) ทุกด้าน
+- `px` คือระยะด้านในซ้าย–ขวา ส่วน `py` คือบน–ล่าง
+- `m` คือระยะด้านนอกกล่อง (Margin)
+- `gap` คือช่องว่างระหว่างส่วนย่อยที่จัดด้วย Flex หรือ Grid
 
-ค่าปกติของ Tailwind ใช้หน่วยละ `0.25rem` เช่น `p-4` = `1rem` และ `p-6` = `1.5rem` ตัวเลขนี้ไม่ใช่จำนวน Pixel
+ค่าปกติใช้หน่วยละ `0.25rem` เช่น `p-4` = `1rem` และ `p-6` = `1.5rem` โดย `rem` อิงขนาดตัวอักษรของหน้า ไม่ใช่จำนวนพิกเซล
 
 ---
 
@@ -208,7 +208,7 @@ Tailwind มี **Preflight** สำหรับปรับ Style เริ่�
 
 ---
 
-## Slide 9: Utility สำหรับ Layout
+## Slide 9: Utility สำหรับจัดวางเนื้อหา
 
 **ตัวอย่างสำหรับฝึกอ่าน Class:** ยังไม่ต้องแก้ Project
 
@@ -234,13 +234,13 @@ Flex จัดวางลูกในแนวเดียว เช่น เ�
 
 ---
 
-## Slide 10: Responsive Prefix
+## Slide 10: ปรับหน้าตาตามขนาดจอ
 
 **ตัวอย่างสำหรับฝึกอ่าน Class:** ยังไม่ต้องแก้ Project
 
-Tailwind ใช้แนวคิด **Mobile-first**:
+Tailwind ใช้ **Mobile-first** คือเริ่มจัดหน้าจอเล็ก แล้วใส่เงื่อนไขเพิ่มสำหรับจอกว้าง:
 
-- Class ที่ไม่มี Prefix ทำงานกับทุกขนาดจอ
+- คลาสที่ไม่มีคำหน้าคั่นด้วย `:` ทำงานกับทุกขนาดจอ
 - `sm:` เริ่มที่ `640px` ขึ้นไป
 - `md:` เริ่มที่ `768px` ขึ้นไป
 - `lg:` เริ่มที่ `1024px` ขึ้นไป
@@ -253,15 +253,15 @@ Tailwind ใช้แนวคิด **Mobile-first**:
 
 ค่าเริ่มต้นคือ 1 คอลัมน์ เมื่อกว้างถึง `768px` จึงเปลี่ยนเป็น 2 คอลัมน์
 
-ค่าข้างต้นเป็น Breakpoint เริ่มต้นของ Tailwind โดย `sm:` ไม่ได้หมายถึง “เฉพาะมือถือ”
+คำหน้าอย่าง `md:` เรียกว่า Prefix ส่วนความกว้างที่เริ่มเปลี่ยนเรียกว่า Breakpoint; `sm:` จึงไม่ใช่ “เฉพาะมือถือ”
 
 ---
 
-## Slide 11: State Prefix
+## Slide 11: เปลี่ยนหน้าตาเมื่อผู้ใช้โต้ตอบ
 
 **ตัวอย่างสำหรับฝึกอ่าน Class:** ยังไม่ต้องแก้ Project
 
-State Prefix ทำให้ Style ทำงานเฉพาะตอน Element อยู่ในสถานะหนึ่ง:
+คำหน้าอย่าง `hover:` และ `focus:` ให้คลาสทำงานเฉพาะเมื่อชี้เมาส์หรือเลือกช่องกรอก:
 
 ```tsx
 <button className="bg-teal-700 hover:bg-teal-800">
@@ -274,14 +274,14 @@ State Prefix ทำให้ Style ทำงานเฉพาะตอน Eleme
 ```
 
 - `hover:` ทำงานเมื่อผู้ใช้ชี้เมาส์
-- `focus:` ทำงานเมื่อผู้ใช้คลิกหรือกด Tab มาที่ Element
-- `disabled:` ทำงานเมื่อ Element ถูกปิดการใช้งาน
+- `focus:` ทำงานเมื่อช่องกรอกหรือปุ่มถูกเลือก เช่น คลิกหรือกด Tab มาถึง
+- `disabled:` ทำงานเมื่อช่องกรอกหรือปุ่มถูกปิดการใช้งาน
 
-State ไม่ได้มีไว้เพื่อตกแต่งอย่างเดียว แต่ช่วยบอกผู้ใช้ว่าตอนนี้กำลังโต้ตอบกับ Element ใด
+สีหรือเส้นรอบที่เปลี่ยนไปช่วยบอกว่าผู้ใช้กำลังโต้ตอบกับส่วนใด
 
 ---
 
-## Slide 12: จัดกรอบ Navigation
+## Slide 12: จัดกรอบเมนูนำทาง
 
 <LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เปลี่ยน Class ของ `<nav>` และ `<div>` ที่ครอบ Link โดยเก็บ Import `Link`, เมนูเดิม และ `{children}` ไว้</LessonCallout>
 
@@ -303,7 +303,7 @@ Comment แสดงตำแหน่งของ Link เดิม ไม่�
 
 ---
 
-## Slide 13: ตกแต่ง Link ใน Navigation
+## Slide 13: ตกแต่งลิงก์ในเมนูนำทาง
 
 <LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เพิ่ม Class ให้ Link ทั้งสามรายการภายใน Navigation โดยคงข้อความและ `href` ของแต่ละรายการไว้</LessonCallout>
 
@@ -418,9 +418,9 @@ Form และ List จะเรียงลงมา โดย `gap-6` เว�
 
 ---
 
-## Slide 18: แปลง Field
+## Slide 18: ปรับช่องกรอก
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนกลุ่ม Field `title` เดิมด้วยโค้ดนี้ แล้วใช้ Class แบบเดียวกันกับ Field อีกสามช่อง</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนกลุ่มช่องกรอก `title` เดิมด้วยโค้ดนี้ แล้วใช้ Class แบบเดียวกันกับอีกสามช่อง</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1,2,7,8">
 
@@ -445,9 +445,9 @@ Textarea เพิ่ม `resize-y` เพื่อให้ปรับขน�
 
 ---
 
-## Slide 19: แปลง Button
+## Slide 19: ปรับปุ่มส่งฟอร์ม
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนปุ่ม Submit เดิมที่ท้าย `<fieldset>` ด้วยโค้ดนี้</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนปุ่มส่งฟอร์มเดิมที่ท้าย `<fieldset>` ด้วยโค้ดนี้</LessonCallout>
 
 <CodeChange language="tsx" addedLines="3,4">
 
@@ -465,7 +465,7 @@ Textarea เพิ่ม `resize-y` เพื่อให้ปรับขน�
 
 - `bg-teal-700` คือสีปุ่มปกติ
 - `hover:bg-teal-800` ทำให้สีเข้มขึ้นเมื่อชี้เมาส์
-- `focus:ring-4` ช่วยบอกตำแหน่งเมื่อใช้ Keyboard
+- `focus:ring-4` ช่วยบอกตำแหน่งเมื่อใช้แป้นพิมพ์
 - ต้องเก็บ `type="submit"` ไว้ เพราะปุ่มนี้ใช้ส่ง Form
 
 ---
@@ -474,7 +474,7 @@ Textarea เพิ่ม `resize-y` เพื่อให้ปรับขน�
 
 <LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ Block ของ Navigation, Header, Footer และ `.issue-list` ออกจากภายใน `@layer base`</LessonCallout>
 
-ตัวอย่างย่ออ้างอิงโครงสร้าง CSS ปัจจุบัน ให้ลบ Selector พร้อม Property ทั้ง Block ไม่คัดลอก Comment ไปแทน CSS จริง
+ตัวอย่างย่อระบุชุดกฎ CSS ที่ต้องลบ ตั้งแต่ชื่อที่เลือกส่วนของหน้า เช่น `header` จนถึง `}` ที่ปิดชุดนั้น ไม่คัดลอก Comment ไปแทน CSS จริง
 
 <CodeChange language="css" removedLines="1,2,3,4,5,6,7,8">
 
@@ -499,7 +499,7 @@ footer { /* Property เดิม */ }
 
 ---
 
-## Slide 21: ลบ Style เดิมของ Field
+## Slide 21: ลบ CSS เดิมของช่องกรอก
 
 <LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ Block ของ Field ต่อไปนี้ภายใน `@layer base` หลังทุกช่องใน `IssueForm.tsx` มี Utility แล้ว</LessonCallout>
 
@@ -519,7 +519,7 @@ textarea { /* resize: vertical; */ }
 
 </CodeChange>
 
-หลังลบ ช่องกรอกควรยังมีเส้นขอบ ระยะภายใน และ Focus Ring จาก Utility ที่เพิ่มไว้
+หลังลบ ช่องกรอกควรยังมีเส้นขอบ ระยะภายใน และเส้นรอบเมื่อเลือกช่อง จาก Utility ที่เพิ่มไว้
 
 ---
 
@@ -527,7 +527,7 @@ textarea { /* resize: vertical; */ }
 
 <LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ `button` ทั้ง Block รวม `&:hover` ที่ซ้อนอยู่ แล้วลบ `@media` ที่มี `.form-row`</LessonCallout>
 
-ตัวอย่างย่ออ้างอิง Nested CSS ปัจจุบัน ให้ลบทั้งสอง Block ไม่คัดลอก Comment ไปแทน CSS จริง
+ตัวอย่างย่อแสดงกฎ CSS ที่เขียนซ้อนกัน ให้ลบทั้งสองชุด ไม่คัดลอก Comment ไปแทน CSS จริง
 
 <CodeChange language="css" removedLines="1,2,3,4,5,6,7">
 
@@ -543,7 +543,7 @@ button {
 
 </CodeChange>
 
-Media Query นี้มีเพียง `.form-row` จึงลบทั้ง `@media` ได้ หลังลบปุ่มควรยังมีสี Hover และ Focus Ring จาก Tailwind
+เงื่อนไขขนาดจอ `@media` นี้มีเพียง `.form-row` จึงลบทั้งชุดได้ หลังลบปุ่มควรยังเปลี่ยนสีเมื่อชี้เมาส์และมีเส้นรอบเมื่อถูกเลือก
 
 หลังลบ Form ควรยังมี Style จาก Utility ส่วน Import, `@layer base`, `*`, `body`, `main`, `section`, Table และ Status ยังอยู่
 
@@ -551,14 +551,14 @@ Media Query นี้มีเพียง `.form-row` จึงลบทั้�
 
 ## Slide 23: ตรวจผลลัพธ์หลังจบ Hour 1
 
-<LessonCallout type="action">รัน `npm run dev` ที่ Project Root หาก Server ยังไม่ทำงาน แล้วเปิด `/`, `/issues`, `/issues/new` และ `/issues/001` เพื่อลอง UI</LessonCallout>
+<LessonCallout type="action">รัน `npm run dev` ในโฟลเดอร์หลักของโปรเจกต์ หากยังไม่ได้รัน แล้วเปิด `/`, `/issues`, `/issues/new` และ `/issues/001` เพื่อลองหน้าเว็บ</LessonCallout>
 
 - Navigation ยังแสดงทุกหน้า
 - หน้า Home, Main และ Footer มีระยะห่างถูกต้อง
 - ที่ความกว้าง `375px` ชื่อและอีเมลเรียงลงมา ส่วนที่ `1024px` เรียงสองคอลัมน์
 - กด Tab ผ่านช่องกรอกและปุ่มแล้วเห็น Focus ชัดเจน
 - หน้าอื่นยังมีระยะขอบจาก `main` เดิม และตารางยังแสดงข้อมูลครบ
-- Console และ Terminal ไม่มี Error
+- แท็บ Console ในเครื่องมือนักพัฒนาของ Browser และ Terminal ที่รันคำสั่ง ต้องไม่มีข้อความผิดพลาด
 
 Form ยังไม่บันทึกข้อมูล เพราะชั่วโมงนี้ปรับเฉพาะ Style
 
