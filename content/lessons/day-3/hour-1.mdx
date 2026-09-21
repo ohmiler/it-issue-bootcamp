@@ -281,34 +281,54 @@ State ไม่ได้มีไว้เพื่อตกแต่งอย�
 
 ---
 
-## Slide 12: แปลง Navigation เป็น Tailwind
+## Slide 12: จัดกรอบ Navigation
 
-<LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: แทน `<nav>...</nav>` เดิมภายใน `<body>` โดยเก็บ Import `Link` และ `{children}` ไว้</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เปลี่ยน Class ของ `<nav>` และ `<div>` ที่ครอบ Link โดยเก็บ Import `Link`, เมนูเดิม และ `{children}` ไว้</LessonCallout>
 
-<CodeChange language="tsx" addedLines="1,2,3,5,7">
+<CodeChange language="tsx" addedLines="1,2">
 
 ```tsx
 <nav className="border-b border-slate-200 bg-white" aria-label="เมนูหลัก">
   <div className="mx-auto flex max-w-5xl flex-wrap gap-2 px-6 py-3">
-    <Link className="rounded-md px-3 py-2 font-semibold text-slate-700 hover:bg-slate-100" href="/">
-      หน้าแรก</Link>
-    <Link className="rounded-md px-3 py-2 font-semibold text-slate-700 hover:bg-slate-100" href="/issues">
-      รายการปัญหา</Link>
-    <Link className="rounded-md px-3 py-2 font-semibold text-slate-700 hover:bg-slate-100" href="/issues/new">
-      แจ้งปัญหาใหม่</Link>
+    {/* เก็บ Link ทั้งสามรายการเดิมไว้ตรงนี้ */}
   </div>
 </nav>
 ```
 
 </CodeChange>
 
-Navigation อยู่ใน Layout เพราะทุกหน้าใช้ร่วมกัน ส่วน `flex-wrap` ช่วยให้เมนูขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ
+Comment แสดงตำแหน่งของ Link เดิม ไม่ต้องคัดลอก Comment ไปแทนเมนู
 
-เมนูควรแสดงครบทุกหน้า และขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ; เก็บ CSS เดิมไว้จนถึงขั้นลบ Style ท้ายชั่วโมง
+`flex-wrap` ทำให้เมนูขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ ขั้นถัดไปจะใส่ Style ให้ Link แต่ละรายการ
 
 ---
 
-## Slide 13: แปลง Header เป็น Tailwind
+## Slide 13: ตกแต่ง Link ใน Navigation
+
+<LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เพิ่ม Class ให้ Link ทั้งสามรายการภายใน Navigation โดยคงข้อความและ `href` ของแต่ละรายการไว้</LessonCallout>
+
+ตัวอย่าง Link หน้าแรก ใช้ Class ชุดเดียวกันกับ Link `/issues` และ `/issues/new`:
+
+<CodeChange language="tsx" addedLines="2">
+
+```tsx
+<Link
+  className="rounded-md px-3 py-2 font-semibold text-slate-700 hover:bg-slate-100"
+  href="/"
+>
+  หน้าแรก
+</Link>
+```
+
+</CodeChange>
+
+ตัวอย่างเริ่มที่ Link เมื่อวางในไฟล์จริงให้เยื้องอยู่ภายใน `<div>` ของ Navigation
+
+เมนูควรแสดงครบทุกหน้า และพื้นหลังเปลี่ยนเมื่อชี้เมาส์; เก็บ CSS เดิมจนถึงขั้นลบ Style ท้ายชั่วโมง
+
+---
+
+## Slide 14: แปลง Header เป็น Tailwind
 
 <LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: แทน `<header>...</header>` ภายใน `Home()` ด้วยโค้ดนี้</LessonCallout>
 
@@ -334,7 +354,7 @@ Navigation อยู่ใน Layout เพราะทุกหน้าใช�
 
 ---
 
-## Slide 14: จัด Main ของหน้า Home
+## Slide 15: จัด Main ของหน้า Home
 
 <LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: เพิ่ม `className` ที่ `<main>` เดิมภายใน `Home()`</LessonCallout>
 
@@ -355,7 +375,7 @@ Form และ List จะเรียงลงมา โดย `gap-6` เว�
 
 ---
 
-## Slide 15: จัด Footer ของหน้า Home
+## Slide 16: จัด Footer ของหน้า Home
 
 <LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: เพิ่ม Class ให้ `<footer>` เดิมใต้ `<main>` ภายใน `Home()`</LessonCallout>
 
@@ -373,21 +393,21 @@ Form และ List จะเรียงลงมา โดย `gap-6` เว�
 
 ---
 
-## Slide 16: แปลงโครง `IssueForm`
+## Slide 17: แปลงโครง `IssueForm`
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม Class ที่โครง Form และแทน `form-row` ด้วย Grid โดยเก็บ Field เดิมไว้ครบ</LessonCallout>
 
-แสดงเฉพาะ Tag เปิดที่ต้องแก้: คงเนื้อหาและ Tag ปิดเดิมไว้ทุกตัว
+แสดงเฉพาะ Tag เปิดที่ต้องแก้และระดับการซ้อน: คงเนื้อหาและ Tag ปิดเดิมไว้ โดย `h2` ปิดก่อน `form` และ `legend` ปิดก่อน `div`
 
 <CodeChange language="tsx" addedLines="1,2,3,4,5,6">
 
 ```tsx
 <section className="rounded-lg border border-slate-200 bg-white p-6">
-<h2 className="text-xl font-bold text-slate-950">
-<form className="mt-4">
-<fieldset className="grid gap-4">
-<legend className="text-sm font-semibold text-slate-700">
-<div className="grid gap-4 md:grid-cols-2">
+  <h2 className="text-xl font-bold text-slate-950">
+  <form className="mt-4">
+    <fieldset className="grid gap-4">
+      <legend className="text-sm font-semibold text-slate-700">
+      <div className="grid gap-4 md:grid-cols-2">
 ```
 
 </CodeChange>
@@ -398,7 +418,7 @@ Form และ List จะเรียงลงมา โดย `gap-6` เว�
 
 ---
 
-## Slide 17: แปลง Field
+## Slide 18: แปลง Field
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนกลุ่ม Field `title` เดิมด้วยโค้ดนี้ แล้วใช้ Class แบบเดียวกันกับ Field อีกสามช่อง</LessonCallout>
 
@@ -425,7 +445,7 @@ Textarea เพิ่ม `resize-y` เพื่อให้ปรับขน�
 
 ---
 
-## Slide 18: แปลง Button
+## Slide 19: แปลง Button
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนปุ่ม Submit เดิมที่ท้าย `<fieldset>` ด้วยโค้ดนี้</LessonCallout>
 
@@ -450,7 +470,7 @@ Textarea เพิ่ม `resize-y` เพื่อให้ปรับขน�
 
 ---
 
-## Slide 19: ลบ Style ของโครงหน้าที่แทนแล้ว
+## Slide 20: ลบ Style ของโครงหน้าที่แทนแล้ว
 
 <LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบกฎของ Navigation, Header และ Footer ที่ย้ายแล้วออกจากภายใน `@layer base`</LessonCallout>
 
@@ -475,7 +495,7 @@ section + section { /* ลบหากยังมีอยู่ */ }
 
 ---
 
-## Slide 20: ลบ Style เดิมของ Form
+## Slide 21: ลบ Style เดิมของ Form
 
 <LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบกฎต่อไปนี้ภายใน `@layer base` หลังทุก Field และปุ่มใน `IssueForm.tsx` มี Utility แล้ว</LessonCallout>
 
@@ -504,7 +524,7 @@ button:hover { /* Property เดิม */ }
 
 ---
 
-## Slide 21: ตรวจผลลัพธ์หลังจบ Hour 1
+## Slide 22: ตรวจผลลัพธ์หลังจบ Hour 1
 
 <LessonCallout type="action">รัน `npm run dev` ที่ Project Root หาก Server ยังไม่ทำงาน แล้วเปิด `/`, `/issues`, `/issues/new` และ `/issues/001` เพื่อลอง UI</LessonCallout>
 

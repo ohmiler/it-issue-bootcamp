@@ -370,14 +370,16 @@ function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
 
 <LessonCallout type="action">เพิ่ม JSX ใหม่ใน `components/IssueForm.tsx`: ภายใน `<fieldset>` วางหลัง `</legend>` และก่อนกลุ่ม Field แรก โดยเก็บ Field ทั้งหมด</LessonCallout>
 
-<CodeChange language="tsx" addedLines="1,2,3,4,5,6,7,8">
+<CodeChange language="tsx" addedLines="1,2,3,4,5,6,7,8,9,10">
 
 ```tsx
 {errors.length > 0 && (
   <div role="alert" className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
     <p className="font-bold">กรุณาตรวจสอบข้อมูล</p>
     <ul className="mt-2 list-disc space-y-1 pl-5">
-      {errors.map((error) => <li key={error}>{error}</li>)}
+      {errors.map((error) => (
+        <li key={error}>{error}</li>
+      ))}
     </ul>
   </div>
 )}
