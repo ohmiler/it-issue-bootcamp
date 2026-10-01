@@ -12,13 +12,13 @@ source: "day-3-hour-1-tailwind-setup-and-utilities.md"
 
 ### เป้าหมายของชั่วโมงนี้
 
-หลังจบชั่วโมงนี้ ผู้เรียนควรสามารถ:
+หลังจบชั่วโมงนี้ นักศึกษาจะสามารถ:
 
 1. อธิบายได้ว่า Tailwind CSS ช่วยเขียน Style อย่างไร
-2. ตรวจและเปิดใช้งาน Tailwind ใน Next.js Project ได้
-3. อ่าน Utility Class พื้นฐานได้โดยเชื่อมโยงกับ CSS ที่เคยเรียน
-4. แปลงโครงหน้าและ Form จาก Custom CSS เป็น Tailwind ทีละส่วนได้
-5. ลบ CSS เดิมเฉพาะส่วนที่ย้ายเสร็จแล้วได้อย่างปลอดภัย
+2. เปิดใช้งาน Tailwind ใน Next.js Project ได้
+3. อ่าน Class พื้นฐานของ Tailwind ได้
+4. แปลงเมนู หน้า Home และ Form จาก CSS เดิมเป็น Tailwind ได้
+5. ลบ CSS เดิมเฉพาะส่วนที่ย้ายเสร็จแล้วได้
 
 ### ไฟล์ที่ใช้
 
@@ -37,23 +37,20 @@ components/IssueForm.tsx
 
 หลังจบ Day 2 Project ของเรามี:
 
-- ส่วนของหน้าจอที่แยกใช้ซ้ำได้ (Component): `IssueForm`, `IssueList` และ `StatusBadge`
-- Type ที่กำหนดรูปแบบข้อมูล และข้อมูลตัวอย่าง (Mock Data) ที่แยกเป็นไฟล์กลาง
+- Component `IssueForm`, `IssueList` และ `StatusBadge`
 - หน้า `/`, `/issues`, `/issues/new` และ `/issues/[id]`
-- เมนูนำทางที่ใช้ร่วมกันทุกหน้าผ่าน `app/layout.tsx`
+- เมนูนำทางใน `app/layout.tsx` ที่ทุกหน้าใช้ร่วมกัน
 - CSS ที่เขียนเอง (Custom CSS) ทั้งหมดอยู่ใน `app/globals.css`
 
-Project ทำงานได้แล้ว แต่เมื่อ Component เพิ่มขึ้น CSS กลางจะยาวขึ้นและต้องสลับไฟล์ไปมาระหว่าง TSX กับ CSS
+เมื่อ Component เพิ่มขึ้น ไฟล์ CSS กลางจะยาวขึ้น และต้องสลับไปมาระหว่างไฟล์ TSX กับ CSS
 
-ชั่วโมงนี้จะเริ่มใช้ Tailwind กำหนดหน้าตาเว็บใกล้กับโค้ดของแต่ละส่วน โดยยังไม่เปลี่ยนข้อมูลหรือการทำงานของระบบ
+ชั่วโมงนี้จะเปลี่ยนมาใช้ Tailwind โดยหน้าตาใกล้เคียงเดิม และการทำงานของระบบไม่เปลี่ยน
 
 ---
 
 ## Slide 2: จาก Custom CSS ไปสู่ Tailwind
 
-**ตัวอย่างเพื่อทำความเข้าใจ:** ยังไม่ต้องแก้ Project ใน Slide นี้
-
-ก่อนหน้านี้เราเขียน Style โดยตั้งชื่อ Class แล้วประกาศ CSS แยกอีกไฟล์:
+เดิมเราตั้งชื่อ Class แล้วเขียน CSS แยกอีกไฟล์:
 
 ```tsx
 <button className="primary-button">ส่งข้อมูล</button>
@@ -67,7 +64,7 @@ Project ทำงานได้แล้ว แต่เมื่อ Component 
 }
 ```
 
-Tailwind มีคลาสสำเร็จรูป (Utility Class) แต่ละตัวกำหนดค่า CSS เช่น สีหรือระยะห่าง:
+Tailwind มี Class สำเร็จรูป เรียกว่า **Utility Class** แต่ละตัวทำหน้าที่เดียว เช่น กำหนดสีหรือระยะห่าง แล้วเขียนรวมกันใน `className` ได้เลย:
 
 ```tsx
 <button className="bg-teal-700 px-4 py-3 text-white">
@@ -79,18 +76,18 @@ Tailwind มีคลาสสำเร็จรูป (Utility Class) แต่
 
 ## Slide 3: ตรวจว่า Tailwind พร้อมใช้งาน
 
-<LessonCallout type="action">เปิด `package.json` และ `postcss.config.mjs` ในโฟลเดอร์หลักของโปรเจกต์ เพื่อตรวจว่ามีรายการตามตัวอย่าง โดยไม่ต้องแก้ไฟล์หากมีแล้ว</LessonCallout>
+<LessonCallout type="action">เปิด `package.json` และ `postcss.config.mjs` ในโฟลเดอร์หลักของโปรเจกต์ เพื่อตรวจว่ามีรายการตามตัวอย่าง ถ้ามีแล้วไม่ต้องแก้</LessonCallout>
 
-Day 2 เลือก Recommended Defaults จึงมี Tailwind v4 มาแล้ว ไม่ต้องติดตั้งซ้ำ
+Day 2 เลือก Recommended Defaults จึงติดตั้ง Tailwind v4 มาแล้ว
 
-ตรวจใน `package.json` ว่ามี:
+ใน `package.json` ต้องมี:
 
 ```json
 "tailwindcss": "^4",
 "@tailwindcss/postcss": "^4"
 ```
 
-`postcss.config.mjs` ต้องเปิดส่วนเสริม (Plugin) นี้:
+ใน `postcss.config.mjs` ต้องมี:
 
 ```js
 const config = {
@@ -100,7 +97,7 @@ const config = {
 export default config;
 ```
 
-`@tailwindcss/postcss` ทำหน้าที่ประมวลผล Tailwind Class ให้กลายเป็น CSS ที่ Browser ใช้งานได้
+`@tailwindcss/postcss` แปลง Class ของ Tailwind เป็น CSS ที่ Browser ใช้ได้
 
 ---
 
@@ -114,200 +111,81 @@ export default config;
 @import "tailwindcss";
 
 @layer base {
-  /* ย้าย CSS เดิมทั้งหมดมาไว้ตรงนี้ รวมถึง @media */
+  /* CSS เดิมทั้งหมด รวมถึง @media */
 }
 ```
 
 </CodeChange>
 
-ข้อความใน `/* ... */` คือคำอธิบาย (Comment) ที่บอกจุดวาง CSS เดิม ให้เก็บทุกกฎตั้งแต่ `*` จนถึงเมนูนำทางไว้ภายในวงเล็บนี้ ไม่คัดลอกตัวอย่างทับทั้งไฟล์
+Comment `/* ... */` บอกตำแหน่งของ CSS เดิม ไม่ต้องคัดลอกไปวาง ตลอดชั่วโมงนี้ Comment ในตัวอย่างใช้บอกตำแหน่งแบบเดียวกัน
 
-`@layer base` จัด CSS เดิมเป็นชั้นพื้นฐาน เพื่อให้ Utility ของ Tailwind เปลี่ยนค่าทับได้ระหว่างทยอยย้ายแต่ละส่วน
+ต้องครอบด้วย `@layer base` เพราะถ้าไม่ครอบ CSS เดิมจะชนะ Class ของ Tailwind ทำให้ Class ที่เพิ่มไม่เห็นผล
 
-`app/layout.tsx` ยังต้องมี `import "./globals.css";` ตาม Day 2 จึงจะโหลด Style ให้ทุกหน้า
+`app/layout.tsx` Import `globals.css` อยู่แล้ว ทุกหน้าจึงใช้ Tailwind ได้โดยไม่ต้อง Import เพิ่ม
 
 ---
 
-## Slide 5: ใช้ Tailwind ตอนไหนและไฟล์ไหน
+## Slide 5: ย้าย Style ทีละส่วน
 
-ตัวอย่างการเขียน Utility ใน `className` ของไฟล์ `.tsx` (ยังไม่ต้องแก้):
+เราจะย้ายทีละส่วนตามลำดับนี้:
 
-```tsx
-<h1 className="text-3xl font-bold text-slate-950">
-  ระบบแจ้งปัญหา IT
-</h1>
-```
-
-| ไฟล์ | ส่วนที่จะปรับ |
+| ไฟล์ | ส่วนที่ย้าย |
 |---|---|
-| `app/layout.tsx` | เมนูนำทางที่ทุกหน้าใช้ร่วมกัน |
+| `app/layout.tsx` | เมนูนำทาง |
 | `app/page.tsx` | ส่วนหัว เนื้อหาหลัก และส่วนท้ายของหน้า Home |
 | `components/IssueForm.tsx` | โครงฟอร์ม ช่องกรอก และปุ่ม |
 
-ไม่ต้อง Import Tailwind ในแต่ละไฟล์ TSX เพราะ `app/layout.tsx` โหลด `globals.css` ให้ทุกหน้าแล้ว ส่วน `IssueList` และ `StatusBadge` จะเริ่มใช้ Tailwind ใน Hour 2
+ทุกส่วนทำ 2 ขั้น:
+
+1. เพิ่ม Class ของ Tailwind ใน `className` แล้วเปิดหน้าเว็บดูผล
+2. เมื่อย้ายครบแล้ว ค่อยลบ CSS เดิมของส่วนนั้นในช่วงท้ายชั่วโมง
+
+`IssueList` และ `StatusBadge` จะย้ายใน Hour 2
 
 ---
 
-## Slide 6: ย้าย Style ทีละส่วน
+## Slide 6: อ่าน Class พื้นฐาน
 
-`globals.css` ยังโหลด Tailwind และเก็บ CSS ของส่วนที่ยังไม่ได้ย้าย
+| Class | ความหมาย |
+|---|---|
+| `p-4`, `px-6`, `py-8` | ระยะด้านในกล่อง: ทุกด้าน, ซ้าย–ขวา, บน–ล่าง |
+| `mt-2` | ระยะด้านนอกกล่องด้านบน |
+| `gap-4` | ระยะห่างระหว่างส่วนย่อยที่เรียงกัน |
+| `text-sm`, `text-xl`, `font-bold` | ขนาดตัวอักษร และความหนา |
+| `text-slate-600`, `bg-white` | สีตัวอักษร และสีพื้น |
+| `border border-slate-200`, `rounded-lg` | เส้นขอบสีเทาอ่อน และมุมโค้ง |
 
-1. เพิ่ม Utility ใน `className` ของ Tag เดิม
-2. เปิดหน้าเว็บเพื่อดูผล โดย CSS เดิมอยู่ใน `@layer base`
-3. เมื่อย้ายครบส่วนแล้ว ค่อยลบกฎที่ไม่ใช้ในช่วงท้ายชั่วโมง
-
-เก็บ `main` และ `section` ไว้ก่อน เพราะหลายหน้าและ `IssueList` ยังใช้รูปแบบกลางเหล่านี้
-
-Tailwind มี **Preflight** สำหรับปรับ Style เริ่มต้นของ Browser ให้ใกล้เคียงกัน เช่น หัวข้อจะไม่หนาหรือใหญ่โดยอัตโนมัติ จึงต้องกำหนด Utility ให้หัวข้อที่ย้ายแล้ว
-
----
-
-## Slide 7: Utility สำหรับระยะห่าง
-
-**ตัวอย่างสำหรับฝึกอ่าน Class:** ยังไม่ต้องแก้ Project
-
-ตัวอักษรด้านหน้า Class บอกทิศทาง ส่วนตัวเลขบอกระดับของระยะห่าง:
-
-```tsx
-<div className="p-4">Padding ทุกด้าน</div>
-<div className="px-6 py-8">Padding แนวนอนและแนวตั้ง</div>
-<section className="mt-6">Margin ด้านบน</section>
-<div className="grid gap-6">ระยะห่างระหว่างลูก</div>
-```
-
-- `p` คือระยะด้านในกล่อง (Padding) ทุกด้าน
-- `px` คือระยะด้านในซ้าย–ขวา ส่วน `py` คือบน–ล่าง
-- `m` คือระยะด้านนอกกล่อง (Margin)
-- `gap` คือช่องว่างระหว่างส่วนย่อยที่จัดด้วย Flex หรือ Grid
-
-ค่าปกติใช้หน่วยละ `0.25rem` เช่น `p-4` = `1rem` และ `p-6` = `1.5rem` โดย `rem` อิงขนาดตัวอักษรของหน้า ไม่ใช่จำนวนพิกเซล
+ตัวเลขยิ่งมาก ระยะ ขนาด หรือความเข้มของสียิ่งมาก เช่น `p-4` เท่ากับ 16px และ `p-6` เท่ากับ 24px
 
 ---
 
-## Slide 8: Utility สำหรับข้อความและกล่อง
+## Slide 7: จัดกรอบเมนูนำทาง
 
-**ตัวอย่างสำหรับฝึกอ่าน Class:** ยังไม่ต้องนำ Code ชุดนี้ไปวางใน Project
-
-```tsx
-<section className="rounded-lg border border-slate-200 bg-white p-6">
-  <h2 className="text-xl font-bold text-slate-950">
-    รายการปัญหา
-  </h2>
-  <p className="mt-2 text-sm text-slate-600">
-    รายการปัญหาที่ถูกแจ้งเข้ามาในระบบ
-  </p>
-</section>
-```
-
-- `text-xl`, `text-sm` คือขนาด ส่วน `font-bold` คือความหนา
-- `text-slate-*` คือสีข้อความ ส่วน `bg-white` คือสีพื้น
-- `border border-slate-200` คือเส้นขอบสีเทาอ่อน
-- `rounded-lg` ทำให้มุมกล่องโค้ง
-
-
-
----
-
-## Slide 9: Utility สำหรับจัดวางเนื้อหา
-
-**ตัวอย่างสำหรับฝึกอ่าน Class:** ยังไม่ต้องแก้ Project
-
-จำกัดความกว้างและจัดกลาง
-
-```tsx
-<main className="mx-auto max-w-5xl px-6 py-8">
-  ...
-</main>
-```
-
-`max-w-5xl` ป้องกันเนื้อหากว้างเต็มจอบน Desktop ส่วน `mx-auto` จัดกล่องให้อยู่กลางหน้า
-
-จัดลูกด้วย Flex
-
-```tsx
-<div className="flex items-center justify-between gap-4">
-  ...
-</div>
-```
-
-Flex จัดวางลูกในแนวเดียว เช่น เมนู ส่วน Grid ใช้จัดหลายคอลัมน์
-
----
-
-## Slide 10: ปรับหน้าตาตามขนาดจอ
-
-**ตัวอย่างสำหรับฝึกอ่าน Class:** ยังไม่ต้องแก้ Project
-
-Tailwind ใช้ **Mobile-first** คือเริ่มจัดหน้าจอเล็ก แล้วใส่เงื่อนไขเพิ่มสำหรับจอกว้าง:
-
-- คลาสที่ไม่มีคำหน้าคั่นด้วย `:` ทำงานกับทุกขนาดจอ
-- `sm:` เริ่มที่ `640px` ขึ้นไป
-- `md:` เริ่มที่ `768px` ขึ้นไป
-- `lg:` เริ่มที่ `1024px` ขึ้นไป
-
-```tsx
-<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-  ...
-</div>
-```
-
-ค่าเริ่มต้นคือ 1 คอลัมน์ เมื่อกว้างถึง `768px` จึงเปลี่ยนเป็น 2 คอลัมน์
-
-คำหน้าอย่าง `md:` เรียกว่า Prefix ส่วนความกว้างที่เริ่มเปลี่ยนเรียกว่า Breakpoint; `sm:` จึงไม่ใช่ “เฉพาะมือถือ”
-
----
-
-## Slide 11: เปลี่ยนหน้าตาเมื่อผู้ใช้โต้ตอบ
-
-**ตัวอย่างสำหรับฝึกอ่าน Class:** ยังไม่ต้องแก้ Project
-
-คำหน้าอย่าง `hover:` และ `focus:` ให้คลาสทำงานเฉพาะเมื่อชี้เมาส์หรือเลือกช่องกรอก:
-
-```tsx
-<button className="bg-teal-700 hover:bg-teal-800">
-  ส่งข้อมูล
-</button>
-```
-
-```tsx
-<input className="border focus:border-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100" />
-```
-
-- `hover:` ทำงานเมื่อผู้ใช้ชี้เมาส์
-- `focus:` ทำงานเมื่อช่องกรอกหรือปุ่มถูกเลือก เช่น คลิกหรือกด Tab มาถึง
-- `disabled:` ทำงานเมื่อช่องกรอกหรือปุ่มถูกปิดการใช้งาน
-
-สีหรือเส้นรอบที่เปลี่ยนไปช่วยบอกว่าผู้ใช้กำลังโต้ตอบกับส่วนใด
-
----
-
-## Slide 12: จัดกรอบเมนูนำทาง
-
-<LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เปลี่ยน Class ของ `<nav>` และ `<div>` ที่ครอบ Link โดยเก็บ Import `Link`, เมนูเดิม และ `{children}` ไว้</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เปลี่ยน Class ของ `<nav>` และ `<div>` ที่ครอบ Link โดยเก็บ Link ทั้งสามรายการและ `{children}` ไว้</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1,2">
 
 ```tsx
 <nav className="border-b border-slate-200 bg-white" aria-label="เมนูหลัก">
   <div className="mx-auto flex max-w-5xl flex-wrap gap-2 px-6 py-3">
-    {/* เก็บ Link ทั้งสามรายการเดิมไว้ตรงนี้ */}
+    {/* Link ทั้งสามรายการเดิม */}
   </div>
 </nav>
 ```
 
 </CodeChange>
 
-Comment แสดงตำแหน่งของ Link เดิม ไม่ต้องคัดลอก Comment ไปแทนเมนู
-
-`flex-wrap` ทำให้เมนูขึ้นบรรทัดใหม่เมื่อพื้นที่ไม่พอ ขั้นถัดไปจะใส่ Style ให้ Link แต่ละรายการ
+- `flex` เรียง Link ในแถวเดียว และ `flex-wrap` ให้ขึ้นบรรทัดใหม่เมื่อที่ไม่พอ
+- `max-w-5xl` จำกัดความกว้างไม่ให้ยืดเต็มจอกว้าง
+- `mx-auto` จัดกล่องให้อยู่กลางหน้า
 
 ---
 
-## Slide 13: ตกแต่งลิงก์ในเมนูนำทาง
+## Slide 8: ตกแต่งลิงก์ในเมนูนำทาง
 
-<LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เพิ่ม Class ให้ Link ทั้งสามรายการภายใน Navigation โดยคงข้อความและ `href` ของแต่ละรายการไว้</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/layout.tsx`: เพิ่ม `className` ชุดนี้ให้ Link ทั้งสามรายการ โดยคงข้อความและ `href` เดิม</LessonCallout>
 
-ตัวอย่าง Link หน้าแรก ใช้ Class ชุดเดียวกันกับ Link `/issues` และ `/issues/new`:
+ตัวอย่าง Link หน้าแรก:
 
 <CodeChange language="tsx" addedLines="2">
 
@@ -322,13 +200,13 @@ Comment แสดงตำแหน่งของ Link เดิม ไม่�
 
 </CodeChange>
 
-ตัวอย่างเริ่มที่ Link เมื่อวางในไฟล์จริงให้เยื้องอยู่ภายใน `<div>` ของ Navigation
+`hover:` ทำให้ Class หลังเครื่องหมาย `:` ทำงานเฉพาะตอนชี้เมาส์ ในที่นี้พื้นหลังจะเป็นสีเทาอ่อน
 
-เมนูควรแสดงครบทุกหน้า และพื้นหลังเปลี่ยนเมื่อชี้เมาส์; เก็บ CSS เดิมจนถึงขั้นลบ Style ท้ายชั่วโมง
+เมนูควรแสดงครบทุกหน้า และพื้นหลังของลิงก์เปลี่ยนเมื่อชี้เมาส์
 
 ---
 
-## Slide 14: แปลง Header เป็น Tailwind
+## Slide 9: แปลง Header เป็น Tailwind
 
 <LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: แทน `<header>...</header>` ภายใน `Home()` ด้วยโค้ดนี้</LessonCallout>
 
@@ -347,41 +225,25 @@ Comment แสดงตำแหน่งของ Link เดิม ไม่�
 
 </CodeChange>
 
-- Header ชั้นนอกกำหนดสีและระยะห่างเต็มความกว้าง
+- `<header>` ชั้นนอกกำหนดสีพื้นเต็มความกว้าง
 - `<div>` ชั้นในจำกัดความกว้างและจัดเนื้อหาให้อยู่กลาง
 
-`text-3xl` และ `font-bold` กำหนดขนาดและความหนาของหัวข้ออย่างชัดเจน
+ต้องใส่ `text-3xl font-bold` เอง เพราะ Tailwind ล้าง Style เริ่มต้นของ Browser ทำให้หัวข้อไม่ใหญ่และไม่หนาเหมือนเดิม
 
 ---
 
-## Slide 15: จัด Main ของหน้า Home
+## Slide 10: จัด Main และ Footer ของหน้า Home
 
-<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: เพิ่ม `className` ที่ `<main>` เดิมภายใน `Home()`</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: เพิ่ม `className` ให้ `<main>` และ `<footer>` เดิมภายใน `Home()`</LessonCallout>
 
-<CodeChange language="tsx" addedLines="1">
+<CodeChange language="tsx" addedLines="1,6">
 
 ```tsx
 <main className="mx-auto grid grid-cols-1 max-w-5xl gap-6 px-6 py-8">
   <IssueForm />
   <IssueList issues={issues} />
 </main>
-```
 
-</CodeChange>
-
-Form และ List จะเรียงลงมา โดย `gap-6` เว้นระยะระหว่างสองส่วน และ `max-w-5xl` จำกัดความกว้างของหน้า
-
-คงกฎ `main` ใน `globals.css` ไว้ให้ Route อื่น ส่วนหน้า Home ใช้ Utility ทับค่าพื้นฐานแล้ว
-
----
-
-## Slide 16: จัด Footer ของหน้า Home
-
-<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: เพิ่ม Class ให้ `<footer>` เดิมใต้ `<main>` ภายใน `Home()`</LessonCallout>
-
-<CodeChange language="tsx" addedLines="1">
-
-```tsx
 <footer className="px-6 py-8 text-center text-sm text-slate-500">
   <p>ฝ่ายเทคโนโลยีสารสนเทศ</p>
 </footer>
@@ -389,38 +251,61 @@ Form และ List จะเรียงลงมา โดย `gap-6` เว�
 
 </CodeChange>
 
-`text-center` จัดข้อความกลางหน้า และ `text-sm text-slate-500` กำหนดขนาดและสีของ Footer
+- `grid gap-6` เรียง Form และ List ลงมา โดยเว้นระยะระหว่างกัน
+- `text-center` จัดข้อความของ Footer ไว้กลางหน้า
+
+CSS เดิมของ `main` ยังต้องเก็บไว้ เพราะหน้าอื่นยังไม่ได้ใส่ Class ของ Tailwind
 
 ---
 
-## Slide 17: แปลงโครง `IssueForm`
+## Slide 11: จัดกรอบของ `IssueForm`
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม Class ที่โครง Form และแทน `form-row` ด้วย Grid โดยเก็บ Field เดิมไว้ครบ</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม `className` ให้ `<section>` และ `<h2>` เดิม</LessonCallout>
 
-แสดงเฉพาะ Tag เปิดที่ต้องแก้และระดับการซ้อน: คงเนื้อหาและ Tag ปิดเดิมไว้ โดย `h2` ปิดก่อน `form` และ `legend` ปิดก่อน `div`
-
-<CodeChange language="tsx" addedLines="1,2,3,4,5,6">
+<CodeChange language="tsx" addedLines="1,2">
 
 ```tsx
 <section className="rounded-lg border border-slate-200 bg-white p-6">
-  <h2 className="text-xl font-bold text-slate-950">
-  <form className="mt-4">
-    <fieldset className="grid gap-4">
-      <legend className="text-sm font-semibold text-slate-700">
-      <div className="grid gap-4 md:grid-cols-2">
+  <h2 className="text-xl font-bold text-slate-950">แจ้งปัญหาใหม่</h2>
+  {/* <form> เดิม */}
+</section>
 ```
 
 </CodeChange>
 
-`<div>` บรรทัดสุดท้ายคือ `.form-row` เดิมที่ครอบชื่อและอีเมล ไม่ใช่ `.form-group` ของแต่ละช่อง
-
-`md:grid-cols-2` เริ่มสองคอลัมน์ที่ `768px` ส่วน CSS เดิมเริ่มที่ `720px`
+ฟอร์มจะอยู่ในกล่องพื้นขาว มีเส้นขอบ มุมโค้ง และหัวข้อตัวหนา
 
 ---
 
-## Slide 18: ปรับช่องกรอก
+## Slide 12: จัดช่องชื่อและอีเมลเป็นสองคอลัมน์
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนกลุ่มช่องกรอก `title` เดิมด้วยโค้ดนี้ แล้วใช้ Class แบบเดียวกันกับอีกสามช่อง</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม `className` ให้ `<form>`, `<fieldset>` และ `<legend>` แล้วเปลี่ยน `form-row` เป็น Class ของ Grid</LessonCallout>
+
+<CodeChange language="tsx" addedLines="1,2,3,4">
+
+```tsx
+<form className="mt-4">
+  <fieldset className="grid gap-4">
+    <legend className="text-sm font-semibold text-slate-700">ข้อมูลปัญหา</legend>
+    <div className="grid gap-4 md:grid-cols-2">
+      {/* ช่องชื่อและอีเมลเดิม */}
+    </div>
+    {/* ช่องหัวข้อ รายละเอียด และปุ่มเดิม */}
+  </fieldset>
+</form>
+```
+
+</CodeChange>
+
+`md:grid-cols-2` แปลว่า เมื่อจอกว้างตั้งแต่ 768px ให้แบ่งเป็น 2 คอลัมน์ ถ้าจอแคบกว่านั้นจะเรียงลงมาคอลัมน์เดียว
+
+Tailwind เริ่มเขียนจากจอเล็กก่อน แล้วใช้ `sm:` (640px), `md:` (768px) หรือ `lg:` (1024px) เพิ่ม Style สำหรับจอที่กว้างขึ้น
+
+---
+
+## Slide 13: ปรับช่องกรอก
+
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนกลุ่มช่องกรอก `title` เดิมด้วยโค้ดนี้ แล้วใช้ Class ชุดเดียวกันกับอีกสามช่อง</LessonCallout>
 
 <CodeChange language="tsx" addedLines="1,2,7,8">
 
@@ -439,13 +324,13 @@ Form และ List จะเรียงลงมา โดย `gap-6` เว�
 
 </CodeChange>
 
-แทน `className="form-group"` เดิมด้วย `className="grid gap-2"` แล้วนำ Class ชุดเดียวกันไปปรับ Field ชื่อ อีเมล และรายละเอียด โดยคง `id`, `name`, `type`, `rows={5}` และ `required` เดิมไว้
+`focus:` ทำงานเมื่อช่องกรอกถูกเลือก เช่น คลิกหรือกด Tab มาถึง จึงเห็นกรอบสีเขียว
 
-Textarea เพิ่ม `resize-y` เพื่อให้ปรับขนาดได้เฉพาะแนวตั้ง
+ช่องชื่อ อีเมล และรายละเอียด ให้คง `id`, `name`, `type`, `rows={5}` และ `required` เดิม ส่วน Textarea เพิ่ม `resize-y` เพื่อให้ยืดได้เฉพาะแนวตั้ง
 
 ---
 
-## Slide 19: ปรับปุ่มส่งฟอร์ม
+## Slide 14: ปรับปุ่มส่งฟอร์ม
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แทนปุ่มส่งฟอร์มเดิมที่ท้าย `<fieldset>` ด้วยโค้ดนี้</LessonCallout>
 
@@ -463,105 +348,75 @@ Textarea เพิ่ม `resize-y` เพื่อให้ปรับขน�
 
 </CodeChange>
 
-- `bg-teal-700` คือสีปุ่มปกติ
-- `hover:bg-teal-800` ทำให้สีเข้มขึ้นเมื่อชี้เมาส์
-- `focus:ring-4` ช่วยบอกตำแหน่งเมื่อใช้แป้นพิมพ์
+- `hover:bg-teal-800` ทำให้ปุ่มเข้มขึ้นเมื่อชี้เมาส์
+- `focus:ring-4` แสดงกรอบรอบปุ่มเมื่อเลือกด้วยแป้นพิมพ์
 - ต้องเก็บ `type="submit"` ไว้ เพราะปุ่มนี้ใช้ส่ง Form
 
 ---
 
-## Slide 20: ลบ Style ของโครงหน้าที่แทนแล้ว
+## Slide 15: ลบ CSS เดิมของโครงหน้า
 
-<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ Block ของ Navigation, Header, Footer และ `.issue-list` ออกจากภายใน `@layer base`</LessonCallout>
-
-ตัวอย่างย่อระบุชุดกฎ CSS ที่ต้องลบ ตั้งแต่ชื่อที่เลือกส่วนของหน้า เช่น `header` จนถึง `}` ที่ปิดชุดนั้น ไม่คัดลอก Comment ไปแทน CSS จริง
+<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบชุดกฎของเมนูนำทาง, `header`, `footer` และ `.issue-list` ภายใน `@layer base`</LessonCallout>
 
 <CodeChange language="css" removedLines="1,2,3,4,5,6,7,8">
 
 ```css
-.app-nav { /* Property เดิม */ }
-.app-nav-inner { /* Property เดิม */ }
+.app-nav { /* ค่าเดิม */ }
+.app-nav-inner { /* ค่าเดิม */ }
 header {
-  /* Property เดิม */
-  h1 { /* Property เดิม */ }
+  /* ค่าเดิม */
+  h1 { /* ค่าเดิม */ }
 }
-footer { /* Property เดิม */ }
-.issue-list { /* margin-top: 24px; */ }
+footer { /* ค่าเดิม */ }
+.issue-list { /* ค่าเดิม */ }
 ```
 
 </CodeChange>
 
-ลบ `header` ทั้ง Block รวม `h1` ที่ซ้อนอยู่ด้านใน ส่วน `.issue-list` ต้องลบตอนนี้เพราะ `gap-6` ของ `<main>` ทำหน้าที่เว้นระยะระหว่าง Form กับ List แล้ว หากเก็บไว้จะเกิดระยะซ้ำ
+ลบแต่ละชุดตั้งแต่ชื่อจนถึง `}` ที่ปิดชุดนั้น โดย `header` ต้องลบรวม `h1` ที่ซ้อนอยู่ข้างใน
 
-เก็บ `main` ไว้ให้ `/issues`, `/issues/new`, `/issues/[id]` และหน้า Not Found ที่ยังไม่ได้ใส่ Utility ของ Layout
+ลบ `.issue-list` ด้วย เพราะ `gap-6` ของ `<main>` เว้นระยะแทนแล้ว ถ้าเก็บไว้ระยะจะห่างซ้ำสองชั้น
 
-เก็บ `section` ไว้ให้ `IssueList` จนถึง Hour 2 และเก็บวงเล็บปิดของ `@layer base` ไว้
+เก็บ `main` และ `section` ไว้ เพราะหน้าอื่นและ `IssueList` ยังใช้อยู่
 
 ---
 
-## Slide 21: ลบ CSS เดิมของช่องกรอก
+## Slide 16: ลบ CSS เดิมของ Form
 
-<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ Block ของ Field ต่อไปนี้ภายใน `@layer base` หลังทุกช่องใน `IssueForm.tsx` มี Utility แล้ว</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบชุดกฎของ Form ทั้งหมดตามตัวอย่าง ภายใน `@layer base`</LessonCallout>
 
-ตัวอย่างย่อระบุ Block ที่ต้องลบทั้งก้อน ไม่คัดลอก Comment ไปแทน CSS จริง
-
-<CodeChange language="css" removedLines="1,2,3,4,5,6,7">
+<CodeChange language="css" removedLines="1,2,3,4,5,6,7,8,9">
 
 ```css
-fieldset { /* Property เดิม */ }
-legend { /* Property เดิม */ }
-.form-group { /* Property เดิม */ }
-label { /* Property เดิม */ }
-input, textarea { /* Property เดิม */ }
-input:focus, textarea:focus { /* Property เดิม */ }
-textarea { /* resize: vertical; */ }
+fieldset { /* ค่าเดิม */ }
+legend { /* ค่าเดิม */ }
+.form-group { /* ค่าเดิม */ }
+label { /* ค่าเดิม */ }
+input, textarea { /* ค่าเดิม */ }
+input:focus, textarea:focus { /* ค่าเดิม */ }
+textarea { /* ค่าเดิม */ }
+button { /* ค่าเดิม รวม &:hover ที่ซ้อนอยู่ */ }
+@media (min-width: 720px) { /* .form-row ที่ซ้อนอยู่ */ }
 ```
 
 </CodeChange>
 
-หลังลบ ช่องกรอกควรยังมีเส้นขอบ ระยะภายใน และเส้นรอบเมื่อเลือกช่อง จาก Utility ที่เพิ่มไว้
+`button` ต้องลบรวม `&:hover` ที่ซ้อนอยู่ข้างใน ส่วน `@media` ลบทั้งชุดได้เพราะข้างในมีแค่ `.form-row`
+
+ใน `@layer base` จะเหลือ `*`, `body`, `main`, `section`, ตาราง และสถานะ ซึ่ง Hour 2 จะย้ายต่อ
 
 ---
 
-## Slide 22: ลบ Style เดิมของปุ่มและ Form Row
+## Slide 17: ทดสอบหน้าเว็บหลังย้าย Style
 
-<LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบ `button` ทั้ง Block รวม `&:hover` ที่ซ้อนอยู่ แล้วลบ `@media` ที่มี `.form-row`</LessonCallout>
+<LessonCallout type="action">รัน `npm run dev` ถ้ายังไม่ได้รัน แล้วเปิด `/`, `/issues`, `/issues/new` และ `/issues/001`</LessonCallout>
 
-ตัวอย่างย่อแสดงกฎ CSS ที่เขียนซ้อนกัน ให้ลบทั้งสองชุด ไม่คัดลอก Comment ไปแทน CSS จริง
+- เมนู ส่วนหัว Form และส่วนท้ายมี Style ครบ
+- จอกว้าง 375px ช่องชื่อและอีเมลเรียงลงมา ส่วนจอกว้าง 1024px เรียงสองคอลัมน์
+- กด Tab ผ่านช่องกรอกและปุ่มแล้วเห็นกรอบสีเขียว
+- หน้าอื่นยังมีระยะขอบ และตารางแสดงข้อมูลครบ
+- Console ของ Browser และ Terminal ไม่มี Error
 
-<CodeChange language="css" removedLines="1,2,3,4,5,6,7">
-
-```css
-button {
-  /* Property เดิม */
-  &:hover { /* Property เดิม */ }
-}
-@media (min-width: 720px) {
-  .form-row { /* Property เดิม */ }
-}
-```
-
-</CodeChange>
-
-เงื่อนไขขนาดจอ `@media` นี้มีเพียง `.form-row` จึงลบทั้งชุดได้ หลังลบปุ่มควรยังเปลี่ยนสีเมื่อชี้เมาส์และมีเส้นรอบเมื่อถูกเลือก
-
-หลังลบ Form ควรยังมี Style จาก Utility ส่วน Import, `@layer base`, `*`, `body`, `main`, `section`, Table และ Status ยังอยู่
-
----
-
-## Slide 23: ตรวจผลลัพธ์หลังจบ Hour 1
-
-<LessonCallout type="action">รัน `npm run dev` ในโฟลเดอร์หลักของโปรเจกต์ หากยังไม่ได้รัน แล้วเปิด `/`, `/issues`, `/issues/new` และ `/issues/001` เพื่อลองหน้าเว็บ</LessonCallout>
-
-- Navigation ยังแสดงทุกหน้า
-- หน้า Home, Main และ Footer มีระยะห่างถูกต้อง
-- ที่ความกว้าง `375px` ชื่อและอีเมลเรียงลงมา ส่วนที่ `1024px` เรียงสองคอลัมน์
-- กด Tab ผ่านช่องกรอกและปุ่มแล้วเห็น Focus ชัดเจน
-- หน้าอื่นยังมีระยะขอบจาก `main` เดิม และตารางยังแสดงข้อมูลครบ
-- แท็บ Console ในเครื่องมือนักพัฒนาของ Browser และ Terminal ที่รันคำสั่ง ต้องไม่มีข้อความผิดพลาด
-
-Form ยังไม่บันทึกข้อมูล เพราะชั่วโมงนี้ปรับเฉพาะ Style
-
-Hour ถัดไปเราจะย้าย Style ของ `StatusBadge` และ `IssueList` แล้วทำ Table ให้รองรับหน้าจอเล็ก
+Form ยังไม่บันทึกข้อมูล เพราะชั่วโมงนี้ปรับเฉพาะหน้าตา Hour 2 จะย้าย Style ของ `StatusBadge` และตารางใน `IssueList`
 
 ---

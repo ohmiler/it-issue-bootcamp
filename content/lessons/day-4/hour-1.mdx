@@ -489,10 +489,10 @@ updatedAt: string;
 
 ### แก้ `components/IssueForm.tsx`
 
-แทน Function `createIssueFormInput()` เดิมด้วย:
+แทน Function `createIssueFromInput()` เดิมด้วย:
 
 ```ts {2,11-12}
-function createIssueFormInput(input: NewIssueInput): Issue {
+function createIssueFromInput(input: NewIssueInput): Issue {
   const now = new Date().toISOString();
 
   return {
