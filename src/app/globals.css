@@ -1836,7 +1836,7 @@ code {
 }
 
 .slide-prose pre {
-  max-height: min(40svh, 24rem);
+  max-height: min(50svh, 24rem);
   overflow: auto;
   padding: 0.85rem;
 }

@@ -8,243 +8,176 @@ source: "day-5-hour-4-security-llm-safe-and-final-demo.md"
 
 # Security, LLM-Safe Coding, and Final Demo
 
-## Day 5 - ชั่วโมงที่ 4: ตรวจความปลอดภัยและเตรียม Final Demo
+## Day 5 - ชั่วโมงที่ 4: มองระบบให้เป็นภาพเดียว
 
 ### เป้าหมายของชั่วโมงนี้
 
-หลังเรียนจบ คุณจะสามารถ:
+หลังจบชั่วโมงนี้ นักศึกษาจะสามารถ:
 
-1. อธิบายได้ว่า request เดินทางจากหน้าเว็บไปถึง database อย่างไร
-2. เชื่อมความเสี่ยงจาก OWASP กับ Issue Tracker ได้
-3. ตรวจโค้ดจาก AI ก่อนนำมาใช้จริงได้
-4. ตรวจระบบบน Production ด้วย USER และ ADMIN ได้
-5. สาธิต project พร้อมอธิบายเหตุผลของ code ที่เขียนได้
+1. เล่าได้ว่า Request เดินทางจากหน้าเว็บไปถึง Database อย่างไร
+2. อธิบายหน้าที่ของ Authentication, Authorization, Validation และ RLS ได้
+3. มองหาความเสี่ยงพื้นฐานจาก Code และการตั้งค่าระบบได้
+4. รู้ว่าควรเริ่มตรวจตรงไหนเมื่อระบบมีปัญหา
+5. อธิบายเหตุผลของสิ่งที่สร้างมาตลอด 5 วันได้
 
-### สิ่งที่ใช้
-
-```text
-โค้ด Issue Tracker ที่ทำเสร็จแล้ว
-Supabase Dashboard
-Vercel Dashboard และ Production URL
-```
-
-ชั่วโมงนี้จะไม่เพิ่ม feature ใหม่ แต่จะตรวจว่าระบบที่สร้างมาทำงานครบและปลอดภัยตามขอบเขตของ project
+ชั่วโมงนี้ไม่มี Feature หรือโค้ดใหม่ แต่เชื่อมสิ่งที่เรียนทั้งหมดให้เห็นเป็นระบบเดียวกัน
 
 ---
 
-## Slide 1: ทบทวนสิ่งที่ทำใน Hour 3
+## Slide 1: จากหน้าเว็บธรรมดา สู่ระบบที่มีผู้ใช้จริง
 
-ชั่วโมงที่แล้วเราเพิ่ม **Authorization** เพื่อให้ผู้ใช้แต่ละคนทำสิ่งต่างกันตาม role:
+ตลอด 5 วัน เราค่อย ๆ เพิ่มความสามารถให้ Project ทีละชั้น
 
-| ส่วนที่เพิ่ม | หน้าที่ |
+| ช่วงที่เรียน | สิ่งที่ระบบทำได้ |
 |---|---|
-| `profiles` | เก็บ role `USER` และ `ADMIN` |
-| `created_by` | บอกว่า issue เป็นของผู้ใช้คนใด |
-| RLS Policies | ให้ USER เห็นและสร้าง issue ของตัวเอง ส่วน ADMIN เห็นทั้งหมดและเปลี่ยน status ได้ |
-| `requireUser()` | ป้องกันหน้าที่ต้อง Login |
-| `requireAdmin()` | ป้องกันหน้าและ Server Action สำหรับ ADMIN |
-| `canManage` | แสดงเครื่องมือจัดการเฉพาะหน้าที่อนุญาต |
+| Day 1 | วางโครงหน้าเว็บด้วย HTML และ CSS |
+| Day 2 | เปลี่ยนเป็น Next.js, TypeScript และ Components |
+| Day 3 | เพิ่ม Tailwind, Form และการทำงานฝั่ง Client |
+| Day 4 | เชื่อม Supabase เพื่ออ่านและบันทึกข้อมูลจริง |
+| Day 5 | เพิ่ม Login, Role และการควบคุมสิทธิ์ |
 
-ตอนนี้ระบบจึงไม่ได้รู้แค่ว่า **ใคร Login อยู่** แต่รู้ด้วยว่า **คนนั้นทำอะไรกับข้อมูลใดได้บ้าง**
-
-ใน Hour 4 เราจะนำระบบที่ทำงานแล้วมาตรวจอีกครั้งว่าแต่ละชั้นปลอดภัย ใช้งานบน Production ได้ และพร้อมสำหรับ Final Demo
+สิ่งสำคัญไม่ใช่แค่จำนวน Feature แต่คือเราเข้าใจมากขึ้นว่า **แต่ละส่วนควรรับผิดชอบอะไร**
 
 ---
 
-## Slide 2: ระบบทำงานได้ ยังไม่แปลว่าปลอดภัย
+## Slide 2: Request หนึ่งครั้งเดินทางอย่างไร
 
-ก่อนให้ request ทำงานต่อ ระบบควรตอบคำถามเหล่านี้:
+เมื่อผู้ใช้กดปุ่มบนหน้าเว็บ ข้อมูลไม่ได้เดินทางไป Database ทันที
 
 ```text
-ใครกำลังใช้งาน?          → Authentication
-เขาทำสิ่งนี้ได้หรือไม่?   → Authorization
-ข้อมูลมีรูปแบบถูกต้องไหม? → Validation
-เขาเข้าถึง row นี้ได้ไหม? → RLS
-ถ้าล้มเหลว เรารู้สาเหตุไหม? → Error handling และ Logs
+ผู้ใช้
+  ↓
+Page หรือ Server Action
+  ↓
+ตรวจ Session, Role และข้อมูลที่ส่งมา
+  ↓
+Supabase Client
+  ↓
+GRANT และ RLS
+  ↓
+Database
 ```
 
-ตัวอย่าง: USER ไม่เห็นปุ่มเปลี่ยน status ไม่ได้แปลว่าปลอดภัย เพราะผู้ใช้อาจส่ง request เองได้
-
-ระบบจึงต้องตรวจ `requireAdmin()` ใน Server Action และให้ RLS ตรวจสิทธิ์ซ้ำที่ database
+ถ้า Request ไม่ผ่านชั้นใด ระบบควรหยุดที่ชั้นนั้น เช่น ยังไม่ Login ให้ไปหน้า Login หรือไม่มีสิทธิ์ก็ไม่ควรแก้ข้อมูล
 
 ---
 
-## Slide 3: รู้จัก OWASP ผ่าน Issue Tracker
+## Slide 3: Security ไม่ได้อยู่ที่จุดเดียว
 
-OWASP Top 10 คือรายการความเสี่ยงสำคัญของเว็บ ใช้เป็นแนวทางช่วยตั้งคำถามกับระบบ ไม่ใช่สิ่งที่ต้องท่องจำทุกข้อ
+แต่ละชั้นตอบคำถามคนละข้อ
 
-| ความเสี่ยง | ถ้าเกิดใน Issue Tracker จะเป็นอย่างไร |
+| ชั้นที่ตรวจ | คำถามที่ต้องตอบ |
 |---|---|
-| Broken Access Control | USER เปิดหน้า Admin หรือแก้ issue ของคนอื่นได้ |
-| Security Misconfiguration | ยังมี demo policy หรือเปิดสิทธิ์ `anon` ทิ้งไว้ |
-| Software Supply Chain Failures | ติดตั้ง package ที่ไม่รู้จักหรือล้าสมัย |
-| Injection | นำข้อความจากผู้ใช้ไปต่อเป็น SQL string โดยตรง |
-| Authentication Failures | เชื่อว่า Login แล้วทุกคนเป็น ADMIN |
-| Mishandling of Exceptional Conditions | กลืน error หรือแสดงรายละเอียดระบบบนหน้าเว็บ |
+| Authentication | ผู้ใช้คนนี้คือใคร |
+| Authorization | ผู้ใช้คนนี้ทำสิ่งนี้ได้หรือไม่ |
+| Validation | ข้อมูลที่ส่งมาถูกต้องหรือไม่ |
+| GRANT | Role นี้ใช้คำสั่งกับ Table ได้หรือไม่ |
+| RLS | ผู้ใช้เข้าถึง Row ใดได้บ้าง |
 
-เวลา review code ให้ถามว่า “ผู้ใช้ควบคุมค่าอะไรได้ และระบบตรวจค่านั้นที่ชั้นไหน”
+เราใช้หลายชั้นเพราะไม่มีชั้นใดตอบได้ครบทุกคำถาม
+
+Login สำเร็จไม่ได้แปลว่าทำได้ทุกอย่าง ผู้ใช้ยังต้องผ่านการตรวจสิทธิ์ของงานนั้นและข้อมูล Row นั้นด้วย
 
 ---
 
-## Slide 4: ทำไมต้องป้องกัน Broken Access Control หลายชั้น
+## Slide 4: ทำไมซ่อนปุ่มอย่างเดียวไม่พอ
 
-Broken Access Control คือการที่ผู้ใช้ทำสิ่งที่ตัวเองไม่มีสิทธิ์ แม้จะ Login สำเร็จแล้วก็ตาม
+การซ่อนปุ่ม Admin ช่วยให้หน้าเว็บใช้ง่าย แต่ผู้ใช้ยังสามารถพิมพ์ URL หรือสร้าง Request เองได้
 
 ```text
-UI            → ซ่อนลิงก์ Admin และปุ่มเปลี่ยน status จาก USER
-Page Guard    → ป้องกันการพิมพ์ /admin/issues โดยตรง
-Server Action → ป้องกัน request ที่สร้างขึ้นเอง
-RLS           → ป้องกัน operation และ row ที่ database
+UI            → ไม่แสดงสิ่งที่ผู้ใช้ไม่ควรใช้
+Page Guard    → กันการเปิด URL โดยตรง
+Server Action → ตรวจสิทธิ์ก่อนเปลี่ยนข้อมูล
+RLS           → ให้ Database ตรวจเป็นด่านสุดท้าย
 ```
 
-### ลองตรวจด้วย USER
+ใน Project นี้ `canManage` ดูแล UI, `requireAdmin()` ดูแล Server และ RLS ดูแลข้อมูลจริง ทั้งสามส่วนทำหน้าที่ต่างกัน
 
-1. เปิด `/admin/issues` โดยตรง → ต้องกลับไป `/issues`
-2. เปิด issue ของคนอื่น → ต้องไม่เห็นข้อมูล
-3. ส่ง update request เอง → Server Action หรือ RLS ต้องปฏิเสธ
-
-การทดสอบว่า ADMIN ใช้งานได้อย่างเดียวไม่พอ ต้องพิสูจน์ด้วยว่า USER ทำสิ่งที่ไม่ได้รับอนุญาตไม่ได้
+แนวคิดนี้เรียกว่า **Defense in Depth** หรือการป้องกันหลายชั้น
 
 ---
 
-## Slide 5: Validation กับการป้องกัน Injection ต่างกันอย่างไร
+## Slide 5: มอง Security เป็นคำถาม ไม่ใช่รายการให้ท่อง
 
-### Validation ตรวจว่าข้อมูลเหมาะกับระบบหรือไม่
+OWASP รวบรวมความเสี่ยงที่พบบ่อยของเว็บ เราไม่จำเป็นต้องจำทุกชื่อ แต่ใช้เป็นคำถามเวลาตรวจระบบได้
 
-```text
-title ต้องยาวอย่างน้อย 5 ตัวอักษร
-description ต้องยาวอย่างน้อย 10 ตัวอักษร
-status ต้องเป็น OPEN, IN_PROGRESS หรือ DONE
-```
+| คำถาม | ตัวอย่างใน Issue Tracker |
+|---|---|
+| ผู้ใช้เข้าถึงเกินสิทธิ์หรือไม่ | USER เปิดหน้า Admin หรือแก้ Issue คนอื่นได้ |
+| ระบบยังเปิดสิทธิ์ทดลองอยู่หรือไม่ | Demo Policy หรือสิทธิ์ `anon` ยังไม่ถูกปิด |
+| Input ถูกนำไปใช้อย่างปลอดภัยหรือไม่ | นำข้อความจากผู้ใช้ไปต่อเป็น SQL โดยตรง |
+| เมื่อเกิด Error ระบบเปิดเผยข้อมูลมากไปหรือไม่ | แสดง Token, Secret หรือรายละเอียดภายในบนหน้าเว็บ |
 
-### การป้องกัน Injection แยก code ออกจากข้อมูล
-
-- ใช้ Supabase client ส่งค่าผ่าน method เช่น `.eq()` และ `.insert()`
-- อย่านำ input มาต่อเป็น SQL string เอง
-- React แสดงข้อความเป็น text ตามปกติ อย่าใช้ `dangerouslySetInnerHTML` กับข้อมูลจากผู้ใช้โดยไม่จำเป็น
-
-Browser validation ช่วยให้กรอก form ง่ายขึ้น แต่ Server Action ยังต้อง validate ซ้ำ เพราะผู้ใช้ส่ง request โดยไม่ผ่าน form ได้
-
-เมื่อเกิด error ให้เก็บรายละเอียดที่จำเป็นไว้ใน server log และแสดงข้อความที่เข้าใจง่ายบนหน้าเว็บ โดยไม่เปิดเผย password, token หรือ secret
+ประโยคที่ช่วยตรวจได้เสมอคือ: **ผู้ใช้ควบคุมค่าอะไรได้ และระบบตรวจค่านั้นที่ชั้นไหน**
 
 ---
 
-## Slide 6: ค่าไหนเปิดเผยได้ และค่าไหนต้องเป็น Secret
+## Slide 6: ข้อมูลจากผู้ใช้ต้องถูกตรวจเสมอ
 
-```text
-NEXT_PUBLIC_SUPABASE_URL             → ใช้ใน browser ได้
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY → ใช้ใน browser ได้
-service_role key                     → ห้ามส่งไป browser
-```
+ข้อมูลจาก Form หรือ URL สามารถถูกแก้ก่อนส่งมาที่ Server ได้ จึงไม่ควรเชื่อค่าจาก Browser ทันที
 
-Publishable key บอกว่าแอปกำลังเชื่อม Supabase project ใด แต่ไม่ได้ให้สิทธิ์ข้าม RLS ความปลอดภัยของข้อมูลจึงขึ้นอยู่กับ GRANT และ policies ที่เราเขียน
+- ตรวจ Form ซ้ำใน Server Action
+- จำกัด Status ให้เป็นค่าที่ระบบรองรับ
+- ใช้ `user.id` จาก Session แทนการรับเจ้าของ Issue จาก Form
+- ใช้ Supabase methods เช่น `.insert()` และ `.eq()` แทนการต่อ SQL String เอง
+- แสดง Error ที่เข้าใจง่าย โดยไม่เปิดเผย Password, Token หรือ Secret
 
-### ก่อน Push Code
-
-- `.env.local` ต้องอยู่ใน `.gitignore`
-- `.env.example` มีเฉพาะชื่อ variable และไม่มีค่าจริง
-- ตรวจ `git status` ก่อน commit
-- ห้ามใส่ password, token หรือ service role key ใน README
-
-ติดตั้งเฉพาะ package ที่รู้ว่าใช้ทำอะไร และตรวจชื่อ package จาก documentation ทางการก่อนรันคำสั่งที่ AI แนะนำ
+Browser validation ช่วยเรื่องประสบการณ์ใช้งาน ส่วน Server validation ช่วยรักษาความถูกต้องของระบบ
 
 ---
 
-## Slide 7: ใช้ AI ช่วยเขียน Code โดยไม่เชื่อทันที
+## Slide 7: ค่า Public กับ Secret ต่างกันอย่างไร
 
-มอง code จาก AI เหมือน code ที่คัดลอกจากอินเทอร์เน็ต: ใช้เป็นจุดเริ่มต้นได้ แต่ต้องตรวจเองก่อน
+ชื่อ Variable ไม่ได้บอกเพียงว่าเก็บไว้ที่ไหน แต่บอกด้วยว่า Code ฝั่งใดสามารถอ่านค่านั้นได้
 
-```text
-1. ให้ AI อธิบายว่า code เปลี่ยนอะไรและทำงานฝั่งไหน
-2. เทียบ API กับ documentation ของ version ที่ project ใช้
-3. อ่าน diff และตรวจทุกไฟล์ที่เปลี่ยน
-4. รัน build และทดสอบ flow จริง
-5. ทดสอบข้อมูลผิด, ไม่มี session และไม่มีสิทธิ์
-```
+| ค่า | เปิดเผยใน Browser ได้หรือไม่ |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | ได้ |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ได้ แต่ต้องใช้คู่กับ RLS |
+| Password, Token และ `service_role` key | ไม่ได้ |
 
-อย่าส่ง `.env.local`, password, token, API secret หรือข้อมูลส่วนบุคคลให้ AI
+`.env.local` ต้องไม่ถูก Commit ส่วน `.env.example` ควรมีเฉพาะชื่อ Variable โดยไม่มีค่าจริง
 
-ก่อนใช้ code ที่เกี่ยวกับสิทธิ์ ต้องตอบให้ได้ว่า:
-
-- user และ role ถูกตรวจที่ไหน
-- field ใดมาจาก browser และ field ใดมาจาก session
-- database มี RLS policy รองรับ operation นี้หรือไม่
-
-ถ้ายังอธิบายไม่ได้ แปลว่ายังไม่ควรนำ code นั้นไปใช้จริง
+Publishable key ไม่ใช่ Secret ที่ให้สิทธิ์ทุกอย่าง ความปลอดภัยของข้อมูลยังขึ้นอยู่กับ GRANT และ RLS
 
 ---
 
-## Slide 8: ตรวจ Supabase ก่อนทดสอบ Production
+## Slide 8: ใช้ AI ช่วยได้ แต่เรายังเป็นผู้รับผิดชอบ
 
-### Table `issues`
+Code จาก AI เป็นจุดเริ่มต้นที่ดี แต่ก่อนนำมาใช้ควรถามว่า:
 
-- เปิด RLS
-- มี SELECT, INSERT และ UPDATE policies สำหรับ `authenticated`
-- ไม่มี demo policy ที่ใช้ `using (true)` หรือ `with check (true)`
-- ไม่มีสิทธิ์ `anon` สำหรับอ่านหรือแก้ข้อมูล
+1. Code นี้เปลี่ยนไฟล์และ Flow ส่วนใด
+2. API ตรงกับ Version ที่ Project ใช้อยู่หรือไม่
+3. Input, Session และ Role ถูกตรวจที่ไหน
+4. มี RLS รองรับ Operation นี้หรือไม่
+5. Build ผ่านและทดสอบทั้งกรณีสำเร็จกับไม่สำเร็จแล้วหรือยัง
 
-### Table `profiles`
+อย่าส่ง `.env.local`, Password, Token, Secret หรือข้อมูลส่วนบุคคลให้ AI
 
-- เปิด RLS
-- USER อ่านได้เฉพาะ profile ของตัวเอง
-- `user@example.com` มี role `USER`
-- `admin@example.com` มี role `ADMIN`
-
-สร้าง issue ใหม่ด้วย USER แล้วตรวจว่า `created_by` ตรงกับ id ของ account นั้น
-
-Table Editor ใช้สิทธิ์ผู้ดูแลและอาจเห็นข้อมูลที่หน้าเว็บมองไม่เห็น ดังนั้นการเห็น row ใน Table Editor ยังไม่ยืนยันว่า SELECT policy ของ USER ทำงานถูกต้อง
+ถ้าเรายังอธิบาย Code ไม่ได้ ก็ควรหยุดอ่านและทดสอบก่อนนำ Code นั้นเข้า Project
 
 ---
 
-## Slide 9: Deploy Code ล่าสุดและทดสอบของจริง
+## Slide 9: เมื่อระบบมีปัญหา ให้ไล่ตรวจทีละชั้น
 
-ท้าย Hour 3 เรา push code ระบบ Auth และ Authorization แล้ว หาก GitHub เชื่อมกับ Vercel จะเกิด Production Deployment ใหม่
+ไม่ต้องรีบแก้หลายไฟล์พร้อมกัน ให้เริ่มจากอาการที่เห็น
 
-```text
-1. เปิด Vercel และตรวจว่า deployment มาจาก commit ล่าสุด
-2. รอให้ build สำเร็จ
-3. ตรวจ Environment Variables ของ Production
-4. เปิด Production URL และทดสอบ USER/ADMIN
-5. หากแก้ env vars ต้อง redeploy เพื่อให้ deployment ใหม่อ่านค่า
-```
+| อาการ | จุดที่ควรเริ่มตรวจ |
+|---|---|
+| ปุ่มหรือข้อความแสดงไม่ถูก | Props และเงื่อนไขใน UI |
+| กด Form แล้วไม่ทำงาน | Validation, Server Action และ Server Log |
+| อ่านหรือเขียน Table ไม่ได้ | Supabase Error, GRANT และ RLS |
+| ข้อมูลเข้าแต่หน้า List ว่าง | Session, `created_by` และ SELECT Policy |
+| Local ใช้ได้แต่ Production ไม่ได้ | Environment Variables และ Deployment |
 
-### Flow ที่ต้องผ่านบน Production
+เป้าหมายของหลักสูตรไม่ใช่การจำทุก Syntax แต่คืออ่าน Flow ออก รู้ว่าควรตรวจชั้นไหน และอธิบายเหตุผลของ Code ที่เขียนได้
 
-- USER Login → สร้าง issue → เห็นเฉพาะ issue ของตัวเอง
-- USER เปิด `/admin/issues` → ถูกส่งกลับ `/issues`
-- ADMIN Login → เห็น issue ทั้งหมด → เปลี่ยน status ได้
-- Logout → protected pages ส่งไป `/login`
-
-ก่อนส่ง project ให้เพิ่ม Production URL, วิธีรัน และชื่อ environment variables ที่ต้องใช้ไว้ใน README โดยไม่ใส่ค่าจริงหรือ password
-
----
-
-## Slide 10: เมื่อระบบมีปัญหา ให้หาว่าเสียที่ชั้นไหน
-
-อย่าแก้หลายไฟล์พร้อมกัน ให้เริ่มจากอาการแล้วตรวจชั้นที่เกี่ยวข้อง:
-
-```text
-ปุ่มหรือข้อมูลบนหน้าผิด       → ตรวจ props และ conditional UI
-กด form แล้วไม่ทำงาน         → ตรวจ Server Action และ server logs
-อ่าน/เขียน table ไม่ได้       → ตรวจ Supabase error, GRANT และ RLS
-ข้อมูลเข้าแต่หน้า list ว่าง    → ตรวจ created_by, session และ SELECT policy
-Local ใช้ได้ Production ไม่ได้ → ตรวจ env vars, deployment และ Supabase project
-```
-
-### หลังจากนี้คุณสามารถต่อยอดได้
-
-- เพิ่ม automated tests สำหรับ USER และ ADMIN
-- เพิ่ม error states ที่ช่วยให้ผู้ใช้แก้ปัญหาได้
-- เพิ่ม pagination และ search เมื่อข้อมูลมากขึ้น
-- เพิ่ม audit log และ monitoring สำหรับการใช้งานจริง
-
-เป้าหมายของหลักสูตรไม่ใช่จำทุก syntax แต่คืออ่าน flow ออก รู้ว่าควรตรวจชั้นไหน และอธิบายเหตุผลของ code ที่นำไปใช้ได้
+จากนี้สามารถต่อยอดเรื่อง Testing, Error States, Search, Pagination, Audit Log และ Monitoring ได้ตามความต้องการของระบบจริง
 
 ---
 
 ## อ้างอิง
 
-- [OWASP Top 10:2025](https://owasp.org/Top10/)
+- [OWASP Top 10](https://owasp.org/Top10/)
 - [Supabase Production Checklist](https://supabase.com/docs/guides/deployment/going-into-prod)
 - [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
-- [Vercel Environment Variables](https://vercel.com/docs/environment-variables)

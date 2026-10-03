@@ -16,7 +16,7 @@
 | Day 2 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-2 มี Hour ละ 15 slides, Hour 3 มี 16 slides และ Hour 4 มี 24 slides; สร้าง Next.js 16 แบบ root-level `app/`, ย้าย Static TSX และ Custom CSS, สร้าง `Issue` และ `.map()`, แล้วแยก `types`, `data`, Components, Routes และหน้า Not Found โดยยังไม่เปิด Tailwind |
 | Day 3 | ปรับตามกฎ Slide Budget & Clarity แล้ว รอตรวจร่วมกัน | Hour 1-4 มี 17, 15, 20 และ 13 slides; ตัดทฤษฎีที่ติดกันแล้วย้ายคำอธิบาย Class ไปไว้ตอนที่ใช้จริง; ตรวจที่ 1366x768 แล้วไม่มีหน้าล้นจอ (กล่องโค้ดแสดงได้ราว 11 บรรทัด); เปลี่ยนชื่อ `createIssueFormInput` เป็น `createIssueFromInput` รวมถึงใน Day 4 |
 | Day 4 | ปรับตามกฎ Slide Budget & Clarity แล้ว รอตรวจร่วมกัน | Hour 1-4 มี 14, 16, 16 และ 14 slides; ทุกขั้นลงมือทำมี badge และ `CodeChange`; แก้ `IssueForm`/`IssueList` เป็นขั้นย่อยแบบ diff แทนโค้ดเต็มไฟล์; ตัด `admin_comment` และ `updatedAt` ที่ไม่ได้ใช้ใน UI; ลบ `IssueBoard` และ `data/issue.ts` ท้าย Hour 2 หลังทุกหน้าอ่าน Supabase |
-| Day 5 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1 เหลือ 12 slides สำหรับ Auth และ Supabase SSR Setup; Hour 2 เหลือ 13 slides สำหรับ Login, Protected Page/Action และ Logout; Hour 3 มี 20 slides สำหรับเจ้าของ Issue, Profile Role, RLS และหน้า Admin; Hour 4 ลดเหลือ 9 slides แบบทบทวน Theory, Security Layers, Secret, AI Code Review และแนวทาง Debug โดยไม่เพิ่ม Feature ใหม่ |
+| Day 5 | ปรับตามกฎ Slide Budget & Clarity แล้ว รอตรวจร่วมกัน | Hour 1-4 มี 12, 13, 20 และ 9 slides; เปลี่ยน callout `review`/`concept`/`check` เป็นข้อความปกติ และใช้ badge `ลงมือทำ` แบบ inline; แบ่งโค้ด Setup (`server.ts`, Proxy) เป็นขั้นย่อย; ตัด `LoginForm` (หน้า `/login` ใส่ฟอร์มเอง); `AppNav` ใช้ Class เมนูของ Day 3 และข้อความไทย; Hour 4 เป็นการทบทวนล้วนตามที่ออกแบบไว้ |
 
 ## สถานะ Project เมื่อจบ Day 4
 
@@ -36,7 +36,7 @@
 
 ## หลักในการตรวจรอบถัดไป
 
-- ใช้กฎ Slide Budget & Clarity ใน `AGENTS.md` กับ Day อื่นต่อ; ที่ 1366x768 กล่องโค้ดใน slide mode แสดงได้ราว 11 บรรทัด ถ้าเกินให้แยก slide
+- ใช้กฎ Slide Budget & Clarity ใน `AGENTS.md` กับ Day 1-2 ต่อ; ที่ 1366x768 กล่องโค้ดใน slide mode แสดงได้ราว 14 บรรทัด (นับบรรทัดว่างด้วย) หลังปรับ `.slide-prose pre` เป็น `min(50svh, 24rem)` ถ้าเกินให้แยก slide
 - slide mode ใน `npm run dev` ขึ้น 404 ทุกบท ให้ตรวจผ่าน `npm run build` แล้วเปิดโฟลเดอร์ `out`
 - ทุก step ต้องนำไปสู่สถานะ project เมื่อจบ Day 4 และ Day 5
 - ลบ feature หรือ abstraction ที่สร้างแล้วไม่ได้ใช้ใน flow สุดท้าย
