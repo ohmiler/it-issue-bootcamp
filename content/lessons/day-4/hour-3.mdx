@@ -12,81 +12,64 @@ source: "day-4-hour-3-create-with-server-actions.md"
 
 ### เป้าหมายของชั่วโมงนี้
 
-หลังจบชั่วโมงนี้ ผู้เรียนจะสามารถ:
+หลังจบชั่วโมงนี้ นักศึกษาจะสามารถ:
 
 1. อธิบายหน้าที่ของ Server Action ได้
-2. รับและตรวจข้อมูล `FormData` บน Server ได้
-3. เพิ่ม Issue ใหม่ลง Supabase ได้
-4. เชื่อม `<form>` เข้ากับ Server Action ได้
-5. แสดงข้อมูลล่าสุดหลังบันทึกสำเร็จได้
+2. อ่านและตรวจข้อมูลจากฟอร์มบน Server
+3. เพิ่ม Issue ใหม่ลง Supabase
+4. ให้ `IssueForm` ส่งข้อมูลไปที่ Server Action
 
-### ไฟล์ที่ใช้ในชั่วโมงนี้
+### ไฟล์ที่ใช้
 
 ```text
-types/issue.ts              เพิ่ม Type สำหรับข้อมูลจาก Form
-lib/issues.ts               เพิ่ม Function สำหรับ Insert
-app/actions.ts              สร้าง Server Action
-components/IssueForm.tsx    เปลี่ยนจาก Client Submit เป็น Form Action
-app/issues/new/page.tsx     จัดหน้า Form
+types/issue.ts              ← แก้ไข
+app/actions.ts              ← สร้างใหม่
+lib/issues.ts               ← แก้ไข
+components/IssueForm.tsx    ← แก้ไข
+app/issues/new/page.tsx     ← แก้ไข
 ```
 
 ---
 
 ## Slide 1: จาก Read ไปสู่ Create
 
-Hour 2 ทำให้ระบบอ่านข้อมูลจริงจาก Supabase ได้แล้ว:
+หน้า `/issues` และหน้ารายละเอียดอ่านข้อมูลจาก Supabase แล้ว แต่ฟอร์มยังเป็นของ Day 3 ที่เก็บข้อมูลใน Browser
+
+ชั่วโมงนี้จะให้ฟอร์มบันทึกลง Database:
 
 ```text
-Supabase → getIssues() → /issues
-Supabase → getIssueById() → /issues/[id]
+IssueForm → Server Action → ตรวจข้อมูล → เพิ่มลง Supabase → กลับไปหน้า /issues
 ```
 
-แต่ Form จาก Day 3 ยังเพิ่มข้อมูลลง State ใน Browser เท่านั้น เมื่อ Refresh ข้อมูลจึงหาย
-
-Hour นี้เราจะเปลี่ยน Create Flow เป็น:
-
-```text
-IssueForm
-  → Server Action
-  → ตรวจข้อมูลบน Server
-  → Insert ลง Supabase
-  → กลับไปหน้า /issues
-```
-
-หลังเปลี่ยนแล้ว Supabase จะเป็น Source of Truth ทั้งการอ่านและการสร้าง Issue
+โค้ดอ่านและตรวจข้อมูลจาก Day 3 จะย้ายจาก `IssueForm` ไปทำงานบน Server
 
 ---
 
 ## Slide 2: Server Action คืออะไร
 
-Server Action คือ `async function` ที่ทำงานบน Server และสามารถรับข้อมูลจาก `<form>` ได้โดยตรง
+**Server Action** คือ `async function` ที่ทำงานบน Server และฟอร์มเรียกได้โดยตรงผ่าน `action`:
 
 ```tsx
 <form action={createIssueAction}>
-  {/* fields */}
+  {/* ช่องกรอกเดิม */}
 </form>
 ```
 
-เมื่อผู้ใช้กด Submit:
+เมื่อกดส่งฟอร์ม:
 
-1. Browser รวบรวมค่าจาก Field ที่มี `name`
-2. Next.js สร้าง `FormData` แล้วส่งให้ `createIssueAction`
-3. Action ตรวจข้อมูลและเรียก Function สำหรับบันทึก Database
-4. เมื่อสำเร็จ ระบบพาผู้ใช้ไปหน้ารายการ
+1. Browser รวบรวมค่าจากช่องกรอกที่มี `name` เป็น `FormData`
+2. Next.js ส่ง `FormData` ไปให้ `createIssueAction` บน Server
+3. Action ตรวจข้อมูลแล้วบันทึกลง Database
 
-### ทำไมใช้ Server Action
-
-- Form ติดต่อ Logic ฝั่ง Server ได้โดยไม่ต้องสร้าง API Route เพิ่ม
-- Code สำหรับบันทึก Database ไม่ต้องทำงานใน Browser
-- เราสามารถตรวจข้อมูลซ้ำก่อนบันทึกจริงได้
-
-Server Action ไม่ได้ทำให้ข้อมูลปลอดภัยโดยอัตโนมัติ ทุก Action ยังต้องตรวจ Input และภายหลังต้องตรวจสิทธิ์ผู้ใช้งานด้วย
+ต้องตรวจข้อมูลซ้ำบน Server เพราะคนอื่นส่งข้อมูลตรงมาโดยไม่ผ่านฟอร์มได้
 
 ---
 
-## Slide 3: สร้าง Type สำหรับข้อมูลจาก Form
+## Slide 3: ย้าย Type ของข้อมูลจากฟอร์ม
 
-แก้บางส่วนใน `types/issue.ts` โดยเพิ่ม Type นี้ต่อจาก `Issue`:
+<LessonCallout type="action">แก้บางส่วนใน `types/issue.ts`: เพิ่ม Type นี้ต่อจาก `Issue`</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,2,3,4,5,6">
 
 ```ts
 export type NewIssueInput = {
@@ -97,28 +80,43 @@ export type NewIssueInput = {
 };
 ```
 
-`NewIssueInput` มีเฉพาะค่าที่ผู้ใช้ต้องกรอก ส่วน `Issue` คือข้อมูลที่บันทึกสมบูรณ์แล้ว
+</CodeChange>
 
-| ผู้ใช้กรอก | Database สร้างหรือกำหนดให้ |
-|---|---|
-| `reporterName` | `id` |
-| `reporterEmail` | `status` |
-| `title` | `createdAt` |
-| `description` | `updatedAt` |
+เป็น Type เดียวกับที่ประกาศใน `IssueForm` ของ Day 3 แต่ใส่ `export` เพื่อให้ไฟล์ Server ใช้ได้
 
-จึงไม่ควรใช้ `Issue` เป็น Type ของข้อมูลจาก Form เพราะตอน Submit เรายังไม่มีข้อมูลครบทุก Property
+`NewIssueInput` มีเฉพาะค่าที่ผู้ใช้กรอก ส่วน `id`, `status` และ `created_at` Database ใส่ให้เอง
 
 ---
 
-## Slide 4: อ่านค่าจาก `FormData`
+## Slide 4: สร้างไฟล์ Server Action
 
-สร้างไฟล์ใหม่ `app/actions.ts` แล้วเริ่มด้วย Code นี้:
+<LessonCallout type="action">สร้างไฟล์ใหม่ `app/actions.ts` แล้วใส่โค้ดเริ่มต้นนี้</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,3">
 
 ```ts
 "use server";
 
 import type { NewIssueInput } from "@/types/issue";
+```
 
+</CodeChange>
+
+`"use server"` ต้องอยู่บรรทัดแรก เพื่อบอกว่า Function ที่ `export` จากไฟล์นี้เป็น Server Action ทำงานบน Server
+
+ตรงข้ามกับ `"use client"` ที่ใช้ใน Day 3 ซึ่งทำให้โค้ดทำงานใน Browser
+
+ไฟล์นี้จะรวม Action ทั้งหมดของระบบ ทั้งเพิ่ม Issue ในชั่วโมงนี้ และเปลี่ยนสถานะใน Hour 4
+
+---
+
+## Slide 5: อ่านค่าจาก FormData
+
+<LessonCallout type="action">เพิ่ม Function ใหม่ `parseIssueInput` ใน `app/actions.ts` ต่อจาก Import</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,2,3,4,5,6,7,8">
+
+```ts
 function parseIssueInput(formData: FormData): NewIssueInput {
   return {
     reporterName: String(formData.get("reporterName") ?? "").trim(),
@@ -129,66 +127,50 @@ function parseIssueInput(formData: FormData): NewIssueInput {
 }
 ```
 
-- `"use server"` ต้องอยู่ก่อน Import เพื่อระบุว่า Function ที่ Export จากไฟล์นี้ทำงานบน Server
-- `formData.get("reporterName")` อ่านค่าจาก Field ที่มี `name="reporterName"`
-- `?? ""` ใช้ข้อความว่างเมื่อไม่พบ Field
-- `String(...)` ทำให้ค่าที่อ่านได้เป็น String
-- `.trim()` ตัดช่องว่างด้านหน้าและด้านหลัง
+</CodeChange>
 
-ชื่อใน `formData.get(...)` ต้องตรงกับ `name` ของ Input ทุกตัว ไม่เช่นนั้นค่าที่อ่านได้จะเป็นข้อความว่าง
+`parseIssueInput` อ่านค่าเหมือน `getIssueInput` ใน Day 3 ต่างกันตรงที่รับ `FormData` ที่ Next.js ส่งมาให้โดยตรง ไม่ต้องสร้างจากฟอร์มเอง
 
 ---
 
-## Slide 5: ตรวจข้อมูลบน Server
+## Slide 6: ตรวจข้อมูลบน Server
 
-เพิ่ม Function นี้ต่อจาก `parseIssueInput()` ใน `app/actions.ts`:
+<LessonCallout type="action">ย้าย Function `validateIssueInput` จาก `components/IssueForm.tsx` มาวางใน `app/actions.ts` ต่อจาก `parseIssueInput`</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,2,3,4,5,6,7,8">
 
 ```ts
 function validateIssueInput(input: NewIssueInput): string[] {
   const errors: string[] = [];
-
-  if (input.reporterName.length < 2) {
-    errors.push("กรุณากรอกชื่อผู้แจ้ง");
-  }
-
-  if (!input.reporterEmail.includes("@")) {
-    errors.push("กรุณากรอกอีเมลให้ถูกต้อง");
-  }
-
-  if (input.title.length < 5) {
-    errors.push("หัวข้อปัญหาต้องมีอย่างน้อย 5 ตัวอักษร");
-  }
-
-  if (input.description.length < 10) {
-    errors.push("รายละเอียดปัญหาต้องมีอย่างน้อย 10 ตัวอักษร");
-  }
-
+  if (input.reporterName.length < 2) errors.push("ชื่อผู้แจ้งต้องมีอย่างน้อย 2 ตัวอักษร");
+  if (!input.reporterEmail.includes("@")) errors.push("กรุณาตรวจสอบอีเมลผู้แจ้ง");
+  if (input.title.length < 5) errors.push("หัวข้อปัญหาต้องมีอย่างน้อย 5 ตัวอักษร");
+  if (input.description.length < 10) errors.push("รายละเอียดต้องมีอย่างน้อย 10 ตัวอักษร");
   return errors;
 }
 ```
 
-Function นี้ตรวจครบทุก Field แล้วคืน Array ของข้อความ Error:
+</CodeChange>
 
-```text
-[]                     → ข้อมูลผ่าน
-["กรุณากรอก..."]       → ข้อมูลยังไม่ผ่าน
-```
+โค้ดเหมือน Day 3 ทุกบรรทัด ใช้ตัดแล้ววางได้เลย
 
-แม้ Input จะมี `required`, `type="email"` หรือ `minLength` ใน HTML เราก็ยังตรวจซ้ำบน Server เพราะ Request สามารถถูกสร้างขึ้นโดยไม่ผ่านหน้า Form ได้
+ตอนนี้ `IssueForm.tsx` จะขึ้น Error ว่าหา `validateIssueInput` ไม่พบ ไม่เป็นไร Slide 11 จะลบส่วนที่เรียกใช้ออก
 
 ---
 
-## Slide 6: สร้าง `createIssue()` สำหรับ Insert
+## Slide 7: เริ่ม Function เพิ่มข้อมูล
 
-แก้บางส่วนใน `lib/issues.ts`
+<LessonCallout type="action">แก้บางส่วนใน `lib/issues.ts`: เพิ่ม `NewIssueInput` ใน Type Import เดิม แล้วเพิ่ม `createIssue` ต่อจาก `getIssueById`</LessonCallout>
 
-เพิ่ม `NewIssueInput` เข้าไปใน Type Import เดิม:
+<CodeChange language="ts" addedLines="1">
 
 ```ts
 import type { Issue, IssueStatus, NewIssueInput } from "@/types/issue";
 ```
 
-จากนั้นเพิ่ม Function นี้ต่อจาก `getIssueById()`:
+</CodeChange>
+
+<CodeChange language="ts" addedLines="1,2,3,4,6,7">
 
 ```ts
 export async function createIssue(
@@ -196,36 +178,48 @@ export async function createIssue(
 ): Promise<void> {
   const supabase = createSupabaseServerClient();
 
-  const { error } = await supabase.from("issues").insert({
-    reporter_name: input.reporterName,
-    reporter_email: input.reporterEmail,
-    title: input.title,
-    description: input.description,
-    status: "OPEN",
-  });
-
-  if (error) {
-    throw new Error(`Failed to create issue: ${error.message}`);
-  }
+  // คำสั่งเพิ่มข้อมูลในขั้นถัดไป
 }
 ```
 
-### ลำดับการทำงาน
+</CodeChange>
 
-1. รับข้อมูลที่ผ่าน Validation แล้ว
-2. เลือก Table `issues`
-3. `.insert({...})` เพิ่มข้อมูล 1 Row
-4. แปลงชื่อ Property แบบ `camelCase` ให้ตรงกับ Column แบบ `snake_case`
-5. กำหนด Status เริ่มต้นเป็น `OPEN`
-6. ถ้า Insert ล้มเหลว ให้หยุดและแจ้ง Error
-
-เราอ่านเฉพาะ `error` เพราะ Flow นี้ยังไม่ต้องใช้ Row ที่เพิ่งสร้างกลับมา
+Comment บอกตำแหน่งที่จะวางโค้ดในขั้นถัดไป ไม่ต้องคัดลอก
 
 ---
 
-## Slide 7: สร้าง `createIssueAction()`
+## Slide 8: เพิ่ม Issue ลง Table
 
-เพิ่ม Import เหล่านี้ด้านบน `app/actions.ts` ต่อจาก Type Import:
+<LessonCallout type="action">แก้บางส่วนใน `lib/issues.ts`: แทน Comment ภายใน `createIssue` ด้วยโค้ดนี้</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,2,3,4,5,6,7,9,10,11">
+
+```ts
+const { error } = await supabase.from("issues").insert({
+  reporter_name: input.reporterName,
+  reporter_email: input.reporterEmail,
+  title: input.title,
+  description: input.description,
+  status: "OPEN",
+});
+
+if (error) {
+  throw new Error(`Failed to create issue: ${error.message}`);
+}
+```
+
+</CodeChange>
+
+- `.insert({...})` เพิ่ม 1 แถว โดยแปลงชื่อเป็น `snake_case` ให้ตรงกับ Column
+- ถ้า Database ปฏิเสธ เช่น ไม่มีสิทธิ์ จะหยุดและแจ้ง Error
+
+---
+
+## Slide 9: สร้าง Action ที่ฟอร์มเรียก
+
+<LessonCallout type="action">แก้บางส่วนใน `app/actions.ts`: เพิ่ม Import ต่อจาก Type Import แล้วเพิ่ม `createIssueAction` ท้ายไฟล์</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,2,3">
 
 ```ts
 import { revalidatePath } from "next/cache";
@@ -233,316 +227,175 @@ import { redirect } from "next/navigation";
 import { createIssue } from "@/lib/issues";
 ```
 
-จากนั้นเพิ่ม Server Action ต่อจาก `validateIssueInput()`:
+</CodeChange>
+
+<CodeChange language="ts" addedLines="1,2,3,4,6,7,8,9">
 
 ```ts
 export async function createIssueAction(formData: FormData) {
   const input = parseIssueInput(formData);
   const errors = validateIssueInput(input);
-
-  if (errors.length > 0) {
-    throw new Error(errors.join(", "));
-  }
+  if (errors.length > 0) throw new Error(errors.join(", "));
 
   await createIssue(input);
-
   revalidatePath("/issues");
   redirect("/issues");
 }
 ```
 
-### Action นี้ควบคุมทั้ง Create Flow
+</CodeChange>
 
-1. `parseIssueInput()` อ่านค่าจาก Form
-2. `validateIssueInput()` ตรวจข้อมูล
-3. ถ้ามี Error ให้หยุดก่อนบันทึก
-4. `await createIssue(input)` รอจน Insert สำเร็จ
-5. `revalidatePath("/issues")` ทำให้หน้ารายการอ่านข้อมูลล่าสุด
-6. `redirect("/issues")` พาผู้ใช้ไปดูรายการ
-
-ต้องเรียก `revalidatePath()` ก่อน `redirect()` เพราะ `redirect()` จะจบการทำงานของ Action ทันที
+`revalidatePath` ให้หน้า `/issues` อ่านข้อมูลใหม่ แล้ว `redirect` พาไปหน้านั้น
 
 ---
 
-## Slide 8: เปลี่ยน `IssueForm` ให้เรียก Server Action
+## Slide 10: เอาโค้ดฝั่ง Browser ออกจาก IssueForm
 
-### เทียบกับ Code ปัจจุบัน
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: ลบส่วนบนของไฟล์ตามตัวอย่าง และเพิ่ม Import ของ Action</LessonCallout>
 
-เพิ่ม Import ใหม่ไว้บนสุดของไฟล์ เพื่อให้ Form เรียก Server Action ที่สร้างใน Slide 7:
-
-```tsx
-import { createIssueAction } from "@/app/actions";
-```
-
-ลบ Client Logic ที่ย้ายไปทำงานใน `app/actions.ts` และ Supabase แล้ว:
-
-- `"use client"`
-- `useState` และ Type `Issue`
-- Type `NewIssueInput` ที่ประกาศใน Component
-- `getIssueInput()`, `validateIssueInput()` และ `createIssueFromInput()`
-- Type `IssueFormProps` และ Prop `onCreateIssue`
-- State `errors` และ Function `handleSubmit()`
-- กล่อง `{errors.length > 0 && (...)}`
-
-แก้จุดเชื่อม Form:
+<CodeChange language="tsx" removedLines="1,3,4,5,8,9,10,11" addedLines="6">
 
 ```tsx
-// เดิม: ทำงานใน Browser
-<form className="mt-4" onSubmit={handleSubmit}>
+"use client";
 
-// ใหม่: ส่ง FormData ไป Server Action
-<form action={createIssueAction} className="mt-6">
-```
-
-ลบ `<section>` และ `<h2>` ที่ครอบ Form ออก เพราะ Slide 9 จะให้ `app/issues/new/page.tsx` รับผิดชอบ Card และหัวข้อของหน้าแทน
-
-Field เดิมยังใช้ต่อ แต่ให้ปรับเพิ่มเล็กน้อย:
-
-- `reporterEmail` เปลี่ยนจาก `type="text"` เป็น `type="email"`
-- เพิ่ม `minLength={2}` ให้ชื่อผู้แจ้ง
-- เพิ่ม `minLength={5}` ให้หัวข้อ
-- เพิ่ม `minLength={10}` และ `resize-y` ให้รายละเอียด
-- เก็บ `id`, `name`, `required`, Label และ Tailwind Class เดิมไว้
-
-ใช้ Code นี้แทนเนื้อหาทั้งไฟล์ `components/IssueForm.tsx`:
-
-```tsx
+import { useState } from "react";
+import type { SubmitEvent } from "react";
+import type { Issue } from "@/types/issue";
 import { createIssueAction } from "@/app/actions";
 
+type NewIssueInput = { /* ... */ };
+function getIssueInput(form: HTMLFormElement): NewIssueInput { /* ... */ }
+function createIssueFromInput(input: NewIssueInput): Issue { /* ... */ }
+type IssueFormProps = { /* ... */ };
+```
+
+</CodeChange>
+
+ตัวอย่างย่อแต่ละชุดด้วย `/* ... */` ให้ลบทั้งชุดจนถึงวงเล็บปิด ส่วน `validateIssueInput` ย้ายไปแล้วใน Slide 6
+
+ไฟล์นี้ไม่ต้องเป็น Client Component แล้ว เพราะ Server Action จะรับการส่งฟอร์มแทน
+
+---
+
+## Slide 11: ลบ State และ Handler ของฟอร์ม
+
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แก้บรรทัดประกาศ Component และลบ State กับ `handleSubmit` ภายใน</LessonCallout>
+
+<CodeChange language="tsx" removedLines="1,3,5,6,7" addedLines="2">
+
+```tsx
+export function IssueForm({ onCreateIssue }: IssueFormProps) {
 export function IssueForm() {
-  return (
-    <form action={createIssueAction} className="mt-6">
-      <fieldset className="grid gap-5">
-        <legend className="text-sm font-semibold text-slate-700">
-          ข้อมูลปัญหา
-        </legend>
+  const [errors, setErrors] = useState<string[]>([]);
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="grid gap-2">
-            <label
-              htmlFor="reporterName"
-              className="text-sm font-semibold text-slate-800"
-            >
-              ชื่อผู้แจ้ง
-            </label>
-            <input
-              id="reporterName"
-              name="reporterName"
-              type="text"
-              required
-              minLength={2}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <label
-              htmlFor="reporterEmail"
-              className="text-sm font-semibold text-slate-800"
-            >
-              อีเมลผู้แจ้ง
-            </label>
-            <input
-              id="reporterEmail"
-              name="reporterEmail"
-              type="email"
-              required
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-2">
-          <label
-            htmlFor="title"
-            className="text-sm font-semibold text-slate-800"
-          >
-            หัวข้อปัญหา
-          </label>
-          <input
-            id="title"
-            name="title"
-            type="text"
-            required
-            minLength={5}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100"
-          />
-        </div>
-
-        <div className="grid gap-2">
-          <label
-            htmlFor="description"
-            className="text-sm font-semibold text-slate-800"
-          >
-            รายละเอียดปัญหา
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            rows={5}
-            required
-            minLength={10}
-            className="w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="rounded-md bg-teal-700 px-4 py-3 font-bold text-white hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-100"
-        >
-          ส่งข้อมูล
-        </button>
-      </fieldset>
-    </form>
-  );
-}
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    /* ... */
+  }
 ```
 
-### สิ่งที่เปลี่ยนจาก Day 3
+</CodeChange>
 
-- Form ไม่สร้าง `Issue` และไม่เพิ่ม State ใน Browser แล้ว
-- `action={createIssueAction}` ส่งข้อมูลไปทำงานบน Server
-- Browser ตรวจข้อมูลเบื้องต้นจาก `required`, `type` และ `minLength`
-- Server Action ตรวจข้อมูลซ้ำก่อนบันทึกลง Supabase
-
-หลังลบ State และ Event Handler แล้ว Component นี้ไม่จำเป็นต้องเป็น Client Component
+ลบ `handleSubmit` ทั้งชุดจนถึงวงเล็บปิดของ Function ส่วน `return` และหน้าตาฟอร์มให้เก็บไว้
 
 ---
 
-## Slide 9: แก้ Error จาก `IssueBoard`
+## Slide 12: ให้ฟอร์มเรียก Server Action
 
-### `IssueBoard` เคยทำหน้าที่อะไร
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เปลี่ยน Tag เปิด `<form>` และลบกล่องข้อความผิดพลาดใน `<fieldset>`</LessonCallout>
 
-ใน Day 3 เรายังไม่มี Database จึงให้ `IssueBoard` เป็น Parent Component ที่เก็บรายการไว้ใน State กลาง:
-
-```text
-IssueForm ส่ง Issue ใหม่
-        ↓
-IssueBoard เพิ่มหรือแก้ State
-        ↓
-IssueList แสดงรายการล่าสุด
-```
-
-ขั้นตอนนี้ทำให้เราได้ฝึก `useState`, Props, Event Handler และการแบ่งความรับผิดชอบระหว่าง Component แม้ข้อมูลจะยังหายเมื่อ Refresh
-
-ตอนนี้หน้าที่เหล่านั้นถูกย้ายแล้ว:
-
-```text
-IssueBoard State  → Supabase Database
-Client Handler    → Server Action
-Mock Data         → getIssues()
-```
-
-ดังนั้น `IssueBoard` ไม่ได้เป็น Code ที่สร้างโดยไม่มีประโยชน์ แต่เป็น Prototype สำหรับเรียนรู้ Client State ก่อนเปลี่ยนระบบให้บันทึกข้อมูลจริง
-
-หลัง Slide 8 `IssueForm` ไม่รับ Prop `onCreateIssue` แล้ว แต่ `IssueBoard` จาก Day 3 ยังมี Code เดิม:
+<CodeChange language="tsx" removedLines="1" addedLines="2">
 
 ```tsx
-<IssueForm onCreateIssue={handleCreateIssue} />
+<form className="mt-4" onSubmit={handleSubmit}>
+<form className="mt-4" action={createIssueAction}>
 ```
 
-TypeScript จึงขีดเส้นใต้ `onCreateIssue` เพราะ Prop นี้ไม่มีอยู่ใน `IssueForm` เวอร์ชันใหม่
+</CodeChange>
 
-เราไม่ต้องแก้ Prop ให้ผ่าน เพราะหลัง Hour 2 หน้า Home และหน้า `/issues` ไม่ได้ใช้ `IssueBoard` หรือ Mock Data แล้ว ให้ลบไฟล์เก่าที่ไม่ถูก Import ทั้งสองไฟล์ออก:
+ใน `<fieldset>` หลัง `</legend>` ลบกล่องข้อความผิดพลาดทั้งชุด:
 
-```text
-components/IssueBoard.tsx
-data/issue.ts
-```
-
-### ทำไมควรลบ
-
-- `IssueBoard` เก็บ State และ Handler ของ Create/Update แบบทดลองจาก Day 3
-- `data/issue.ts` เก็บ Mock Data ที่ถูกแทนด้วยข้อมูลจาก Supabase แล้ว
-- การเก็บ Code เก่าทำให้สับสนว่า Source of Truth อยู่ที่ State หรือ Database
-- TypeScript ยังตรวจไฟล์ที่ไม่ถูกใช้งานและอาจแจ้ง Error เมื่อ Props เปลี่ยน
-
-ก่อนลบ ให้ใช้ Search ตรวจว่าไม่มีไฟล์ใด Import `IssueBoard` หรือ `@/data/issue` เหลืออยู่
-
-หลังลบ ไฟล์ `IssueForm.tsx` ไม่ต้องรับ `onCreateIssue` และ Error ในภาพจะหายไป
-
----
-
-## Slide 10: จัดหน้า `/issues/new`
-
-ใช้ Code นี้แทนเนื้อหาทั้งไฟล์ `app/issues/new/page.tsx`:
+<CodeChange language="tsx" removedLines="1,2,3">
 
 ```tsx
-import { IssueForm } from "@/components/IssueForm";
-
-export default function NewIssuePage() {
-  return (
-    <main className="mx-auto max-w-3xl px-6 py-8">
-      <section className="rounded-lg border border-slate-200 bg-white p-6">
-        <h1 className="text-2xl font-bold text-slate-950">
-          แจ้งปัญหาใหม่
-        </h1>
-        <p className="mt-2 text-sm text-slate-600">
-          กรอกข้อมูลปัญหาที่ต้องการให้ฝ่าย IT ตรวจสอบ
-        </p>
-        <IssueForm />
-      </section>
-    </main>
-  );
-}
+{errors.length > 0 && (
+  /* กล่องข้อความผิดพลาดเดิม */
+)}
 ```
 
-แต่ละไฟล์แบ่งหน้าที่กันดังนี้:
+</CodeChange>
 
-```text
-page.tsx       จัดโครงสร้างของหน้า
-IssueForm.tsx  แสดง Field และส่ง FormData
-actions.ts     อ่านและตรวจข้อมูล
-issues.ts      ติดต่อ Supabase
-```
+`action={createIssueAction}` ส่ง `FormData` ไปให้ Server Action ส่วนกล่องข้อความลบได้เพราะไม่มี State `errors` แล้ว
 
-หน้า `NewIssuePage` และ `IssueForm` ไม่ต้องรับ `onCreateIssue` เพราะข้อมูลใหม่จะถูกเก็บใน Database ไม่ใช่ State ของ Parent Component
+ช่องกรอก ปุ่ม และ `name` ของทุกช่องให้เก็บไว้ เพราะ `parseIssueInput` อ่านค่าตาม `name`
 
 ---
 
-## Slide 11: ทดสอบ Create Flow
+## Slide 13: ให้ Browser เตือนความยาวขั้นต่ำ
 
-1. เปิดหน้า `/issues/new`
-2. ลอง Submit โดยไม่กรอกข้อมูล Browser ควรแจ้งให้กรอก Field ที่จำเป็น
-3. กรอกข้อมูลให้ผ่านเงื่อนไขแล้วกด `ส่งข้อมูล`
-4. ระบบควร Redirect ไปหน้า `/issues`
-5. Issue ใหม่ควรอยู่ด้านบนของรายการและมี Status `OPEN`
-6. Refresh หน้า `/issues` แล้วข้อมูลต้องยังอยู่
-7. เปิด Supabase Table Editor และตรวจว่ามี Row ใหม่
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม `minLength` ให้ช่องชื่อ หัวข้อ และรายละเอียด</LessonCallout>
 
-### ถ้าสร้างไม่สำเร็จ
+ตัวอย่างช่องหัวข้อ:
 
-- กดแล้วไม่เรียก Action: ตรวจว่า Form ใช้ `action={createIssueAction}`
-- Field กลายเป็นข้อความว่าง: ตรวจ `name` ให้ตรงกับ `formData.get(...)`
-- เห็น `permission denied`: ตรวจ `GRANT INSERT` และ RLS Policy จาก Hour 1
-- Redirect แล้วไม่เห็นรายการใหม่: ตรวจ `revalidatePath("/issues")` และ `getIssues()`
-- TypeScript Error จาก `IssueBoard`: ตรวจว่าได้ลบ Mock Flow ตาม Slide 10 แล้ว
+<CodeChange language="tsx" removedLines="2" addedLines="3">
 
-ถ้า Server Validation ไม่ผ่านใน Development อาจเห็น Error Page เพราะ Action ใช้ `throw new Error(...)` ข้อมูลจะไม่ถูกบันทึก แต่การนำ Error กลับมาแสดงข้าง Form ด้วย `useActionState` เป็นหัวข้อต่อยอดที่ยังไม่จำเป็นใน Flow นี้
+```tsx
+<input
+  id="title" name="title" type="text" required
+  id="title" name="title" type="text" required minLength={5}
+  className="..."
+/>
+```
+
+</CodeChange>
+
+ช่องชื่อใส่ `minLength={2}` และช่องรายละเอียดใส่ `minLength={10}` ตรงกับเงื่อนไขใน `validateIssueInput`
+
+`className="..."` คือ Class เดิมของช่องนั้น ให้เก็บไว้ ส่วน `minLength` ช่วยให้ Browser เตือนก่อนส่งไป Server
 
 ---
 
-## Slide 12: สรุป Create Flow
+## Slide 14: จัดหน้า `/issues/new`
 
-```text
-IssueForm
-  → createIssueAction(formData)
-  → parseIssueInput()
-  → validateIssueInput()
-  → createIssue(input)
-  → Supabase INSERT
-  → revalidatePath("/issues")
-  → redirect("/issues")
+<LessonCallout type="action">แก้บางส่วนใน `app/issues/new/page.tsx`: แทน `<main>...</main>` เดิมด้วยโค้ดนี้</LessonCallout>
+
+<CodeChange language="tsx" addedLines="1">
+
+```tsx
+<main className="mx-auto max-w-3xl px-6 py-8">
+  <IssueForm />
+</main>
 ```
 
-### ตอนนี้ระบบทำอะไรได้แล้ว
+</CodeChange>
 
-- หน้า `/issues` อ่านข้อมูลจริงจาก Supabase
-- หน้า `/issues/[id]` อ่าน Issue ตาม `id`
-- หน้า `/issues/new` สร้าง Issue ผ่าน Server Action
-- ข้อมูลยังอยู่หลัง Refresh เพราะ Database เป็น Source of Truth
+ลบ `<h1>แจ้งปัญหาใหม่</h1>` เดิมออก เพราะ `IssueForm` มีหัวข้อ "แจ้งปัญหาใหม่" อยู่ในกล่องแล้ว
 
-Hour ถัดไปเราจะเปลี่ยนปุ่ม Status ให้ Update ข้อมูลใน Supabase และเตรียม Project สำหรับ Deploy
+---
+
+## Slide 15: ทดสอบการบันทึก
+
+<LessonCallout type="action">เปิด `/issues/new` แล้วทดสอบตามลำดับนี้</LessonCallout>
+
+1. กดส่งโดยไม่กรอก: Browser เตือนให้กรอก
+2. กรอกหัวข้อ `abc`: Browser เตือนว่าสั้นเกินไป
+3. กรอกข้อมูลให้ครบแล้วกดส่ง: ไปหน้า `/issues` และรายการใหม่อยู่บนสุด สถานะ `OPEN`
+4. Refresh หน้า: รายการใหม่ยังอยู่
+5. เปิด Table Editor ใน Supabase: มีแถวใหม่
+
+---
+
+## Slide 16: ถ้าบันทึกไม่สำเร็จ
+
+| อาการ | ตรวจที่ |
+|---|---|
+| กดส่งแล้วไม่มีอะไรเกิดขึ้น | `<form>` ใช้ `action={createIssueAction}` |
+| ค่าที่ได้เป็นข้อความว่าง | `name` ของช่องกรอกตรงกับ `formData.get(...)` |
+| ขึ้น `permission denied` | `grant` และ Policy `demo_insert_issues` ใน Hour 1 |
+| ไปหน้า `/issues` แล้วไม่เห็นรายการใหม่ | `revalidatePath("/issues")` |
+
+ถ้าข้อมูลไม่ผ่าน `validateIssueInput` จะเห็นหน้า Error และข้อมูลไม่ถูกบันทึก ตอนนี้ `minLength` ช่วยกันกรณีนี้ไว้ก่อนแล้ว
+
+Hour 4 จะให้ปุ่มสถานะบันทึกลง Supabase แล้ว Deploy ระบบ
 
 ---
 
@@ -550,11 +403,10 @@ Hour ถัดไปเราจะเปลี่ยนปุ่ม Status ใ�
 
 | คำศัพท์ | ความหมาย |
 |---|---|
-| Server Action | Function ฝั่ง Server ที่ Form เรียกได้ |
-| `FormData` | Object ที่เก็บค่าจาก Form ตามชื่อ `name` |
-| Server Validation | การตรวจข้อมูลบน Server ก่อนบันทึก |
-| `.insert()` | เพิ่ม Row ใหม่ลง Table |
-| `revalidatePath()` | ทำให้ Path ที่กำหนดอ่านข้อมูลล่าสุด |
+| Server Action | Function บน Server ที่ฟอร์มเรียกได้ผ่าน `action` |
+| `FormData` | ค่าจากฟอร์มที่เก็บตาม `name` ของช่องกรอก |
+| `.insert()` | เพิ่มแถวใหม่ลง Table |
+| `revalidatePath()` | บอกให้หน้าที่กำหนดอ่านข้อมูลใหม่ |
 | `redirect()` | พาผู้ใช้ไปยัง URL อื่นหลังทำงานเสร็จ |
 
 ---

@@ -8,409 +8,324 @@ source: "day-4-hour-4-update-delete-and-deploy.md"
 
 # Deploy Checkpoint
 
-## Day 4 - ชั่วโมงที่ 4: Update Status และ Deploy
+## Day 4 - ชั่วโมงที่ 4: บันทึกสถานะและ Deploy
 
 ### เป้าหมายของชั่วโมงนี้
 
-หลังจบชั่วโมงนี้ ผู้เรียนจะสามารถ:
+หลังจบชั่วโมงนี้ นักศึกษาจะสามารถ:
 
-1. เปลี่ยน Status ของ Issue ใน Supabase ได้
-2. ใช้ Server Action สำหรับ Update ข้อมูลได้
-3. อธิบายความต่างระหว่าง Close, Soft Delete และ Hard Delete ได้
-4. ตรวจ Project ก่อนนำขึ้น Production ได้
-5. Deploy Next.js พร้อม Environment Variables ไปยัง Vercel ได้
+1. เปลี่ยนสถานะของ Issue ใน Supabase ผ่าน Server Action
+2. ตรวจค่าที่ส่งมาจากฟอร์มก่อนบันทึก
+3. อธิบายได้ว่าทำไมปิดงานด้วย `DONE` แทนการลบ
+4. ตรวจ Project และ Deploy ไปยัง Vercel
 
-### ไฟล์ที่ใช้ในชั่วโมงนี้
+### ไฟล์ที่ใช้
 
 ```text
-lib/issues.ts             เพิ่ม Function สำหรับ Update
-app/actions.ts            เพิ่ม Server Action สำหรับ Update
-components/IssueList.tsx  เปลี่ยนปุ่ม Client เป็น Form Action
+lib/issues.ts             ← แก้ไข
+app/actions.ts            ← แก้ไข
+components/IssueList.tsx  ← แก้ไข
 ```
 
-ขั้นตอน Deploy ใช้ GitHub, Vercel Dashboard และ Supabase Dashboard
+Deploy ใช้ GitHub, Vercel Dashboard และ Supabase Dashboard
 
 ---
 
 ## Slide 1: จาก Create ไปสู่ Update
 
-Hour 3 ทำให้ระบบสร้าง Issue ใหม่และบันทึกลง Supabase ได้แล้ว:
+ฟอร์มบันทึก Issue ลง Supabase ได้แล้ว แต่หน้า `/issues` ยังไม่มีปุ่มเปลี่ยนสถานะ
+
+ชั่วโมงนี้จะให้ปุ่มสถานะบันทึกลง Database แบบเดียวกับฟอร์ม:
 
 ```text
-IssueForm → Server Action → Supabase INSERT
+กดปุ่มสถานะ → Server Action → ตรวจค่า → แก้แถวใน Supabase → หน้า /issues แสดงค่าใหม่
 ```
 
-Hour นี้เราจะทำให้ปุ่ม Status บันทึกค่าลง Database เช่นกัน:
-
-```text
-ปุ่ม Status → Server Action → Supabase UPDATE
-```
-
-เมื่อ Create และ Update ทำงานครบ เราจะตรวจ Production Build แล้ว Deploy Project ไปยัง Vercel
-
-### สิ่งที่ระบบจะทำได้เมื่อจบ Day 4
-
-- อ่านรายการและรายละเอียดจาก Supabase
-- สร้าง Issue ใหม่
-- เปลี่ยน Status เป็น `OPEN`, `IN_PROGRESS` หรือ `DONE`
-- เก็บข้อมูลไว้หลัง Refresh
-- เปิดใช้งานผ่าน Production URL
+เมื่อเพิ่ม อ่าน และแก้ได้ครบแล้ว จะ Deploy ระบบขึ้น Vercel ให้เปิดได้จากทุกที่
 
 ---
 
-## Slide 2: สร้าง `updateIssueStatus()`
+## Slide 2: แก้สถานะใน Database
 
-เพิ่ม Function นี้ต่อจาก `createIssue()` ใน `lib/issues.ts`:
+<LessonCallout type="action">เพิ่ม Function ใหม่ `updateIssueStatus` ใน `lib/issues.ts` ต่อจาก `createIssue`</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,2,3,4,5,6,8,9">
 
 ```ts
-export async function updateIssueStatus(
-  id: string,
-  status: IssueStatus,
-): Promise<void> {
+export async function updateIssueStatus(id: string, status: IssueStatus): Promise<void> {
   const supabase = createSupabaseServerClient();
-
   const { error } = await supabase
     .from("issues")
-    .update({
-      status,
-      updated_at: new Date().toISOString(),
-    })
+    .update({ status, updated_at: new Date().toISOString() })
     .eq("id", id);
 
-  if (error) {
-    throw new Error(`Failed to update issue: ${error.message}`);
-  }
+  if (error) throw new Error(`Failed to update issue: ${error.message}`);
 }
 ```
 
-`IssueStatus` ถูก Import อยู่แล้วจาก Hour 2–3 ให้ตรวจว่า Type Import ด้านบนมีครบ:
+</CodeChange>
 
-```ts
-import type { Issue, IssueStatus, NewIssueInput } from "@/types/issue";
-```
+- `.update({...})` ตั้งค่า `status` ใหม่ และบันทึกเวลาแก้ล่าสุดใน `updated_at`
+- `.eq("id", id)` แก้เฉพาะแถวที่ `id` ตรงกัน ถ้าลืมบรรทัดนี้อาจแก้ทุกแถวพร้อมกัน
 
-### อ่าน Query ทีละส่วน
-
-- `.from("issues")` เลือก Table
-- `.update({...})` กำหนดค่าใหม่ของ `status` และ `updated_at`
-- `.eq("id", id)` จำกัดให้ Update เฉพาะ Row ที่มี ID ตรงกัน
-- `if (error)` หยุดการทำงานเมื่อ Supabase ปฏิเสธคำสั่ง
-
-ค่า Default `now()` ของ `updated_at` ทำงานตอน Insert เท่านั้น Project นี้ยังไม่มี Database Trigger จึงกำหนดเวลาใหม่ทุกครั้งที่ Update
-
-ห้ามลืม `.eq("id", id)` เพราะคำสั่ง Update ที่ไม่มีเงื่อนไขอาจกระทบหลาย Row
+`IssueStatus` มีใน Type Import ด้านบนของไฟล์อยู่แล้ว
 
 ---
 
-## Slide 3: สร้าง Server Action สำหรับ Update
+## Slide 3: เตรียมรายการสถานะที่อนุญาต
 
-แก้ Import เดิมด้านบน `app/actions.ts` ให้รวม Function และ Type ที่ต้องใช้:
+<LessonCallout type="action">แก้บางส่วนใน `app/actions.ts`: แก้ Import สองบรรทัดเดิมด้านบน แล้วเพิ่ม `allowedStatuses` ท้ายไฟล์</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,2">
 
 ```ts
 import { createIssue, updateIssueStatus } from "@/lib/issues";
 import type { IssueStatus, NewIssueInput } from "@/types/issue";
 ```
 
-จากนั้นเพิ่ม Code นี้ต่อจาก `createIssueAction()`:
+</CodeChange>
+
+<CodeChange language="ts" addedLines="1">
 
 ```ts
 const allowedStatuses: IssueStatus[] = ["OPEN", "IN_PROGRESS", "DONE"];
+```
 
+</CodeChange>
+
+ค่าจากฟอร์มเป็นข้อความที่คนส่งมาแก้เองได้ เช่น ส่ง `status=DELETED` มาแทน
+
+TypeScript ช่วยได้แค่ตอนเขียนโค้ด แต่ไม่ได้ตรวจข้อมูลที่ส่งมาจริง Server จึงต้องเทียบกับ `allowedStatuses` ก่อนบันทึกทุกครั้ง
+
+---
+
+## Slide 4: สร้าง Action เปลี่ยนสถานะ
+
+<LessonCallout type="action">เพิ่ม Function ใหม่ `updateIssueStatusAction` ใน `app/actions.ts` ต่อจาก `allowedStatuses`</LessonCallout>
+
+<CodeChange language="ts" addedLines="1,2,3,4,5,6,7,8,9,10,11">
+
+```ts
 export async function updateIssueStatusAction(
   formData: FormData,
 ): Promise<void> {
   const id = String(formData.get("id") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
-
   if (!id || !allowedStatuses.includes(status as IssueStatus)) {
     throw new Error("Invalid update request");
   }
-
   await updateIssueStatus(id, status as IssueStatus);
   revalidatePath("/issues");
 }
 ```
 
-### ทำไมต้องมี `allowedStatuses`
+</CodeChange>
 
-TypeScript ช่วยตรวจ Code ตอนพัฒนา แต่ค่าจาก `FormData` มาจาก Request และยังเป็น String ที่ผู้ใช้แก้ไขได้ Server Action จึงต้องตรวจว่าค่าอยู่ในรายการที่อนุญาตก่อนส่งเข้า Database
-
-```text
-status อยู่ใน allowedStatuses → Update
-status เป็นค่าอื่น              → หยุดและแจ้ง Error
-```
-
-Action นี้ไม่ใช้ `redirect()` เพราะผู้ใช้ยังอยู่หน้า `/issues` เดิม เราต้องการเพียง Update แล้วให้หน้ารายการอ่านข้อมูลล่าสุด
+- ถ้าไม่มี `id` หรือสถานะไม่อยู่ในรายการ จะหยุดก่อนแก้ Database
+- `revalidatePath("/issues")` ให้หน้ารายการอ่านค่าใหม่ ไม่ต้อง `redirect` เพราะผู้ใช้อยู่หน้าเดิม
 
 ---
 
-## Slide 4: เปลี่ยน `IssueList` ให้เรียก Server Action
+## Slide 5: เปลี่ยน IssueList เป็น Server Component
 
-แก้บางส่วนใน `components/IssueList.tsx`
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: ลบ `"use client"` เพิ่ม Import ของ Action และเอา `onUpdateStatus` ออกจาก Props</LessonCallout>
 
-### 1. เปลี่ยน Import และลบ Client Boundary
-
-เพิ่ม Import:
+<CodeChange language="tsx" removedLines="1,7,10" addedLines="3,11">
 
 ```tsx
+"use client";
+
 import { updateIssueStatusAction } from "@/app/actions";
-```
 
-ลบ `"use client"` เพราะหลังเปลี่ยนเสร็จไฟล์นี้จะไม่มี `onClick`, State หรือ Browser API แล้ว
-
-เก็บ Array นี้ไว้ตามเดิม:
-
-```ts
-const statuses: IssueStatus[] = ["OPEN", "IN_PROGRESS", "DONE"];
-```
-
-### 2. ลด Props ให้เหลือเฉพาะข้อมูล
-
-แทน Props Type และ Parameter เดิมด้วย:
-
-```tsx
 type IssueListProps = {
   issues: Issue[];
+  onUpdateStatus?: (id: string, status: IssueStatus) => void;
 };
 
+export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
 export function IssueList({ issues }: IssueListProps) {
 ```
 
-ลบ `onUpdateStatus` ออกจาก Props เพราะปุ่มจะเรียก Server Action โดยตรง
+</CodeChange>
 
-### 3. แสดง Column จัดการ
+Import `Link`, `StatusBadge`, Type Import และ `statuses` เดิมให้เก็บไว้
 
-แทน `<th>` เดิมที่มีเงื่อนไข `onUpdateStatus && (...)` ด้วย:
+ไม่ต้องใช้ `"use client"` แล้ว เพราะปุ่มจะส่งฟอร์มไป Server Action แทน `onClick`
+
+---
+
+## Slide 6: แสดงคอลัมน์จัดการทุกครั้ง
+
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: ลบเงื่อนไข `onUpdateStatus &&` ที่ครอบ `<th>` จัดการ และ `<td>` ช่องจัดการ</LessonCallout>
+
+<CodeChange language="tsx" removedLines="1,2,3" addedLines="4">
 
 ```tsx
+{onUpdateStatus && (
+  <th className="px-3 py-3 font-semibold">จัดการ</th>
+)}
 <th className="px-3 py-3 font-semibold">จัดการ</th>
 ```
 
-### 4. แทนปุ่มเดิมในแต่ละ Row
+</CodeChange>
 
-แทน `<td>` เดิมที่มี `onClick` ด้วย Code นี้:
+<CodeChange language="tsx" removedLines="1,5">
 
 ```tsx
-<td className="px-3 py-4">
-  <div className="flex flex-wrap gap-2">
-    {statuses.map((status) => (
-      <form key={status} action={updateIssueStatusAction}>
-        <input type="hidden" name="id" value={issue.id} />
-        <input type="hidden" name="status" value={status} />
-        <button
-          type="submit"
-          disabled={issue.status === status}
-          className="rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-        >
-          {status}
-        </button>
-      </form>
-    ))}
-  </div>
-</td>
+{onUpdateStatus && (
+  <td className="px-3 py-4">
+    {/* กล่องปุ่มสถานะเดิม */}
+  </td>
+)}
 ```
 
-Hidden Input ส่ง `id` และ `status` ไปใน `FormData` ส่วนปุ่มของ Status ปัจจุบันถูก Disable เพื่อไม่ให้ Update ค่าเดิมซ้ำ
+</CodeChange>
+
+ช่อง `<td>` ลบเฉพาะบรรทัดแรกและบรรทัดสุดท้าย แล้วเลื่อน `<td>` ทั้งชุดออกมาหนึ่งระดับ
 
 ---
 
-## Slide 5: ทดสอบ Update Flow
+## Slide 7: เปลี่ยนปุ่มให้ส่งฟอร์ม
 
-1. เปิดหน้า `/issues`
-2. เลือก Issue ที่ยังไม่เป็น `DONE`
-3. กด Status ใหม่ เช่น `IN_PROGRESS`
-4. ตรวจว่า Badge บนหน้า List เปลี่ยน
-5. Refresh หน้าและตรวจว่าค่าไม่ย้อนกลับ
-6. เปิด Supabase Table Editor แล้วตรวจ `status` และ `updated_at`
-7. เปลี่ยน Status เป็น `DONE` เพื่อทดสอบการปิดงาน
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แก้ Attribute ของ `<button>` ภายใน `statuses.map()`</LessonCallout>
 
-### Flow ที่กำลังทดสอบ
+<CodeChange language="tsx" removedLines="2,3" addedLines="4">
 
-```text
-กดปุ่ม
-  → hidden inputs สร้าง FormData
-  → updateIssueStatusAction()
-  → updateIssueStatus()
-  → Supabase UPDATE
-  → revalidatePath("/issues")
-  → หน้า List แสดงข้อมูลล่าสุด
+```tsx
+<button
+  key={status} type="button" disabled={issue.status === status}
+  onClick={() => onUpdateStatus(issue.id, status)}
+  type="submit" disabled={issue.status === status}
+  className="..."
+>
 ```
 
-### ถ้า Update ไม่สำเร็จ
+</CodeChange>
 
-- `permission denied`: ตรวจ `GRANT UPDATE` และ RLS Policy จาก Hour 1
-- `Invalid update request`: ตรวจชื่อ Hidden Input `id` และ `status`
-- กดแล้วไม่เกิดอะไรขึ้น: ตรวจ `action={updateIssueStatusAction}`
-- Status ไม่เปลี่ยนใน Database: ตรวจ `.eq("id", id)` และ Error ใน Terminal
-- Database เปลี่ยนแต่หน้าเก่า: ตรวจ `revalidatePath("/issues")`
+- `type="submit"` ทำให้ปุ่มส่งฟอร์มที่จะครอบในขั้นถัดไป
+- ลบ `onClick` เพราะไม่มี Callback จาก Board แล้ว และย้าย `key` ไปไว้ที่ `<form>`
+
+`className="..."` คือ Class เดิมของปุ่ม ให้เก็บไว้
 
 ---
 
-## Slide 6: ตอนนี้ใคร Update Status ได้บ้าง
+## Slide 8: ครอบปุ่มด้วยฟอร์ม
 
-> **สไลด์นี้เป็นการทบทวน ยังไม่ต้องแก้โค้ดหรือรัน SQL เพิ่ม**
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: ครอบ `<button>` เดิมด้วย `<form>` และ Hidden Input ภายใน `statuses.map()`</LessonCallout>
 
-การใช้ Server Action ช่วยย้าย Logic มาที่ Server แต่ยังไม่ได้สร้าง Authentication หรือ Authorization
+<CodeChange language="tsx" addedLines="2,3,4,8">
 
-ใน Hour 1 เราเปิด Demo Permission ให้ทั้ง `anon` และ `authenticated`:
-
-```sql
-grant select, insert, update
-  on public.issues
-  to anon, authenticated;
-
-create policy "demo_update_issues"
-  on public.issues
-  for update
-  to anon, authenticated
-  using (true)
-  with check (true);
+```tsx
+{statuses.map((status) => (
+  <form key={status} action={updateIssueStatusAction}>
+    <input type="hidden" name="id" value={issue.id} />
+    <input type="hidden" name="status" value={status} />
+    <button ...>
+      {status}
+    </button>
+  </form>
+))}
 ```
 
-ผลคือ Request ที่ยังไม่ Login ก็ Update Issue ทุก Row ได้ Policy นี้ใช้เพื่อฝึก CRUD เท่านั้น ไม่เหมาะกับข้อมูลจริง
+</CodeChange>
 
-### ระบบจริงต้องตรวจหลายชั้น
+- **Hidden Input** คือช่องกรอกที่มองไม่เห็น ใช้แนบ `id` และ `status` ไปกับฟอร์ม
+- แต่ละปุ่มมีฟอร์มของตัวเอง จึงส่งสถานะของปุ่มนั้นไปให้ `updateIssueStatusAction`
 
-1. Authentication ตรวจว่า Request มาจากใคร
-2. Server Action ตรวจว่า User มี Role ที่อนุญาตหรือไม่
-3. RLS ตรวจซ้ำว่า User แก้ Row นี้ได้จริงหรือไม่
-
-การซ่อนปุ่มบนหน้าเว็บไม่ใช่การตรวจสิทธิ์ เพราะผู้ใช้ยังสร้าง Request เองได้ Day 5 จะเพิ่ม Login, Role `USER`/`ADMIN` และเปลี่ยน Demo Policy ให้เป็น Policy ที่ตรวจผู้ใช้จริง
-
-ดังนั้นตอนนี้ให้ใช้ Demo Policy เดิมต่อไปก่อน แล้วค่อยปรับสิทธิ์ใน Day 5 หลังจากระบบรู้แล้วว่าใคร Login อยู่และแต่ละคนมี Role อะไร
+`<button ...>` คือปุ่มที่แก้ในขั้นก่อน ให้เก็บไว้ทั้งชุด
 
 ---
 
-## Slide 7: ทำไมใช้ `DONE` แทนการลบ
+## Slide 9: ทดสอบเปลี่ยนสถานะ
 
-ระบบแจ้งปัญหาควรเก็บประวัติไว้ตรวจสอบย้อนหลัง เราจึงปิดงานด้วย Status `DONE` แทนการลบ Row
+<LessonCallout type="action">เปิด `/issues` แล้วทดสอบปุ่มสถานะ</LessonCallout>
 
-```text
-OPEN → IN_PROGRESS → DONE
-```
+1. กด `IN_PROGRESS` ที่รายการ `OPEN`: ป้ายเปลี่ยนเป็นสีเหลือง
+2. Refresh หน้า: สถานะยังเป็นค่าใหม่
+3. เปิด Table Editor: `status` และ `updated_at` ของแถวนั้นเปลี่ยน
+4. กด `DONE`: ป้ายเป็นสีเขียว และปุ่ม `DONE` กดไม่ได้
 
-| วิธี | สิ่งที่เกิดกับข้อมูล | ใช้เมื่อ |
-|---|---|---|
-| Close | เปลี่ยน Status แต่ยังเห็นประวัติ | งานเสร็จแล้ว |
-| Soft Delete | กำหนดค่า เช่น `deleted_at` แล้วซ่อนจาก Query ปกติ | ต้องการนำออกจาก UI แต่ยังเก็บข้อมูล |
-| Hard Delete | ลบ Row ออกจาก Database | ข้อมูลต้องถูกลบจริงและผ่านการยืนยันสิทธิ์แล้ว |
-
-Project นี้ใช้เฉพาะ Close เพราะเพียงพอกับระบบแจ้งปัญหาและไม่ทำให้ Scope ใหญ่เกินไป
-
-คำสั่ง `DELETE` ไม่ได้ถูก Grant ให้ `anon` หรือ `authenticated` ใน Demo Permission ของเรา
+ถ้าขึ้น `permission denied` ให้ตรวจ `grant` และ Policy `demo_update_issues` ใน Hour 1
 
 ---
 
-## Slide 8: ตรวจ Project ก่อน Deploy
+## Slide 10: ใครแก้สถานะได้บ้างตอนนี้
 
-### 1. ตรวจ Production Build
+ตอนนี้ **ทุกคน** แก้สถานะได้ แม้ยังไม่ Login เพราะ Policy `demo_` ใน Hour 1 ให้ทุกแถวผ่าน
+
+ระบบจริงต้องตรวจ 3 ชั้น:
+
+1. Login: รู้ว่าใครส่งคำขอมา
+2. Server Action: ตรวจว่าผู้ใช้มีสิทธิ์ทำเรื่องนี้
+3. RLS: Database ตรวจซ้ำว่าแก้แถวนี้ได้จริง
+
+การซ่อนปุ่มในหน้าเว็บไม่ได้กันคนแก้ข้อมูล Day 5 จะเพิ่ม Login และเปลี่ยน Policy ให้ตรวจผู้ใช้จริง
+
+ระบบนี้ปิดงานด้วย `DONE` และไม่ให้สิทธิ์ลบแถว เพราะต้องเก็บประวัติปัญหาไว้ตรวจย้อนหลัง
+
+---
+
+## Slide 11: ตรวจ Project ก่อน Deploy
+
+<LessonCallout type="action">รันคำสั่งเหล่านี้ในโฟลเดอร์หลักของโปรเจกต์ตามลำดับ</LessonCallout>
 
 ```bash
 npm run build
-```
-
-Production Build ช่วยตรวจ TypeScript, Import, Route และ Code ที่อาจทำงานได้ใน Development แต่ไม่ผ่านตอน Deploy
-
-### 2. ตรวจ Git และ Environment Variables
-
-```bash
 git status
 ```
 
-ตรวจว่า `.env.local` ไม่ถูกเตรียม Commit และ `.env.example` มีเฉพาะชื่อ Variable:
+- `npm run build` ต้องผ่านโดยไม่มี Error เพราะ Vercel จะ Build แบบเดียวกัน
+- `git status` ต้องไม่เห็น `.env.local`
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-```
-
-### 3. Commit และ Push
-
-หลังตรวจรายการไฟล์แล้ว:
+เมื่อตรวจผ่านแล้ว Commit และส่งขึ้น GitHub:
 
 ```bash
 git add .
-git commit -m "Connect issue update flow to Supabase"
+git commit -m "Connect issue flow to Supabase"
 git push
 ```
 
-Vercel จะ Deploy จาก Code ที่อยู่ใน Git Repository จึงต้อง Push Commit ล่าสุดก่อน Import Project หรือรอ Deployment ใหม่
+---
+
+## Slide 12: Deploy บน Vercel
+
+<LessonCallout type="action">เปิด Vercel Dashboard แล้ว Import Project จาก GitHub ตามขั้นตอนนี้</LessonCallout>
+
+1. เลือก Repository ของ Project และตรวจว่า Framework เป็น `Next.js`
+2. เพิ่ม Environment Variables สองค่า โดยคัดลอกจาก `.env.local`:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+3. กด **Deploy** แล้วรอจน Build สำเร็จ
+4. เปิด Production URL ที่ Vercel สร้างให้
+
+ต้องใส่ค่าใน Vercel เอง เพราะ `.env.local` ไม่ถูกส่งขึ้น GitHub
+
+ถ้าแก้ค่าภายหลัง ต้อง Redeploy ค่าใหม่จึงจะมีผล
 
 ---
 
-## Slide 9: Import Project และ Deploy บน Vercel
+## Slide 13: ทดสอบบน Production
 
-1. เปิด Vercel Dashboard แล้วเลือกสร้าง Project ใหม่
-2. เลือก Git Provider และ Import Repository ของ Project
-3. ตรวจ Framework Preset เป็น `Next.js`
-4. ตรวจ Root Directory ให้ตรงกับ Folder ที่มี `package.json`
-5. เพิ่ม Environment Variables สองค่า:
+<LessonCallout type="action">เปิด Production URL แล้วทดสอบทุกการทำงาน</LessonCallout>
 
-```text
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-```
+1. `/issues` แสดงรายการจาก Supabase และเปิดรายละเอียดได้
+2. `/issues/new` เพิ่ม Issue แล้วรายการใหม่ขึ้นใน `/issues`
+3. เปลี่ยนสถานะแล้ว Refresh ค่ายังอยู่
 
-คัดลอกค่าจาก `.env.local` โดยไม่ใส่เครื่องหมายคำพูดหรือช่องว่างเกินมา และเลือกให้ใช้กับ Environment `Production`
+ถ้าเครื่องตัวเองใช้ได้แต่ Production ไม่ได้:
 
-6. กด Deploy และรอให้ Build สำเร็จ
-7. เปิด Production URL ที่ Vercel สร้างให้
-
-ไฟล์ `.env.local` อยู่เฉพาะในเครื่องและไม่ได้ถูกส่งขึ้น Vercel จึงต้องตั้งค่า Variables ใน Project Settings แยกต่างหาก
-
-ถ้าแก้ Environment Variables ภายหลัง ค่าใหม่จะมีผลกับ Deployment ใหม่เท่านั้น ต้อง Redeploy Project อีกครั้ง
+- ตรวจชื่อและค่าของ Environment Variables ใน Vercel แล้ว Redeploy
+- อ่าน Build Logs และ Runtime Logs ใน Vercel
 
 ---
 
-## Slide 10: ทดสอบ Production Flow
+## Slide 14: สรุป Day 4
 
-เปิด Production URL แล้วทดสอบตามลำดับ:
+- อ่าน เพิ่ม และเปลี่ยนสถานะ Issue ใน Supabase ได้ และข้อมูลอยู่ถาวร
+- ระบบเปิดใช้งานได้จาก Production URL
+- ข้อจำกัด: ระบบยังไม่รู้ว่าใครใช้งาน และทุกคนแก้ได้ทุกแถว
 
-1. เปิด `/issues` และเห็นรายการจาก Supabase
-2. เปิดรายละเอียด Issue
-3. สร้าง Issue ใหม่จาก `/issues/new`
-4. กลับมาหน้ารายการและเห็นข้อมูลใหม่
-5. เปลี่ยน Status แล้ว Refresh
-6. ตรวจข้อมูลใน Supabase Table Editor
-
-หน้าแรกเปิดได้ยังไม่ถือว่า Deploy สำเร็จ ต้องทดสอบ Read, Create และ Update ครบ
-
-### ถ้า Local ใช้ได้แต่ Production ไม่ได้
-
-- ตรวจชื่อและค่าของ Environment Variables ใน Vercel
-- Redeploy หลังเพิ่มหรือแก้ Variables
-- อ่าน Build Logs และ Runtime Logs
-- ตรวจว่า Vercel Deploy Repository และ Branch ที่ถูกต้อง
-- ตรวจว่า URL กับ Key มาจาก Supabase Project เดียวกัน
-- ตรวจ RLS Policies และ Grants
-
-แก้ปัญหาในเครื่องและรัน `npm run build` ให้ผ่านก่อน Push เพื่อสร้าง Deployment ใหม่
-
----
-
-## Slide 11: สรุป Day 4
-
-### สิ่งที่ระบบทำได้แล้ว
-
-- อ่าน List และ Detail จาก Supabase
-- สร้าง Issue ด้วย Server Action
-- Update Status และ `updated_at`
-- ปิดงานด้วย Status `DONE`
-- Deploy Next.js พร้อม Environment Variables ไปยัง Vercel
-
-### ข้อจำกัดที่ยังเหลือ
-
-- ระบบยังไม่รู้ว่าใครกำลังใช้งาน
-- Demo Policy ยังอนุญาตทั้ง `anon` และ `authenticated`
-- ผู้ใช้ทั่วไปยัง Update Issue ทุก Row ได้
-- Server Action ยังไม่ได้ตรวจ Role
-
-Day 5 จะเพิ่ม Authentication, Session, Role `USER`/`ADMIN`, Page Guard และ RLS ที่ตรวจสิทธิ์จริง
-
-```text
-Day 4: แอปเชื่อม Database และ Deploy ได้
-Day 5: แอปรู้จักผู้ใช้และจำกัดสิทธิ์ได้
-```
+Day 5 จะเพิ่ม Login, แบ่งสิทธิ์ `USER`/`ADMIN` และเปลี่ยน Policy ให้ตรวจผู้ใช้จริง
 
 ---
 
@@ -418,12 +333,9 @@ Day 5: แอปรู้จักผู้ใช้และจำกัดส�
 
 | คำศัพท์ | ความหมาย |
 |---|---|
-| Update | แก้ไขข้อมูลใน Row ที่มีอยู่ |
-| Close | ปิดงานด้วย Status โดยยังเก็บประวัติ |
-| Soft Delete | ซ่อนข้อมูลด้วย Flag หรือเวลา แต่ยังเก็บ Row |
-| Hard Delete | ลบ Row ออกจาก Database |
-| Production Build | Build สำหรับตรวจและนำแอปไปใช้งานจริง |
-| Environment Variables | ค่าตั้งค่าที่แยกออกจาก Source Code |
+| Update | แก้ข้อมูลในแถวที่มีอยู่ |
+| Hidden Input | ช่องกรอกที่มองไม่เห็น ใช้แนบค่าไปกับฟอร์ม |
+| Production Build | การ Build สำหรับใช้งานจริง |
 | Deployment | แอปเวอร์ชันหนึ่งที่ถูก Build และเปิดใช้งานบน Hosting |
 
 ---
@@ -431,7 +343,6 @@ Day 5: แอปรู้จักผู้ใช้และจำกัดส�
 ## อ้างอิง
 
 - [Next.js Deployment](https://nextjs.org/docs/app/getting-started/deploying)
-- [Next.js Production Checklist](https://nextjs.org/docs/app/guides/production-checklist)
 - [Vercel Git Deployments](https://vercel.com/docs/git)
 - [Vercel Environment Variables](https://vercel.com/docs/environment-variables/managing-environment-variables)
 - [Supabase JavaScript: Update](https://supabase.com/docs/reference/javascript/update)

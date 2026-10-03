@@ -15,7 +15,7 @@
 | Day 1 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 ใช้ flow จากภาพรวมระบบ ไปสู่ HTML Form, CSS, Static Issue List และ Git/GitHub; ใช้ badge `ลงมือทำ` ขนาดเล็กเฉพาะ slide ที่ให้แก้ code หรือรันคำสั่ง พร้อมชี้ไฟล์และตำแหน่งให้ชัด; Hour 4 เหลือ 15 slides โดย Form/List ยังเป็น Static Prototype |
 | Day 2 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-2 มี Hour ละ 15 slides, Hour 3 มี 16 slides และ Hour 4 มี 24 slides; สร้าง Next.js 16 แบบ root-level `app/`, ย้าย Static TSX และ Custom CSS, สร้าง `Issue` และ `.map()`, แล้วแยก `types`, `data`, Components, Routes และหน้า Not Found โดยยังไม่เปิด Tailwind |
 | Day 3 | ปรับตามกฎ Slide Budget & Clarity แล้ว รอตรวจร่วมกัน | Hour 1-4 มี 17, 15, 20 และ 13 slides; ตัดทฤษฎีที่ติดกันแล้วย้ายคำอธิบาย Class ไปไว้ตอนที่ใช้จริง; ตรวจที่ 1366x768 แล้วไม่มีหน้าล้นจอ (กล่องโค้ดแสดงได้ราว 11 บรรทัด); เปลี่ยนชื่อ `createIssueFormInput` เป็น `createIssueFromInput` รวมถึงใน Day 4 |
-| Day 4 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1-4 เรียงจาก Supabase Setup ไปสู่ Read, Create, Update และ Deploy; เหลือ 15, 13, 12 และ 11 slides ตามลำดับ พร้อมตัด Mock Flow ที่ไม่ใช้และระบุข้อจำกัดของ Demo RLS ก่อนเข้าสู่ Auth ใน Day 5 |
+| Day 4 | ปรับตามกฎ Slide Budget & Clarity แล้ว รอตรวจร่วมกัน | Hour 1-4 มี 14, 16, 16 และ 14 slides; ทุกขั้นลงมือทำมี badge และ `CodeChange`; แก้ `IssueForm`/`IssueList` เป็นขั้นย่อยแบบ diff แทนโค้ดเต็มไฟล์; ตัด `admin_comment` และ `updatedAt` ที่ไม่ได้ใช้ใน UI; ลบ `IssueBoard` และ `data/issue.ts` ท้าย Hour 2 หลังทุกหน้าอ่าน Supabase |
 | Day 5 | ปรับครบแล้ว รอตรวจร่วมกัน | Hour 1 เหลือ 12 slides สำหรับ Auth และ Supabase SSR Setup; Hour 2 เหลือ 13 slides สำหรับ Login, Protected Page/Action และ Logout; Hour 3 มี 20 slides สำหรับเจ้าของ Issue, Profile Role, RLS และหน้า Admin; Hour 4 ลดเหลือ 9 slides แบบทบทวน Theory, Security Layers, Secret, AI Code Review และแนวทาง Debug โดยไม่เพิ่ม Feature ใหม่ |
 
 ## สถานะ Project เมื่อจบ Day 4
@@ -28,11 +28,13 @@
 - การเปลี่ยน status ใช้ Server Action และบันทึก `updated_at`
 - ปิด issue ด้วย status `DONE` แทนการลบ row
 - ไม่มี status filter ใน flow ปัจจุบัน
-- ลบ `IssueBoard` และ `data/issue.ts` หลังย้าย Create Flow ไปใช้ Server Action แล้ว
+- ลบ `IssueBoard` และ `data/issue.ts` ท้าย Hour 2 หลังทุกหน้าอ่านข้อมูลจาก Supabase
+- Table `issues` มี 8 Columns ไม่มี `admin_comment`; Type `Issue` ไม่มี `updatedAt` (`updated_at` ใช้ใน Database เท่านั้น) แต่ `adminComment?` จาก Day 2 ยังค้างอยู่ใน Type
+- `IssueList` เป็น Server Component แสดงคอลัมน์จัดการเสมอ แล้ว Day 5 เพิ่ม `canManage`
 - Environment Variables ใช้ `NEXT_PUBLIC_SUPABASE_URL` และ `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - Deploy ไป Vercel หลัง production build ผ่าน
 
-## หลักในการตรวจ Day 1 ถึง Day 3 รอบถัดไป
+## หลักในการตรวจรอบถัดไป
 
 - ใช้กฎ Slide Budget & Clarity ใน `AGENTS.md` กับ Day อื่นต่อ; ที่ 1366x768 กล่องโค้ดใน slide mode แสดงได้ราว 11 บรรทัด ถ้าเกินให้แยก slide
 - slide mode ใน `npm run dev` ขึ้น 404 ทุกบท ให้ตรวจผ่าน `npm run build` แล้วเปิดโฟลเดอร์ `out`
