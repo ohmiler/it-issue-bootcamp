@@ -107,98 +107,62 @@ Comment `/* ค่าเดิม */` แทนค่าข้างในขอ
 
 ---
 
-## Slide 5: ปรับกรอบของ IssueList
+## Slide 5: จัดกรอบและหัวข้อของ IssueList
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน Tag เปิด `<section>` ใน `return` หลัก โดยเปลี่ยน Class `issue-list` เดิมเป็นโค้ดนี้</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน Tag เปิด `<section>`, `<h2>` และคำอธิบายใต้หัวข้อเดิมด้วยโค้ดนี้ โดยเก็บกล่องตารางไว้</LessonCallout>
 
-<CodeChange language="tsx" addedLines="3">
+<CodeChange language="tsx" addedLines="3,5,6,7,8">
 
 ```tsx
 <section
   aria-labelledby="issue-list-title"
   className="min-w-0 rounded-lg border border-slate-200 bg-white p-6"
 >
-  {/* หัวข้อและตารางเดิม */}
+  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <h2 id="issue-list-title" className="text-xl font-bold text-slate-950">รายการปัญหาล่าสุด</h2>
+    <p className="text-sm font-medium text-slate-600">ทั้งหมด {issues.length} รายการ</p>
+  </div>
+  {/* กล่องตารางเดิม */}
 </section>
 ```
 
 </CodeChange>
 
-`min-w-0` ให้กล่องหดตามจอได้ ตารางที่กว้างจะได้ไม่ดันทั้งหน้าให้ล้น
+- `min-w-0` ให้กล่องหดตามจอได้ ตารางที่กว้างจะได้ไม่ดันทั้งหน้าให้ล้น
+- `issues.length` คือจำนวนรายการ จอเล็กหัวข้อกับจำนวนเรียงลงมา ตั้งแต่ `sm:` (640px) จะอยู่แถวเดียวกัน
 
 ---
 
-## Slide 6: จัดหัวข้อและจำนวนรายการ
+## Slide 6: ให้ตารางเลื่อนได้และปรับหัวตาราง
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน `<h2>` เดิม (รวมคำอธิบายใต้หัวข้อถ้ามี) ด้วยโค้ดนี้ ก่อนกล่องตาราง</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทนกล่องตาราง, Tag เปิด `<table>` และ `<thead>` เดิมด้วยโค้ดนี้</LessonCallout>
 
-<CodeChange language="tsx" addedLines="1,2,5,6,7,8">
-
-```tsx
-<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-  <h2 id="issue-list-title" className="text-xl font-bold text-slate-950">
-    รายการปัญหาล่าสุด
-  </h2>
-  <p className="text-sm font-medium text-slate-600">
-    ทั้งหมด {issues.length} รายการ
-  </p>
-</div>
-```
-
-</CodeChange>
-
-`issues.length` คือจำนวนรายการ จอเล็กหัวข้อกับจำนวนเรียงลงมา ตั้งแต่ `sm:` (640px) จะอยู่แถวเดียวกัน
-
----
-
-## Slide 7: ให้ตารางเลื่อนภายในกล่อง
-
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน Tag เปิดของ `.table-wrapper` และ `<table>` เดิมด้วยโค้ดนี้</LessonCallout>
-
-<CodeChange language="tsx" addedLines="1,2">
+<CodeChange language="tsx" addedLines="1,2,4,5,6,7,8,9">
 
 ```tsx
 <div className="mt-4 overflow-x-auto">
   <table className="w-full min-w-[720px] border-collapse text-sm">
-    {/* <thead> และ <tbody> เดิม */}
+    <thead>
+      <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs text-slate-500">
+        <th className="px-3 py-3 font-semibold">รหัส</th>
+        <th className="px-3 py-3 font-semibold">หัวข้อ</th>
+        <th className="px-3 py-3 font-semibold">ผู้แจ้ง</th>
+        <th className="px-3 py-3 font-semibold">สถานะ</th>
+        <th className="px-3 py-3 font-semibold">รายละเอียด</th>
+      </tr>
+    </thead>
+    {/* <tbody> เดิม */}
   </table>
 </div>
 ```
 
 </CodeChange>
 
-- `overflow-x-auto` ให้กล่องเลื่อนแนวนอนได้เมื่อตารางกว้างกว่าจอ
-- `min-w-[720px]` ไม่ให้ตารางแคบกว่า 720px จนข้อความเบียดกัน
-
-จอเล็กควรเลื่อนได้เฉพาะตาราง โดยหน้าเว็บไม่ล้นด้านข้าง
+`overflow-x-auto` ให้กล่องเลื่อนแนวนอนได้ ส่วน `min-w-[720px]` ไม่ให้ตารางแคบจนข้อความเบียดกัน
 
 ---
 
-## Slide 8: ปรับหัวตาราง
-
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน `<thead>...</thead>` เดิมด้วยโค้ดนี้</LessonCallout>
-
-<CodeChange language="tsx" addedLines="2,3,4,5,6,7">
-
-```tsx
-<thead>
-  <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs text-slate-500">
-    <th className="px-3 py-3 font-semibold">รหัส</th>
-    <th className="px-3 py-3 font-semibold">หัวข้อ</th>
-    <th className="px-3 py-3 font-semibold">ผู้แจ้ง</th>
-    <th className="px-3 py-3 font-semibold">สถานะ</th>
-    <th className="px-3 py-3 font-semibold">รายละเอียด</th>
-  </tr>
-</thead>
-```
-
-</CodeChange>
-
-หัวตารางควรมีพื้นสีอ่อน ข้อความชิดซ้าย และแต่ละช่องมีระยะเท่ากัน
-
----
-
-## Slide 9: ปรับแถวข้อมูล
+## Slide 7: ปรับแถวข้อมูล
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน `<tr>` และช่องข้อมูลสี่ช่องแรกภายใน `issues.map()` ด้วยโค้ดนี้ โดยเก็บช่องรายละเอียดเดิมไว้</LessonCallout>
 
@@ -222,7 +186,7 @@ Comment `/* ค่าเดิม */` แทนค่าข้างในขอ
 
 ---
 
-## Slide 10: ปรับลิงก์รายละเอียด
+## Slide 8: ปรับลิงก์รายละเอียด
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน `<td>` ที่มีลิงก์รายละเอียดเดิมด้วยโค้ดนี้</LessonCallout>
 
@@ -245,7 +209,7 @@ Comment `/* ค่าเดิม */` แทนค่าข้างในขอ
 
 ---
 
-## Slide 11: ลบ CSS เดิมของตาราง
+## Slide 9: ลบ CSS เดิมของตาราง
 
 <LessonCallout type="action">แก้บางส่วนใน `app/globals.css`: ลบชุดกฎเหล่านี้ภายใน `@layer base`</LessonCallout>
 
@@ -267,34 +231,36 @@ section { /* ค่าเดิม */ }
 
 ---
 
-## Slide 12: เพิ่มข้อความเมื่อไม่มีรายการ
+## Slide 10: เพิ่มข้อความเมื่อไม่มีรายการ
 
-<LessonCallout type="action">เพิ่มโค้ดใหม่ใน `components/IssueList.tsx`: วางเงื่อนไขนี้ภายใน Function `IssueList` ก่อน `return` หลัก</LessonCallout>
+<LessonCallout type="action">เพิ่มโค้ดใหม่ใน `components/IssueList.tsx`: วางเงื่อนไขนี้เป็นอย่างแรกภายใน Function `IssueList` ก่อน `return` เดิม</LessonCallout>
 
-ถ้าไม่มีข้อมูล ควรบอกผู้ใช้ตรง ๆ แทนการแสดงตารางว่าง ข้อความแบบนี้เรียกว่า **Empty State**
-
-<CodeChange language="tsx" addedLines="1,2,3,4,5,6,7,8,9,10">
+<CodeChange language="tsx" addedLines="2,3,4,5,6,7,8,9,10,11">
 
 ```tsx
-if (issues.length === 0) {
-  return (
-    <section className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
-      <h2 className="text-lg font-bold text-slate-950">ยังไม่มีรายการปัญหา</h2>
-      <p className="mt-2 text-sm text-slate-600">
-        เมื่อมีการแจ้งปัญหา รายการจะแสดงที่นี่
-      </p>
-    </section>
-  );
+export function IssueList({ issues }: IssueListProps) {
+  if (issues.length === 0) {
+    return (
+      <section className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
+        <h2 className="text-lg font-bold text-slate-950">ยังไม่มีรายการปัญหา</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          เมื่อมีการแจ้งปัญหา รายการจะแสดงที่นี่
+        </p>
+      </section>
+    );
+  }
+
+  // return เดิมที่แสดงตาราง
 }
 ```
 
 </CodeChange>
 
-ถ้า `issues` ว่าง Function จะคืนข้อความนี้แล้วจบทันที ถ้ามีข้อมูลจะไปถึง `return` หลักที่แสดงตาราง
+ข้อความที่บอกผู้ใช้เมื่อไม่มีข้อมูลเรียกว่า **Empty State** ถ้า `issues` ว่าง Function จะคืนข้อความนี้แล้วจบทันที ถ้ามีข้อมูลจะไปถึง `return` เดิมที่แสดงตาราง
 
 ---
 
-## Slide 13: จัดหน้า /issues ให้เหมือน Home
+## Slide 11: จัดหน้า /issues ให้เหมือน Home
 
 <LessonCallout type="action">แก้บางส่วนใน `app/issues/page.tsx`: แทน `<main>...</main>` ภายใน `return` ของ `IssuesPage` ด้วยโค้ดนี้</LessonCallout>
 
@@ -315,7 +281,7 @@ Import และ Function `IssuesPage` เดิมเก็บไว้เห�
 
 ---
 
-## Slide 14: ลองส่งรายการว่าง
+## Slide 12: ลองส่งรายการว่าง
 
 <LessonCallout type="action">แก้ชั่วคราวใน `app/issues/page.tsx`: เปลี่ยน `issues={issues}` เป็น `issues={[]}` แล้วเปิด `/issues`</LessonCallout>
 
@@ -333,7 +299,7 @@ Import และ Function `IssuesPage` เดิมเก็บไว้เห�
 
 ---
 
-## Slide 15: ทดสอบทั้งสองหน้า
+## Slide 13: ทดสอบทั้งสองหน้า
 
 <LessonCallout type="action">เปิด `/` และ `/issues` แล้วใช้ DevTools ของ Browser ปรับความกว้างเป็น 375px และ 1024px</LessonCallout>
 

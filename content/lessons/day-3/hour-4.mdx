@@ -52,7 +52,7 @@ setItems(items);
 
 ถ้าแก้ของเดิมแล้วส่งรายการเดิมกลับเข้าไป React จะเห็นว่าเป็นรายการเดิม จึงอาจไม่อัปเดตหน้าจอ
 
-แบบที่เราจะใช้ คือสร้างรายการใหม่ทุกครั้ง:
+แบบที่ใช้ในโปรเจกต์นี้ คือสร้างรายการใหม่ทุกครั้ง:
 
 1. ใช้ `.map()` สร้างรายการใหม่จากรายการเดิม
 2. ถ้า `id` ตรง ให้สร้าง Issue ใหม่ที่เปลี่ยนเฉพาะ `status`
@@ -100,7 +100,7 @@ function handleUpdateStatus(id: string, status: IssueStatus) {
 | Home ผ่าน `IssueBoard` | มีปุ่มเปลี่ยนสถานะ |
 | `/issues` | แสดงข้อมูลอย่างเดียว |
 
-เราจะให้ List รับ Callback ชื่อ `onUpdateStatus` แบบไม่บังคับส่ง โดยใช้ `?` เหมือน `onCreateIssue` ใน Hour 3
+ให้ List รับ Callback ชื่อ `onUpdateStatus` แบบไม่บังคับส่ง โดยใช้ `?` เหมือน `onCreateIssue` ใน Hour 3
 
 - ส่ง Callback มา → แสดงคอลัมน์ "จัดการ" พร้อมปุ่ม
 - ไม่ส่งมา → ไม่มีคอลัมน์นี้
@@ -109,38 +109,23 @@ function handleUpdateStatus(id: string, status: IssueStatus) {
 
 ---
 
-## Slide 5: ประกาศ Callback ของ IssueList
+## Slide 5: เตรียม IssueList ให้รับ Callback
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เพิ่ม `"use client"` บนสุด เพิ่ม `IssueStatus` ใน Type Import เดิม และเพิ่ม `onUpdateStatus` ใน `IssueListProps`</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แก้ส่วนบนของไฟล์ตามบรรทัดสีเขียว</LessonCallout>
 
-<CodeChange language="tsx" addedLines="1,3,7">
+<CodeChange language="tsx" addedLines="1,4,8,11,13">
 
 ```tsx
 "use client";
 
+// Import Link และ StatusBadge เดิม
 import type { Issue, IssueStatus } from "@/types/issue";
 
 type IssueListProps = {
   issues: Issue[];
   onUpdateStatus?: (id: string, status: IssueStatus) => void;
 };
-```
 
-</CodeChange>
-
-Import `Link` และ `StatusBadge` เดิมให้เก็บไว้ระหว่าง `"use client"` กับ Type Import
-
-ต้องมี `"use client"` เพราะไฟล์นี้กำลังจะมีปุ่มที่ใช้ `onClick`
-
----
-
-## Slide 6: รับ Callback และเตรียมรายการสถานะ
-
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เพิ่ม `statuses` ต่อจาก `IssueListProps` แล้วแก้บรรทัดประกาศ Function `IssueList` เดิม</LessonCallout>
-
-<CodeChange language="tsx" addedLines="1,3">
-
-```tsx
 const statuses: IssueStatus[] = ["OPEN", "IN_PROGRESS", "DONE"];
 
 export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
@@ -148,13 +133,12 @@ export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
 
 </CodeChange>
 
-`statuses` คือรายการสถานะที่จะใช้สร้างปุ่มสามปุ่ม
-
-เนื้อหาภายใน Function เช่น Empty State และตาราง ให้เก็บไว้เหมือนเดิม
+- ต้องมี `"use client"` เพราะไฟล์นี้กำลังจะมีปุ่มที่ใช้ `onClick` และ `statuses` คือรายการสถานะที่ใช้สร้างปุ่มสามปุ่ม
+- เนื้อหาภายใน Function เช่น Empty State และตาราง ให้เก็บไว้เหมือนเดิม
 
 ---
 
-## Slide 7: เพิ่มหัวคอลัมน์และขยายตาราง
+## Slide 6: เพิ่มหัวคอลัมน์และขยายตาราง
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: เปลี่ยน `min-w-[720px]` ที่ `<table>` เป็น `min-w-[920px]` แล้วเพิ่ม `<th>` จัดการต่อจาก `<th>` รายละเอียด</LessonCallout>
 
@@ -184,7 +168,7 @@ export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
 
 ---
 
-## Slide 8: เพิ่มช่องจัดการในแต่ละแถว
+## Slide 7: เพิ่มช่องจัดการในแต่ละแถว
 
 <LessonCallout type="action">เพิ่มโค้ดใหม่ใน `components/IssueList.tsx`: ภายใน `issues.map()` วางหลัง `<td>` รายละเอียด และก่อน `</tr>`</LessonCallout>
 
@@ -206,7 +190,7 @@ export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
 
 ---
 
-## Slide 9: สร้างปุ่มจากรายการสถานะ
+## Slide 8: สร้างปุ่มจากรายการสถานะ
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แทน Comment `{/* ปุ่มสถานะ */}` ภายในช่องจัดการด้วยโค้ดนี้</LessonCallout>
 
@@ -233,7 +217,7 @@ export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
 
 ---
 
-## Slide 10: ส่ง Callback จาก Board
+## Slide 9: ส่ง Callback จาก Board
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueBoard.tsx`: เพิ่ม `onUpdateStatus` ให้ `<IssueList>` ภายใน `<main>` เดิม</LessonCallout>
 
@@ -254,7 +238,7 @@ export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
 
 ---
 
-## Slide 11: ทดสอบเปลี่ยนสถานะที่ Home
+## Slide 10: ทดสอบเปลี่ยนสถานะที่ Home
 
 <LessonCallout type="action">เปิดหน้า Home `/` แล้วทดสอบปุ่มกับทั้งรายการเดิมและรายการที่เพิ่มใหม่</LessonCallout>
 
@@ -266,7 +250,7 @@ export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
 
 ---
 
-## Slide 12: ตรวจหน้า /issues และจอเล็ก
+## Slide 11: ตรวจหน้า /issues และจอเล็ก
 
 <LessonCallout type="action">เปิด `/` และ `/issues` แล้วใช้ DevTools ของ Browser ปรับความกว้างเป็น 375px และ 1024px</LessonCallout>
 
@@ -279,18 +263,12 @@ export function IssueList({ issues, onUpdateStatus }: IssueListProps) {
 
 ---
 
-## Slide 13: จาก State ชั่วคราวไปสู่ Database
+## Slide 12: จาก State ชั่วคราวไปสู่ Database
 
-ตอนนี้ Home เพิ่มรายการและเปลี่ยนสถานะได้ แต่ข้อมูลอยู่แค่ใน State ของ `IssueBoard`
-
-| ตอนนี้ | หลังเชื่อม Database ใน Day 4 |
-|---|---|
-| Refresh แล้วสิ่งที่เพิ่มและแก้หายไป | บันทึกแล้วอ่านกลับมาได้ |
-| หน้าอื่นอ่านข้อมูลตัวอย่างเดิม | ทุกหน้าอ่านข้อมูลชุดเดียวกัน |
-| เห็นเฉพาะใน Browser นี้ | Browser อื่นเห็นข้อมูลเดียวกัน |
+หน้า Home เพิ่มรายการและเปลี่ยนสถานะได้แล้ว แต่ข้อมูลอยู่แค่ใน State ของ `IssueBoard` หน้าอื่นและ Browser อื่นจึงไม่เห็น
 
 การซ่อนปุ่มในหน้าเว็บไม่ได้กันคนแก้ข้อมูล เมื่อบันทึกจริง Server ต้องตรวจข้อมูลและสิทธิ์ของผู้แก้เสมอ
 
-Day 4 จะเริ่มสร้างฐานข้อมูลบน Supabase แล้วย้ายการอ่านและบันทึกไปทำที่ Server
+Day 4 จะเก็บข้อมูลในฐานข้อมูลบน Supabase แล้วย้ายการอ่านและบันทึกไปทำที่ Server
 
 ---

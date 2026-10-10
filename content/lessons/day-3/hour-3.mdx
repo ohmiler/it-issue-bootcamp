@@ -72,7 +72,7 @@ import { useState } from "react";
 
 `IssueForm` สร้างรายการใหม่ ส่วน `IssueList` แสดงรายการ ทั้งสองต้องใช้รายการชุดเดียวกัน
 
-เราจึงสร้าง `IssueBoard` มาครอบทั้งสองตัว แล้วเก็บรายการไว้ที่ Board
+จึงสร้าง `IssueBoard` มาครอบทั้งสองตัว แล้วเก็บรายการไว้ที่ Board
 
 ```text
 IssueBoard  เก็บรายการ (State)
@@ -190,10 +190,8 @@ import type { Issue } from "@/types/issue";
 
 </CodeChange>
 
-- `"use client"` ทำให้ฟอร์มใช้ State และรับการส่งฟอร์มใน Browser ได้
-- `useState` ใช้เก็บข้อความผิดพลาด ส่วน `SubmitEvent` และ `Issue` เป็นชนิดข้อมูลที่จะใช้ในขั้นถัดไป
-
-หน้า `/issues/new` ก็ใช้ `IssueForm` เช่นกัน จึงต้องประกาศ `"use client"` ที่ไฟล์ฟอร์มเอง
+- `"use client"` ทำให้ฟอร์มใช้ State และรับการส่งฟอร์มใน Browser ได้ ต้องใส่ที่ไฟล์ฟอร์มเอง เพราะหน้า `/issues/new` ก็ใช้ `IssueForm`
+- `SubmitEvent` ใช้ในขั้นถัดไป ส่วน `useState` และ `Issue` ใช้ตอนเก็บข้อความผิดพลาดและสร้าง Issue ใหม่ ระหว่างนี้ VS Code อาจแสดงชื่อเหล่านี้เป็นสีจาง เพราะยังไม่ได้ใช้
 
 ---
 
@@ -304,28 +302,30 @@ function validateIssueInput(input: NewIssueInput): string[] {
 
 ## Slide 12: เก็บข้อความผิดพลาดใน State
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม State บรรทัดแรกภายใน `IssueForm` แล้วแทน `handleSubmit` เดิมด้วยโค้ดนี้</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่มบรรทัดสีเขียวตามตำแหน่งในตัวอย่าง</LessonCallout>
 
-<CodeChange language="tsx" addedLines="1,6,7,8,9">
+<CodeChange language="tsx" addedLines="2,6,7,8,9">
 
 ```tsx
-const [errors, setErrors] = useState<string[]>([]);
+export function IssueForm() {
+  const [errors, setErrors] = useState<string[]>([]);
 
-function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-  event.preventDefault();
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const input = getIssueInput(event.currentTarget);
+    const validationErrors = validateIssueInput(input);
+    setErrors(validationErrors);
+    if (validationErrors.length > 0) return;
+  }
 
-  const input = getIssueInput(event.currentTarget);
-  const validationErrors = validateIssueInput(input);
-  setErrors(validationErrors);
-  if (validationErrors.length > 0) return;
+  // return เดิม
 }
 ```
 
 </CodeChange>
 
-- `errors` คือข้อความผิดพลาดปัจจุบัน และ `setErrors` ใช้เปลี่ยนค่า
-- `event.currentTarget` คือฟอร์มที่ถูกส่ง
-- ถ้ามีข้อผิดพลาด `return` จะหยุดทำงานตรงนั้น
+- 4 บรรทัดใหม่อยู่ภายใน `handleSubmit` ก่อน `}` ที่ปิดฟังก์ชัน
+- `setErrors` เปลี่ยนค่า `errors` ถ้ามีข้อผิดพลาด `return` จะหยุดทำงานตรงนั้น
 
 ---
 
@@ -417,17 +417,24 @@ export function IssueForm({ onCreateIssue }: IssueFormProps) {
 
 ## Slide 17: ส่ง Issue ใหม่เมื่อข้อมูลผ่าน
 
-<LessonCallout type="action">เพิ่มโค้ดใหม่ใน `components/IssueForm.tsx`: ภายใน `handleSubmit` วางต่อจาก `if (validationErrors.length > 0) return;`</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่มบรรทัดสีเขียวต่อท้ายภายใน `handleSubmit`</LessonCallout>
 
-<CodeChange language="tsx" addedLines="1,2,3,4,5,6">
+<CodeChange language="tsx" addedLines="7,8,9,10,11,12">
 
 ```tsx
-if (!onCreateIssue) {
-  setErrors(["หน้านี้ยังไม่บันทึกข้อมูล กรุณาลองเพิ่มรายการที่หน้าแรก"]);
-  return;
+function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+  event.preventDefault();
+  const input = getIssueInput(event.currentTarget);
+  const validationErrors = validateIssueInput(input);
+  setErrors(validationErrors);
+  if (validationErrors.length > 0) return;
+  if (!onCreateIssue) {
+    setErrors(["หน้านี้ยังไม่บันทึกข้อมูล กรุณาลองเพิ่มรายการที่หน้าแรก"]);
+    return;
+  }
+  onCreateIssue(createIssueFromInput(input));
+  event.currentTarget.reset();
 }
-onCreateIssue(createIssueFromInput(input));
-event.currentTarget.reset();
 ```
 
 </CodeChange>
@@ -482,14 +489,7 @@ State ทำให้หน้าจอเปลี่ยนทันที แ�
 
 ## Slide 20: ข้อจำกัดก่อนต่อ Database
 
-รายการใหม่อยู่ใน State ของ `IssueBoard` บนหน้า Home เท่านั้น:
-
-| จุดที่เปิด | ผลที่เห็น |
-|---|---|
-| `/issues` | ยังเป็นข้อมูลตัวอย่างเดิม ไม่เห็นรายการใหม่ |
-| `/issues/new` | ตรวจข้อมูลได้ แต่ขึ้นข้อความว่ายังไม่บันทึก |
-| รายละเอียดของรายการใหม่ | ไม่พบรายการ |
-| Refresh หน้า Home | รายการใหม่หายไป |
+รายการใหม่อยู่ใน State ของ `IssueBoard` บนหน้า Home เท่านั้น หน้า `/issues` และหน้ารายละเอียดจึงยังไม่เห็นรายการนี้
 
 การตรวจข้อมูลใน Browser ช่วยให้ผู้ใช้แก้ได้เร็ว แต่คนอื่นส่งข้อมูลตรงไป Server โดยไม่ผ่านฟอร์มได้ เมื่อบันทึกจริงใน Day 4 Server จึงต้องตรวจซ้ำอีกครั้ง
 
