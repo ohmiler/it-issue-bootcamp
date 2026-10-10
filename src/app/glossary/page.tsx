@@ -9,7 +9,10 @@ export default async function GlossaryPage() {
   const { content } = await compileSupportMdx("glossary.mdx");
 
   return (
-    <CourseShell>
+    <CourseShell
+      section="glossary"
+      breadcrumbs={[{ label: "หน้าแรก", href: "/" }, { label: "คำศัพท์" }]}
+    >
       <article className="lesson-prose">{content}</article>
     </CourseShell>
   );

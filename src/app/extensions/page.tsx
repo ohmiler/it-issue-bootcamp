@@ -9,7 +9,10 @@ export default async function ExtensionsPage() {
   const { content } = await compileSupportMdx("extensions.mdx");
 
   return (
-    <CourseShell>
+    <CourseShell
+      section="extensions"
+      breadcrumbs={[{ label: "หน้าแรก", href: "/" }, { label: "แนวทางต่อยอด" }]}
+    >
       <article className="lesson-prose">{content}</article>
     </CourseShell>
   );

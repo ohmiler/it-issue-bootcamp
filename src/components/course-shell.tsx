@@ -1,56 +1,76 @@
+import { Fragment } from "react";
 import Link from "next/link";
-import { BookOpen, Files, GitBranch, Search, TerminalSquare } from "lucide-react";
+import { BookA, BookOpen, House, Lightbulb } from "lucide-react";
 import { SidebarNav } from "@/components/sidebar-nav";
 import type { SlideOutlineItem } from "@/lib/slides";
 
+export type CourseSection = "home" | "glossary" | "extensions" | "lesson";
+
+export type Breadcrumb = {
+  label: string;
+  href?: string;
+};
+
 type CourseShellProps = {
+  breadcrumbs: Breadcrumb[];
   children: React.ReactNode;
   currentSlug?: string;
   outline?: SlideOutlineItem[];
+  section: CourseSection;
 };
 
+const sectionLinks: {
+  href: string;
+  icon: typeof House;
+  label: string;
+  section: CourseSection;
+}[] = [
+  { href: "/", icon: House, label: "หน้าแรก", section: "home" },
+  { href: "/glossary", icon: BookA, label: "คำศัพท์", section: "glossary" },
+  {
+    href: "/extensions",
+    icon: Lightbulb,
+    label: "แนวทางต่อยอด",
+    section: "extensions",
+  },
+];
+
 export function CourseShell({
+  breadcrumbs,
   children,
   currentSlug,
   outline,
+  section,
 }: CourseShellProps) {
-  const activeFile = currentSlug
-    ? `${currentSlug.replace("/", "-")}.mdx`
-    : "overview.tsx";
-
   return (
     <div className="workbench-shell">
-      <header className="workbench-titlebar" aria-label="Application title bar">
-        <div className="workbench-titlebar__left">
+      <header className="workbench-titlebar">
+        <Link href="/" className="workbench-titlebar__brand">
           <span className="workbench-titlebar__mark" aria-hidden="true" />
-          <span className="workbench-titlebar__menu">File</span>
-          <span className="workbench-titlebar__menu">Edit</span>
-          <span className="workbench-titlebar__menu">View</span>
-          <span className="workbench-titlebar__menu">Terminal</span>
-        </div>
-        <div className="workbench-titlebar__center">
-          IT Issue Bootcamp - Visual Studio Code
-        </div>
-        <div className="workbench-titlebar__right" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
+          IT Issue Bootcamp
+        </Link>
       </header>
 
       <div className="workbench-body">
         <nav className="workbench-activitybar" aria-label="เมนูหลัก">
-          <Link href="/" aria-label="หน้าแรก" className="is-active">
-            <Files size={22} aria-hidden="true" />
-          </Link>
-          <Link href="/glossary" aria-label="คำศัพท์">
-            <Search size={22} aria-hidden="true" />
-          </Link>
-          <Link href="/extensions" aria-label="แนวทางต่อยอด">
-            <GitBranch size={22} aria-hidden="true" />
-          </Link>
+          {sectionLinks.map(({ href, icon: Icon, label, section: target }) => (
+            <Link
+              key={href}
+              href={href}
+              aria-label={label}
+              title={label}
+              aria-current={section === target ? "page" : undefined}
+              className={section === target ? "is-active" : undefined}
+            >
+              <Icon size={22} aria-hidden="true" />
+            </Link>
+          ))}
           <span className="workbench-activitybar__spacer" />
-          <Link href="/lessons/day-1/hour-1" aria-label="บทเรียนแรก">
+          <Link
+            href="/lessons/day-1/hour-1"
+            aria-label="เริ่มบทเรียนแรก"
+            title="เริ่มบทเรียนแรก"
+          >
             <BookOpen size={22} aria-hidden="true" />
           </Link>
         </nav>
@@ -58,48 +78,33 @@ export function CourseShell({
         <SidebarNav currentSlug={currentSlug} outline={outline} />
 
         <main className="workbench-editor-area">
-          <div className="workbench-tabs" aria-label="ไฟล์ที่เปิดอยู่">
-            <span className="workbench-tab workbench-tab--active">
-              <TerminalSquare size={15} aria-hidden="true" />
-              {activeFile}
-            </span>
-          </div>
-
-          <div className="workbench-breadcrumbs">
-            <Link href="/" className="hover:text-[color:var(--accent-strong)]">
-              หน้าแรก
-            </Link>
-            <span>/</span>
-            <Link
-              href="/glossary"
-              className="hover:text-[color:var(--accent-strong)]"
-            >
-              คำศัพท์
-            </Link>
-            <span>/</span>
-            <Link
-              href="/extensions"
-              className="hover:text-[color:var(--accent-strong)]"
-            >
-              แนวทางต่อยอด
-            </Link>
-          </div>
+          <nav className="workbench-breadcrumbs" aria-label="ตำแหน่งปัจจุบัน">
+            {breadcrumbs.map((crumb, index) => (
+              <Fragment key={`${index}-${crumb.label}`}>
+                {index > 0 ? <span aria-hidden="true">/</span> : null}
+                {crumb.href ? (
+                  <Link href={crumb.href}>{crumb.label}</Link>
+                ) : (
+                  <span
+                    aria-current={
+                      index === breadcrumbs.length - 1 ? "page" : undefined
+                    }
+                  >
+                    {crumb.label}
+                  </span>
+                )}
+              </Fragment>
+            ))}
+          </nav>
 
           <div
             className="workbench-editor-panel"
-            key={currentSlug ?? "overview"}
+            key={currentSlug ?? section}
           >
             <div className="workbench-editor-content">{children}</div>
           </div>
         </main>
       </div>
-
-      <footer className="workbench-statusbar" aria-label="Project status">
-        <span>main</span>
-        <span>TypeScript</span>
-        <span>UTF-8</span>
-        <span>VS Code Dark+</span>
-      </footer>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Code2, TerminalSquare } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { CourseShell } from "@/components/course-shell";
 import { courseDays, getLessonsByDay, lessonHref } from "@/lib/course";
 import { getLessonHeading } from "@/lib/mdx";
@@ -18,13 +18,9 @@ export default async function HomePage() {
   );
 
   return (
-    <CourseShell>
+    <CourseShell section="home" breadcrumbs={[{ label: "หน้าแรก" }]}>
       <section className="home-hero">
         <div className="home-hero__meta">
-          <span>
-            <Code2 size={16} aria-hidden="true" />
-            course.config.ts
-          </span>
           <span>5 วัน / 20 ชั่วโมง</span>
         </div>
         <h1>Bootcamp สร้างระบบแจ้งปัญหา IT</h1>
@@ -55,13 +51,12 @@ export default async function HomePage() {
           <article key={day.day} className="home-day-panel">
             <div className="home-day-panel__header">
               <div>
-                <p>src/day-{day.day}/index.ts</p>
+                <p>Day {day.day}</p>
                 <h2>
                   {day.title}
                 </h2>
                 <span>{day.goal}</span>
               </div>
-              <CheckCircle2 size={21} aria-hidden="true" />
             </div>
             <div className="home-lesson-grid">
               {day.lessons.map((lesson) => (
@@ -70,10 +65,7 @@ export default async function HomePage() {
                   href={lessonHref(lesson)}
                   className="home-lesson-link"
                 >
-                  <span>
-                    <TerminalSquare size={14} aria-hidden="true" />
-                    hour-{lesson.hour}.mdx
-                  </span>
+                  <span>ชั่วโมงที่ {lesson.hour}</span>
                   <strong>{lesson.heading}</strong>
                   <small>{lesson.summary}</small>
                 </Link>

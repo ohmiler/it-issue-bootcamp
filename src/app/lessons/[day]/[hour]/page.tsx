@@ -55,7 +55,16 @@ export default async function LessonPage({ params }: LessonPageProps) {
   const outline = getSlideOutline(await readLessonMdxSource(lesson.slug));
 
   return (
-    <CourseShell currentSlug={lesson.slug} outline={outline}>
+    <CourseShell
+      section="lesson"
+      currentSlug={lesson.slug}
+      outline={outline}
+      breadcrumbs={[
+        { label: "หน้าแรก", href: "/" },
+        { label: `Day ${lesson.day}` },
+        { label: `ชั่วโมงที่ ${lesson.hour}` },
+      ]}
+    >
       <header className="lesson-header">
         <p className="lesson-header__eyebrow">
           {lessonLabel(lesson)}

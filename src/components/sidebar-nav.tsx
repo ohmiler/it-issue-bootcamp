@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import Link from "next/link";
-import { BookOpen, ChevronDown, FileText, FolderOpen } from "lucide-react";
+import { FileText, FolderOpen } from "lucide-react";
 import { LessonOutlineNav } from "@/components/lesson-outline-nav";
 import { courseDays, getLessonsByDay, lessonHref } from "@/lib/course";
 import { getLessonHeading } from "@/lib/mdx";
@@ -26,20 +26,17 @@ export async function SidebarNav({ currentSlug, outline }: SidebarNavProps) {
 
   return (
     <aside className="workbench-sidebar">
-      <div className="workbench-sidebar__title">Explorer</div>
-
-      <Link href="/" className="workbench-root">
-        <BookOpen size={17} aria-hidden="true" />
-        <span>IT-ISSUE-BOOTCAMP</span>
-      </Link>
+      <div className="workbench-sidebar__title">บทเรียน</div>
 
       <nav aria-label="บทเรียนทั้งหมด" className="workbench-tree">
         {days.map((day) => (
           <section key={day.day} className="workbench-folder">
             <h2>
-              <ChevronDown size={15} aria-hidden="true" />
               <FolderOpen size={15} aria-hidden="true" />
-              <span>day-{day.day}</span>
+              <span>
+                Day {day.day}
+                <small>{day.title}</small>
+              </span>
             </h2>
             <div className="workbench-folder__items">
               {day.lessons.map((lesson) => {
@@ -53,8 +50,8 @@ export async function SidebarNav({ currentSlug, outline }: SidebarNavProps) {
                     >
                       <FileText size={15} aria-hidden="true" />
                       <span>
-                        hour-{lesson.hour}.mdx
-                        <small>{lesson.heading}</small>
+                        <small>ชั่วโมงที่ {lesson.hour}</small>
+                        {lesson.heading}
                       </span>
                     </Link>
                     {active && outline && outline.length > 0 ? (
