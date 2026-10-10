@@ -3,8 +3,17 @@ import Link from "next/link";
 import { Clock, Goal, Presentation } from "lucide-react";
 import { CourseShell } from "@/components/course-shell";
 import { LessonPager } from "@/components/lesson-pager";
-import { getLesson, lessonSlidesHref, lessons } from "@/lib/course";
-import { compileLessonMdx, readLessonMdxSource } from "@/lib/mdx";
+import {
+  getLesson,
+  lessonLabel,
+  lessonSlidesHref,
+  lessons,
+} from "@/lib/course";
+import {
+  compileLessonMdx,
+  getLessonHeading,
+  readLessonMdxSource,
+} from "@/lib/mdx";
 import { getSlideOutline } from "@/lib/slides";
 
 type LessonPageProps = {
@@ -29,8 +38,8 @@ export async function generateMetadata({ params }: LessonPageProps) {
 
   return {
     title: lesson
-      ? `${lesson.title} | IT Issue Bootcamp`
-      : "Lesson | IT Issue Bootcamp",
+      ? `${await getLessonHeading(lesson)} | IT Issue Bootcamp`
+      : "บทเรียน | IT Issue Bootcamp",
   };
 }
 
@@ -49,7 +58,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
     <CourseShell currentSlug={lesson.slug} outline={outline}>
       <header className="lesson-header">
         <p className="lesson-header__eyebrow">
-          Day {lesson.day} / Hour {lesson.hour}
+          {lessonLabel(lesson)}
         </p>
         <h1>{heading ?? lesson.title}</h1>
         <p>{lesson.summary}</p>
@@ -59,7 +68,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
             className="workbench-button workbench-button--primary"
           >
             <Presentation size={16} aria-hidden="true" />
-            Slide mode
+            เปิดสไลด์
           </Link>
         </div>
         <div className="lesson-header__meta">
@@ -68,7 +77,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
               size={16}
               aria-hidden="true"
             />
-            <span>{frontmatter.duration ?? 60} minutes</span>
+            <span>{frontmatter.duration ?? 60} นาที</span>
           </div>
           <div>
             <Goal

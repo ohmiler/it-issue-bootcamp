@@ -93,7 +93,7 @@ export function MermaidDiagram({ chart }: MermaidDiagramProps) {
           setError(
             renderError instanceof Error
               ? renderError.message
-              : "Unable to render diagram",
+              : "แสดง Diagram ไม่ได้",
           );
         }
       }

@@ -2,7 +2,7 @@ import { CourseShell } from "@/components/course-shell";
 import { compileSupportMdx } from "@/lib/mdx";
 
 export const metadata = {
-  title: "Extension Map | IT Issue Bootcamp",
+  title: "แนวทางต่อยอด | IT Issue Bootcamp",
 };
 
 export default async function ExtensionsPage() {

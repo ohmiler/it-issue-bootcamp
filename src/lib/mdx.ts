@@ -90,6 +90,11 @@ export function splitLessonHeading(source: string) {
   return { heading, body: body.join("\n") };
 }
 
+export async function getLessonHeading(lesson: { slug: string; title: string }) {
+  const raw = await readLessonMdxSource(lesson.slug);
+  return splitLessonHeading(raw).heading ?? lesson.title;
+}
+
 export async function compileLessonMdx(slug: string) {
   const raw = await readLessonMdxSource(slug);
   const { heading, body } = splitLessonHeading(raw);

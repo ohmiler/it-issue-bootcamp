@@ -2,7 +2,7 @@ import { CourseShell } from "@/components/course-shell";
 import { compileSupportMdx } from "@/lib/mdx";
 
 export const metadata = {
-  title: "Glossary | IT Issue Bootcamp",
+  title: "คำศัพท์ | IT Issue Bootcamp",
 };
 
 export default async function GlossaryPage() {

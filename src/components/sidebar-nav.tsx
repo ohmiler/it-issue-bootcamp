@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BookOpen, ChevronDown, FileText, FolderOpen } from "lucide-react";
 import { LessonOutlineNav } from "@/components/lesson-outline-nav";
 import { courseDays, getLessonsByDay, lessonHref } from "@/lib/course";
+import { getLessonHeading } from "@/lib/mdx";
 import type { SlideOutlineItem } from "@/lib/slides";
 
 type SidebarNavProps = {
@@ -10,7 +11,19 @@ type SidebarNavProps = {
   outline?: SlideOutlineItem[];
 };
 
-export function SidebarNav({ currentSlug, outline }: SidebarNavProps) {
+export async function SidebarNav({ currentSlug, outline }: SidebarNavProps) {
+  const days = await Promise.all(
+    courseDays.map(async (day) => ({
+      ...day,
+      lessons: await Promise.all(
+        getLessonsByDay(day.day).map(async (lesson) => ({
+          ...lesson,
+          heading: await getLessonHeading(lesson),
+        })),
+      ),
+    })),
+  );
+
   return (
     <aside className="workbench-sidebar">
       <div className="workbench-sidebar__title">Explorer</div>
@@ -20,8 +33,8 @@ export function SidebarNav({ currentSlug, outline }: SidebarNavProps) {
         <span>IT-ISSUE-BOOTCAMP</span>
       </Link>
 
-      <nav aria-label="Course lessons" className="workbench-tree">
-        {courseDays.map((day) => (
+      <nav aria-label="บทเรียนทั้งหมด" className="workbench-tree">
+        {days.map((day) => (
           <section key={day.day} className="workbench-folder">
             <h2>
               <ChevronDown size={15} aria-hidden="true" />
@@ -29,7 +42,7 @@ export function SidebarNav({ currentSlug, outline }: SidebarNavProps) {
               <span>day-{day.day}</span>
             </h2>
             <div className="workbench-folder__items">
-              {getLessonsByDay(day.day).map((lesson) => {
+              {day.lessons.map((lesson) => {
                 const active = lesson.slug === currentSlug;
                 return (
                   <Fragment key={lesson.slug}>
@@ -41,7 +54,7 @@ export function SidebarNav({ currentSlug, outline }: SidebarNavProps) {
                       <FileText size={15} aria-hidden="true" />
                       <span>
                         hour-{lesson.hour}.mdx
-                        <small>{lesson.title}</small>
+                        <small>{lesson.heading}</small>
                       </span>
                     </Link>
                     {active && outline && outline.length > 0 ? (

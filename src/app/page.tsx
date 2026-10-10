@@ -2,8 +2,21 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2, Code2, TerminalSquare } from "lucide-react";
 import { CourseShell } from "@/components/course-shell";
 import { courseDays, getLessonsByDay, lessonHref } from "@/lib/course";
+import { getLessonHeading } from "@/lib/mdx";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const days = await Promise.all(
+    courseDays.map(async (day) => ({
+      ...day,
+      lessons: await Promise.all(
+        getLessonsByDay(day.day).map(async (lesson) => ({
+          ...lesson,
+          heading: await getLessonHeading(lesson),
+        })),
+      ),
+    })),
+  );
+
   return (
     <CourseShell>
       <section className="home-hero">
@@ -12,32 +25,33 @@ export default function HomePage() {
             <Code2 size={16} aria-hidden="true" />
             course.config.ts
           </span>
-          <span>5 days / 20 hours</span>
+          <span>5 วัน / 20 ชั่วโมง</span>
         </div>
-        <h1>IT Issue Reporting Web Application Bootcamp</h1>
+        <h1>Bootcamp สร้างระบบแจ้งปัญหา IT</h1>
         <p>
-          A code-first course-book for HTML, CSS, TypeScript, Next.js, Tailwind,
-          Supabase, deployment, authentication, roles, RLS, and LLM-safe coding.
+          สร้าง Web Application หนึ่งระบบตั้งแต่ HTML, CSS, TypeScript, Next.js
+          และ Tailwind ไปจนถึงเชื่อม Supabase, Deploy, Login, กำหนดสิทธิ์ด้วย
+          Role และ RLS และใช้ AI เขียนโค้ดอย่างปลอดภัย
         </p>
         <div className="home-hero__actions">
           <Link
             href="/lessons/day-1/hour-1"
             className="workbench-button workbench-button--primary"
           >
-            Start Day 1
+            เริ่ม Day 1
             <ArrowRight size={16} aria-hidden="true" />
           </Link>
           <Link
             href="/extensions"
             className="workbench-button"
           >
-            Extension Map
+            แนวทางต่อยอด
           </Link>
         </div>
       </section>
 
-      <section className="home-day-list" aria-label="Course days">
-        {courseDays.map((day) => (
+      <section className="home-day-list" aria-label="บทเรียนแยกตามวัน">
+        {days.map((day) => (
           <article key={day.day} className="home-day-panel">
             <div className="home-day-panel__header">
               <div>
@@ -50,7 +64,7 @@ export default function HomePage() {
               <CheckCircle2 size={21} aria-hidden="true" />
             </div>
             <div className="home-lesson-grid">
-              {getLessonsByDay(day.day).map((lesson) => (
+              {day.lessons.map((lesson) => (
                 <Link
                   key={lesson.slug}
                   href={lessonHref(lesson)}
@@ -60,7 +74,7 @@ export default function HomePage() {
                     <TerminalSquare size={14} aria-hidden="true" />
                     hour-{lesson.hour}.mdx
                   </span>
-                  <strong>{lesson.title}</strong>
+                  <strong>{lesson.heading}</strong>
                   <small>{lesson.summary}</small>
                 </Link>
               ))}

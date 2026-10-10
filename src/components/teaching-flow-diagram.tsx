@@ -596,7 +596,7 @@ export function TeachingFlowDiagram({ variant }: TeachingFlowDiagramProps) {
       </ol>
 
       {diagram.branches ? (
-        <div className="teaching-flow__branches" aria-label="Flow outcomes">
+        <div className="teaching-flow__branches" aria-label="ผลลัพธ์ที่เป็นไปได้">
           {diagram.branches.map((branch) => {
             const BranchIcon = branch.role === "success" ? CheckCircle2 : XCircle;
 

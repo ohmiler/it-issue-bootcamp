@@ -1,32 +1,32 @@
 ---
-title: "Extension Map"
+title: "แนวทางต่อยอด"
 ---
 
-# Extension Map
+# แนวทางต่อยอด
 
-The course builds an internal IT issue reporting system as the main project. The same model can be extended to university workflows after the core path is stable.
+หลักสูตรนี้ใช้ระบบแจ้งปัญหา IT ภายในหน่วยงานเป็น Project หลัก เมื่อเส้นทางหลักทำงานได้แล้ว นำโครงเดียวกันไปใช้กับงานอื่นในมหาวิทยาลัยได้
 
-## Exam or Event Registration
+## ระบบลงทะเบียนสอบหรือกิจกรรม
 
-Map the core issue system to a registration workflow:
+เทียบระบบแจ้งปัญหากับระบบลงทะเบียน:
 
-- Create: applicant submits a registration form.
-- Read: applicant checks their registration status.
-- Update: admin approves payment evidence or updates application status.
-- Delete: admin cancels or archives an invalid application.
+- Create: ผู้สมัครส่งแบบฟอร์มลงทะเบียน
+- Read: ผู้สมัครตรวจสถานะใบสมัครของตัวเอง
+- Update: ADMIN ตรวจหลักฐานการชำระเงินหรือเปลี่ยนสถานะใบสมัคร
+- Delete: ADMIN ยกเลิกหรือเก็บใบสมัครที่ไม่ถูกต้องไว้ในประวัติ
 
-## Image Upload
+## อัปโหลดรูปภาพ
 
-Image upload maps to Supabase Storage. It should be added after learners understand database rows because uploaded files need metadata, ownership, and permission rules.
+ใช้ Supabase Storage ควรเพิ่มหลังเข้าใจข้อมูลใน Table แล้ว เพราะไฟล์ที่อัปโหลดต้องมีข้อมูลประกอบ เจ้าของ และกฎสิทธิ์
 
-## Google OAuth
+## Login ด้วย Google (Google OAuth)
 
-Google OAuth can replace prepared email/password accounts after learners understand authentication flow. It adds provider setup, redirect URLs, and production domain configuration.
+ใช้แทนบัญชีอีเมลและรหัสผ่านที่สร้างไว้ให้ได้ หลังเข้าใจขั้นตอน Login แล้ว ต้องตั้งค่าผู้ให้บริการ Redirect URL และโดเมนของระบบจริงเพิ่ม
 
-## Notification
+## การแจ้งเตือน
 
-Notification can be added after status updates work. A status change can trigger email, LINE, or push notification, but notification should not be part of the core 20-hour path.
+เพิ่มได้หลังการเปลี่ยนสถานะทำงานแล้ว เช่น ส่งอีเมล LINE หรือ Push Notification เมื่อสถานะเปลี่ยน แต่ไม่อยู่ในเส้นทางหลัก 20 ชั่วโมง
 
 ## Docker
 
-Docker is useful for deployment and infrastructure consistency, but this bootcamp uses managed services and Vercel deployment to keep the classroom focused on web application flow.
+ช่วยให้ระบบทำงานเหมือนกันทุกเครื่องตอน Deploy แต่ Bootcamp นี้ใช้บริการสำเร็จรูปและ Deploy บน Vercel เพื่อให้นักศึกษาโฟกัสที่การทำงานของ Web Application

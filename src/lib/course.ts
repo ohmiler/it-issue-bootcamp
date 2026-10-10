@@ -17,28 +17,28 @@ export type CourseDay = {
 export const courseDays: CourseDay[] = [
   {
     day: 1,
-    title: "Static Prototype and Git",
-    goal: "Understand web workflow and create a static issue reporting prototype."
+    title: "Static Prototype และ Git",
+    goal: "เข้าใจการทำงานของระบบเว็บ แล้วสร้างหน้าแจ้งปัญหาแบบ Static"
   },
   {
     day: 2,
-    title: "Next.js and TypeScript Models",
-    goal: "Move from static pages to a Next.js app and make the data model explicit."
+    title: "Next.js และ TypeScript",
+    goal: "ย้ายหน้า Static เข้า Next.js แล้วกำหนดรูปแบบข้อมูล Issue ด้วย TypeScript"
   },
   {
     day: 3,
-    title: "Tailwind and Mock CRUD",
-    goal: "Improve UI and practice CRUD flow before the real database."
+    title: "Tailwind และ CRUD ในหน้าเว็บ",
+    goal: "ปรับหน้าตาด้วย Tailwind แล้วฝึกเพิ่มและเปลี่ยนสถานะรายการใน State ก่อนใช้ฐานข้อมูลจริง"
   },
   {
     day: 4,
-    title: "Supabase CRUD and Deploy",
-    goal: "Connect the app to a real database, complete the demo data flow, and reach a deployment checkpoint."
+    title: "Supabase และ Deploy",
+    goal: "เชื่อมฐานข้อมูลจริงให้อ่าน เพิ่ม และเปลี่ยนสถานะ Issue ได้ แล้ว Deploy ขึ้น Vercel"
   },
   {
     day: 5,
-    title: "Auth, Admin, RLS, and Security",
-    goal: "Protect the existing CRUD flow with login, roles, row-level security, and an admin-only update path."
+    title: "Login, สิทธิ์ และความปลอดภัย",
+    goal: "ป้องกันระบบเดิมด้วย Login, Role, RLS และหน้าสำหรับ ADMIN แล้วทบทวนความเสี่ยงด้านความปลอดภัย"
   }
 ];
 
@@ -48,180 +48,180 @@ export const lessons: Lesson[] = [
     day: 1,
     hour: 1,
     title: "Basic Website Workflow",
-    summary: "Frontend, backend, database, request/response, CRUD, and project framing.",
+    summary: "ภาพรวม Frontend, Backend, Database, Request/Response และ CRUD ผ่านโจทย์ระบบแจ้งปัญหา IT",
     sourceFile: "day-1-hour-1-web-workflow.md",
-    checkpoint: "Learners can explain the issue reporting flow."
+    checkpoint: "นักศึกษาอธิบายได้ว่าการแจ้งปัญหาหนึ่งครั้งผ่านส่วนใดของระบบบ้าง"
   },
   {
     slug: "day-1/hour-2",
     day: 1,
     hour: 2,
     title: "HTML Foundation",
-    summary: "Semantic HTML, form fields, labels, inputs, textarea, and button structure.",
+    summary: "โครงสร้าง HTML, Semantic HTML และ Form แจ้งปัญหาที่ใช้ label, input, textarea และ button",
     sourceFile: "day-1-hour-2-html-foundation.md",
-    checkpoint: "Learners have an issue report form in index.html."
+    checkpoint: "มี Form แจ้งปัญหาใน index.html"
   },
   {
     slug: "day-1/hour-3",
     day: 1,
     hour: 3,
     title: "CSS Foundation",
-    summary: "Selectors, box model, form styling, layout, and responsive basics.",
+    summary: "Selector, Box Model, Flexbox และ Grid, ตกแต่ง Form และ Responsive Layout",
     sourceFile: "day-1-hour-3-css-foundation.md",
-    checkpoint: "Learners have a readable static form styled with styles.css."
+    checkpoint: "Form อ่านง่ายและใช้ได้ทั้งมือถือและจอกว้างด้วย style.css"
   },
   {
     slug: "day-1/hour-4",
     day: 1,
     hour: 4,
     title: "Issue List and Git",
-    summary: "Static issue list, status badges, README, and GitHub push.",
+    summary: "ตารางรายการปัญหาแบบ Static, Status Badge แล้ว Commit และ Push ขึ้น GitHub",
     sourceFile: "day-1-hour-4-issue-list-and-git.md",
-    checkpoint: "Learners push the Day 1 static prototype to GitHub."
+    checkpoint: "งาน Day 1 อยู่บน GitHub แล้ว"
   },
   {
     slug: "day-2/hour-1",
     day: 2,
     hour: 1,
     title: "Next.js Setup",
-    summary: "Project setup, App Router, page, layout, global styles, and dev server.",
+    summary: "เหตุผลที่ย้ายไป Next.js, สร้าง Project แบบ App Router และเปิด Development Server",
     sourceFile: "day-2-hour-1-nextjs-setup.md",
-    checkpoint: "Learners can open the Next.js app locally."
+    checkpoint: "เปิด Next.js Project บนเครื่องได้"
   },
   {
     slug: "day-2/hour-2",
     day: 2,
     hour: 2,
     title: "Convert Static to Next.js",
-    summary: "Move HTML/CSS prototype into TSX and Next.js app structure.",
+    summary: "แปลง HTML เป็น TSX และย้าย CSS เดิมเข้า app/globals.css",
     sourceFile: "day-2-hour-2-convert-static-to-nextjs.md",
-    checkpoint: "The static prototype renders inside Next.js."
+    checkpoint: "หน้าจาก Day 1 แสดงใน Next.js เหมือนเดิม"
   },
   {
     slug: "day-2/hour-3",
     day: 2,
     hour: 3,
     title: "TypeScript Data Model",
-    summary: "Issue, IssueStatus, mock data, mapping arrays, and data-driven rendering.",
+    summary: "Type ของ Issue, Union Type ของ Status, Mock Data และสร้างแถวด้วย .map()",
     sourceFile: "day-2-hour-3-typescript-data-model.md",
-    checkpoint: "The issue list renders from typed mock data."
+    checkpoint: "ตารางสร้างแถวจาก Mock Data ที่กำหนด Type แล้ว"
   },
   {
     slug: "day-2/hour-4",
     day: 2,
     hour: 4,
     title: "Components and Routing",
-    summary: "Component extraction, shared types, mock data files, and basic routes.",
+    summary: "แยก Component, ส่งข้อมูลผ่าน Props, ย้าย Type และ Mock Data ไปไฟล์กลาง และสร้าง Route ใหม่",
     sourceFile: "day-2-hour-4-components-and-routing.md",
-    checkpoint: "The app uses reusable components and routes."
+    checkpoint: "มี Component ที่ใช้ซ้ำได้และหน้า /issues, /issues/new และ /issues/[id]"
   },
   {
     slug: "day-3/hour-1",
     day: 3,
     hour: 1,
     title: "Tailwind Setup and Utilities",
-    summary: "Tailwind setup, spacing, typography, colors, layout, and state utilities.",
+    summary: "เปิดใช้ Tailwind, อ่าน Class พื้นฐาน และแปลงเมนู หน้า Home และ Form",
     sourceFile: "day-3-hour-1-tailwind-setup-and-utilities.md",
-    checkpoint: "Learners start converting the UI to Tailwind."
+    checkpoint: "เมนู หน้า Home และ Form ใช้ Tailwind แล้ว"
   },
   {
     slug: "day-3/hour-2",
     day: 3,
     hour: 2,
     title: "Tailwind Components and Responsive UI",
-    summary: "Status badges, issue list, form layout, responsive behavior, and empty states.",
+    summary: "ป้ายสถานะที่เปลี่ยนสีตามสถานะ, ตารางที่เลื่อนได้บนจอเล็ก และข้อความเมื่อไม่มีรายการ",
     sourceFile: "day-3-hour-2-tailwind-components-and-responsive-ui.md",
-    checkpoint: "The main UI is readable and responsive."
+    checkpoint: "ป้ายสถานะและตารางใช้ Tailwind และอ่านง่ายทุกขนาดจอ"
   },
   {
     slug: "day-3/hour-3",
     day: 3,
     hour: 3,
     title: "Form State and Validation",
-    summary: "Client state, FormData, validation results, error state, and mock create.",
+    summary: "Client Component, useState, FormData, การตรวจข้อมูล และการเพิ่มรายการใน State",
     sourceFile: "day-3-hour-3-form-state-and-validation.md",
-    checkpoint: "Submitting the form adds a mock issue after validation."
+    checkpoint: "ส่งฟอร์มแล้วได้รายการใหม่หลังผ่านการตรวจข้อมูล"
   },
   {
     slug: "day-3/hour-4",
     day: 3,
     hour: 4,
     title: "Mock CRUD and Database Prep",
-    summary: "Mock update, close concept, filters, database transition, and Server Actions preview.",
+    summary: "CRUD ใน Project, เปลี่ยนสถานะด้วยข้อมูลชุดใหม่ และข้อจำกัดของข้อมูลชั่วคราว",
     sourceFile: "day-3-hour-4-mock-crud-and-database-prep.md",
-    checkpoint: "Learners understand the CRUD flow before Supabase."
+    checkpoint: "เปลี่ยนสถานะรายการในหน้า Home ได้"
   },
   {
     slug: "day-4/hour-1",
     day: 4,
     hour: 1,
     title: "Supabase Setup and Schema",
-    summary: "Supabase project, issues table, status enum, seed data, and environment variables.",
+    summary: "สร้าง Supabase Project, Table issues ด้วย SQL, เปิด RLS และตั้งค่า Environment Variables",
     sourceFile: "day-4-hour-1-supabase-setup-and-schema.md",
-    checkpoint: "Supabase has an issues table and seed data."
+    checkpoint: "Supabase มี Table issues พร้อมข้อมูลตัวอย่าง"
   },
   {
     slug: "day-4/hour-2",
     day: 4,
     hour: 2,
     title: "Read from Supabase",
-    summary: "Server client, database row mapping, getIssues, list page, and detail page.",
+    summary: "เชื่อม Supabase บน Server, แปลงชื่อ Column และแสดงหน้ารายการกับหน้ารายละเอียด",
     sourceFile: "day-4-hour-2-read-from-supabase.md",
-    checkpoint: "The app reads issues from Supabase."
+    checkpoint: "หน้าเว็บอ่านข้อมูลจาก Supabase"
   },
   {
     slug: "day-4/hour-3",
     day: 4,
     hour: 3,
     title: "Create with Server Actions",
-    summary: "Server Actions, server-side validation, createIssue, and form integration.",
+    summary: "Server Action, การตรวจข้อมูลบน Server และการเพิ่ม Issue ลง Supabase",
     sourceFile: "day-4-hour-3-create-with-server-actions.md",
-    checkpoint: "The app creates issues in Supabase."
+    checkpoint: "ฟอร์มบันทึก Issue ใหม่ลง Supabase"
   },
   {
     slug: "day-4/hour-4",
     day: 4,
     hour: 4,
     title: "Deploy Checkpoint",
-    summary: "Update with Server Actions, demo permissions, production checks, and Vercel deployment.",
+    summary: "เปลี่ยนสถานะผ่าน Server Action, ปิดงานด้วย DONE และ Deploy ขึ้น Vercel",
     sourceFile: "day-4-hour-4-update-delete-and-deploy.md",
-    checkpoint: "Learners have a deployed app with demo read, create, and update flows."
+    checkpoint: "ระบบบน Vercel อ่าน เพิ่ม และเปลี่ยนสถานะ Issue ได้"
   },
   {
     slug: "day-5/hour-1",
     day: 5,
     hour: 1,
     title: "Auth Flow and Supabase SSR",
-    summary: "Authentication, authorization, session, cookies, Supabase SSR, and server client setup.",
+    summary: "Authentication กับ Authorization, Session และ Cookie, Supabase Client ฝั่ง Server และ Proxy",
     sourceFile: "day-5-hour-1-auth-flow-and-supabase-ssr.md",
-    checkpoint: "The app can read session state on the server."
+    checkpoint: "Server อ่าน Session ของผู้ใช้จาก Cookie ได้"
   },
   {
     slug: "day-5/hour-2",
     day: 5,
     hour: 2,
     title: "Login, Logout, and Protected Pages",
-    summary: "Prepared accounts, login form, logout action, requireUser, and protected routes.",
+    summary: "Login และ Logout ด้วย Server Action, บังคับ Login ก่อนใช้งาน และเมนูตามสถานะ Login",
     sourceFile: "day-5-hour-2-login-logout-and-protected-pages.md",
-    checkpoint: "Learners can log in and access a protected page."
+    checkpoint: "Login แล้วเปิดหน้าที่ต้องมีผู้ใช้ได้"
   },
   {
     slug: "day-5/hour-3",
     day: 5,
     hour: 3,
     title: "Authorization, RLS, and Admin",
-    summary: "USER/ADMIN roles, profiles, created_by, RLS policies, admin page, and update status.",
+    summary: "เจ้าของ Issue, Role ใน Table profiles, RLS Policy และหน้าสำหรับ ADMIN",
     sourceFile: "day-5-hour-3-authorization-rls-and-admin.md",
-    checkpoint: "Admin can update status and users see only allowed data."
+    checkpoint: "ADMIN เปลี่ยนสถานะได้ ส่วน USER เห็นเฉพาะ Issue ของตัวเอง"
   },
   {
     slug: "day-5/hour-4",
     day: 5,
     hour: 4,
     title: "Security, LLM-Safe Coding, and Final Demo",
-    summary: "OWASP mapping, deployment checks, LLM-safe workflow, security checklist, and final demo.",
+    summary: "เส้นทางของ Request, ชั้นการตรวจสิทธิ์, ความเสี่ยงพื้นฐาน และการใช้ AI อย่างปลอดภัย",
     sourceFile: "day-5-hour-4-security-llm-safe-and-final-demo.md",
-    checkpoint: "Learners can explain CRUD, auth, role, RLS, deploy, and security risks."
+    checkpoint: "นักศึกษาอธิบายหน้าที่ของ Authentication, Role, RLS และความเสี่ยงพื้นฐานได้"
   }
 ];
 
@@ -260,6 +260,10 @@ export function getNextLesson(slug: string): Lesson | undefined {
 
 export function lessonHref(lesson: Lesson): string {
   return `/lessons/day-${lesson.day}/hour-${lesson.hour}`;
+}
+
+export function lessonLabel(lesson: Lesson): string {
+  return `Day ${lesson.day} / ชั่วโมงที่ ${lesson.hour}`;
 }
 
 export function lessonSlidesHref(lesson: Lesson): string {

@@ -2,7 +2,7 @@ export function BoxModelDiagram() {
   return (
     <figure
       className="box-model-diagram"
-      aria-label="Box model diagram showing margin, border, padding, and content"
+      aria-label="แผนภาพ Box Model แสดง margin, border, padding และ content"
     >
       <figcaption className="box-model-diagram__caption">
         Box model: margin, border, padding, content

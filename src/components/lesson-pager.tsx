@@ -6,18 +6,21 @@ import {
   lessonHref,
   type Lesson,
 } from "@/lib/course";
+import { getLessonHeading } from "@/lib/mdx";
 
 type LessonPagerProps = {
   lesson: Lesson;
 };
 
-export function LessonPager({ lesson }: LessonPagerProps) {
+export async function LessonPager({ lesson }: LessonPagerProps) {
   const previous = getPreviousLesson(lesson.slug);
   const next = getNextLesson(lesson.slug);
+  const previousHeading = previous ? await getLessonHeading(previous) : "";
+  const nextHeading = next ? await getLessonHeading(next) : "";
 
   return (
     <nav
-      aria-label="Lesson navigation"
+      aria-label="ไปชั่วโมงก่อนหน้าหรือถัดไป"
       className="lesson-pager"
     >
       {previous ? (
@@ -27,9 +30,9 @@ export function LessonPager({ lesson }: LessonPagerProps) {
         >
           <span>
             <ArrowLeft size={14} aria-hidden="true" />
-            Previous
+            ชั่วโมงก่อนหน้า
           </span>
-          <strong>{previous.title}</strong>
+          <strong>{previousHeading}</strong>
         </Link>
       ) : (
         <div />
@@ -41,10 +44,10 @@ export function LessonPager({ lesson }: LessonPagerProps) {
           className="lesson-pager__link lesson-pager__link--next"
         >
           <span>
-            Next
+            ชั่วโมงถัดไป
             <ArrowRight size={14} aria-hidden="true" />
           </span>
-          <strong>{next.title}</strong>
+          <strong>{nextHeading}</strong>
         </Link>
       ) : (
         <div />

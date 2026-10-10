@@ -39,18 +39,18 @@ export function CourseShell({
       </header>
 
       <div className="workbench-body">
-        <nav className="workbench-activitybar" aria-label="Workspace sections">
-          <Link href="/" aria-label="Overview" className="is-active">
+        <nav className="workbench-activitybar" aria-label="เมนูหลัก">
+          <Link href="/" aria-label="หน้าแรก" className="is-active">
             <Files size={22} aria-hidden="true" />
           </Link>
-          <Link href="/glossary" aria-label="Glossary">
+          <Link href="/glossary" aria-label="คำศัพท์">
             <Search size={22} aria-hidden="true" />
           </Link>
-          <Link href="/extensions" aria-label="Extensions">
+          <Link href="/extensions" aria-label="แนวทางต่อยอด">
             <GitBranch size={22} aria-hidden="true" />
           </Link>
           <span className="workbench-activitybar__spacer" />
-          <Link href="/lessons/day-1/hour-1" aria-label="First lesson">
+          <Link href="/lessons/day-1/hour-1" aria-label="บทเรียนแรก">
             <BookOpen size={22} aria-hidden="true" />
           </Link>
         </nav>
@@ -58,7 +58,7 @@ export function CourseShell({
         <SidebarNav currentSlug={currentSlug} outline={outline} />
 
         <main className="workbench-editor-area">
-          <div className="workbench-tabs" aria-label="Open files">
+          <div className="workbench-tabs" aria-label="ไฟล์ที่เปิดอยู่">
             <span className="workbench-tab workbench-tab--active">
               <TerminalSquare size={15} aria-hidden="true" />
               {activeFile}
@@ -67,21 +67,21 @@ export function CourseShell({
 
           <div className="workbench-breadcrumbs">
             <Link href="/" className="hover:text-[color:var(--accent-strong)]">
-              Overview
+              หน้าแรก
             </Link>
             <span>/</span>
             <Link
               href="/glossary"
               className="hover:text-[color:var(--accent-strong)]"
             >
-              Glossary
+              คำศัพท์
             </Link>
             <span>/</span>
             <Link
               href="/extensions"
               className="hover:text-[color:var(--accent-strong)]"
             >
-              Extensions
+              แนวทางต่อยอด
             </Link>
           </div>
 

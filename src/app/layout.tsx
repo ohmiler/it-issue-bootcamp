@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "IT Issue Bootcamp",
   description:
-    "Five-day hands-on web application bootcamp for HTML, CSS, TypeScript, Next.js, and Supabase.",
+    "Bootcamp 5 วันสำหรับสร้างระบบแจ้งปัญหา IT ด้วย HTML, CSS, TypeScript, Next.js และ Supabase",
 };
 
 export default function RootLayout({

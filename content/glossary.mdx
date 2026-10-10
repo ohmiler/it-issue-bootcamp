@@ -1,37 +1,37 @@
 ---
-title: "Glossary"
+title: "คำศัพท์"
 ---
 
-# Glossary
+# คำศัพท์
 
-## Authentication
+## Authentication (การยืนยันตัวตน)
 
-Authentication means checking who the user is. In this course, learners use prepared email/password accounts so the classroom can focus on session flow and protected pages.
+ตรวจว่าผู้ใช้คือใคร ในหลักสูตรนี้ผู้ดูแลสร้างบัญชีอีเมลและรหัสผ่านไว้ให้ก่อน นักศึกษาจึงเน้นเรื่อง Session และการป้องกันหน้าได้เต็มที่
 
-## Authorization
+## Authorization (การตรวจสิทธิ์)
 
-Authorization means checking what the authenticated user is allowed to do. In the project, this appears as USER and ADMIN role checks.
+ตรวจว่าผู้ใช้ที่ Login แล้วทำอะไรได้บ้าง ใน Project คือการแยกสิทธิ์ของ USER กับ ADMIN
 
 ## CRUD
 
-CRUD means Create, Read, Update, and Delete. The course project uses Create for new issues, Read for issue lists and details, Update for admin status changes, and Delete as a close or soft-delete discussion.
+งานพื้นฐานกับข้อมูล 4 อย่าง ได้แก่ Create (เพิ่ม), Read (อ่าน), Update (แก้ไข) และ Delete (ลบ) Project นี้เพิ่ม Issue ใหม่ อ่านรายการและรายละเอียด และให้ ADMIN เปลี่ยนสถานะ ส่วนการปิดงานใช้สถานะ `DONE` แทนการลบ
 
 ## Server Action
 
-A Server Action is server-side code called from a form or UI interaction in a Next.js app. In this course, Server Actions validate input and call Supabase.
+Function ที่ทำงานบน Server และฟอร์มใน Next.js เรียกใช้ได้โดยตรง ในหลักสูตรนี้ Server Action ตรวจข้อมูลก่อนส่งไปบันทึกที่ Supabase
 
-## RLS
+## RLS (Row Level Security)
 
-RLS means Row Level Security. It is a database-level rule that limits which rows a user can read or change.
+กฎใน Database ที่กำหนดว่าผู้ใช้แต่ละคนอ่านหรือแก้แถวใดได้บ้าง
 
 ## Managed Backend
 
-A managed backend is backend infrastructure provided by a platform. Supabase provides Postgres, Auth, and RLS for this course, but learners still need to understand backend responsibilities.
+Backend ที่ผู้ให้บริการดูแล Server ให้ ในหลักสูตรนี้ Supabase ให้ทั้ง Postgres, Auth และ RLS แต่นักศึกษายังต้องเข้าใจว่า Backend รับผิดชอบอะไร
 
 ## Checkpoint Branch
 
-A checkpoint branch is a known-working project state. Learners who fall behind can use it to rejoin the class without blocking the room.
+Branch ที่เก็บ Project ในสถานะที่ทำงานได้แน่นอน นักศึกษาที่ตามไม่ทันใช้ Branch นี้กลับมาเรียนต่อพร้อมห้องได้
 
-## LLM-Safe Coding
+## LLM-Safe Coding (ใช้ AI เขียนโค้ดอย่างปลอดภัย)
 
-LLM-safe coding means using an AI tool with review discipline. Learners ask for explanations, edge cases, and security review instead of pasting secrets or trusting generated auth code blindly.
+ใช้ AI ช่วยอธิบาย หากรณีที่อาจผิดพลาด และช่วยตรวจความปลอดภัย แต่ไม่ส่ง Secret ให้ AI และตรวจโค้ดด้าน Login หรือสิทธิ์ที่ AI สร้างทุกครั้งก่อนใช้

@@ -4,11 +4,13 @@ import {
   getLesson,
   getNextLesson,
   lessonHref,
+  lessonLabel,
   lessonSlidesHref,
   lessons,
 } from "@/lib/course";
 import {
   compileCourseMdxSource,
+  getLessonHeading,
   readLessonMdxSource,
   splitLessonHeading,
 } from "@/lib/mdx";
@@ -36,8 +38,8 @@ export async function generateMetadata({ params }: LessonSlidesPageProps) {
 
   return {
     title: lesson
-      ? `${lesson.title} Slides | IT Issue Bootcamp`
-      : "Slides | IT Issue Bootcamp",
+      ? `${await getLessonHeading(lesson)} (สไลด์) | IT Issue Bootcamp`
+      : "สไลด์ | IT Issue Bootcamp",
   };
 }
 
@@ -72,17 +74,15 @@ export default async function LessonSlidesPage({
   const nextLesson = next
     ? {
         href: lessonSlidesHref(next),
-        label: `Day ${next.day} / Hour ${next.hour}`,
-        title:
-          splitLessonHeading(await readLessonMdxSource(next.slug)).heading ??
-          next.title,
+        label: lessonLabel(next),
+        title: await getLessonHeading(next),
       }
     : undefined;
 
   return (
     <SlideDeck
       documentHref={lessonHref(lesson)}
-      lessonLabel={`Day ${lesson.day} / Hour ${lesson.hour}`}
+      lessonLabel={lessonLabel(lesson)}
       lessonTitle={splitLessonHeading(raw).heading ?? lesson.title}
       nextLesson={nextLesson}
       slideTitles={slides.map((slide) => slide.title)}

@@ -57,7 +57,7 @@ export function SlideDeck({
   const slideFrameRef = useRef<HTMLElement>(null);
   const pickerButtonRef = useRef<HTMLButtonElement>(null);
   const pickerPanelRef = useRef<HTMLDivElement>(null);
-  const activeTitle = slideTitles[activeIndex] ?? "Slide";
+  const activeTitle = slideTitles[activeIndex] ?? "สไลด์";
   const isLastSlide = activeIndex >= slides.length - 1;
   const progressPercent =
     slides.length > 0 ? ((activeIndex + 1) / slides.length) * 100 : 0;
@@ -205,7 +205,7 @@ export function SlideDeck({
             className="slide-command"
           >
             <BookOpen size={16} aria-hidden="true" />
-            Document
+            เอกสาร
           </Link>
           <div className="slide-picker">
             <button
@@ -260,14 +260,14 @@ export function SlideDeck({
         </section>
       </main>
 
-      <footer className="slide-controls" aria-label="Slide controls">
+      <footer className="slide-controls" aria-label="ปุ่มเปลี่ยนสไลด์">
         <button
           type="button"
           className="slide-icon-button"
           onClick={() => goToSlide(activeIndex - 1)}
           disabled={activeIndex === 0}
-          aria-label="Previous slide"
-          title="Previous slide"
+          aria-label="สไลด์ก่อนหน้า"
+          title="สไลด์ก่อนหน้า"
         >
           <ChevronLeft size={20} aria-hidden="true" />
         </button>
@@ -289,8 +289,8 @@ export function SlideDeck({
             className="slide-icon-button"
             onClick={() => goToSlide(activeIndex + 1)}
             disabled={isLastSlide}
-            aria-label="Next slide"
-            title="Next slide"
+            aria-label="สไลด์ถัดไป"
+            title="สไลด์ถัดไป"
           >
             <ChevronRight size={20} aria-hidden="true" />
           </button>
