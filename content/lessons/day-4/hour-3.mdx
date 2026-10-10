@@ -33,15 +33,15 @@ app/issues/new/page.tsx     ← แก้ไข
 
 ## Slide 1: จาก Read ไปสู่ Create
 
-หน้า `/issues` และหน้ารายละเอียดอ่านข้อมูลจาก Supabase แล้ว แต่ฟอร์มยังเป็นของ Day 3 ที่เก็บข้อมูลใน Browser
+ตอนนี้หน้า `/issues` และหน้ารายละเอียดอ่านข้อมูลจาก Supabase แล้ว
 
-ชั่วโมงนี้จะให้ฟอร์มบันทึกลง Database:
+**ปัญหา:** ฟอร์มยังเป็นของ Day 3 ที่เก็บข้อมูลใน Browser ไม่บันทึกลง Database
+
+**ชั่วโมงนี้:** ย้ายโค้ดอ่านและตรวจข้อมูลจาก `IssueForm` ไปทำงานบน Server แล้วบันทึกลง Supabase
 
 ```text
 IssueForm → Server Action → ตรวจข้อมูล → เพิ่มลง Supabase → กลับไปหน้า /issues
 ```
-
-โค้ดอ่านและตรวจข้อมูลจาก Day 3 จะย้ายจาก `IssueForm` ไปทำงานบน Server
 
 ---
 

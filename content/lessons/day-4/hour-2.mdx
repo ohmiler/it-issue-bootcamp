@@ -34,16 +34,17 @@ app/issues/[id]/page.tsx     ← แก้ไข
 
 ## Slide 1: ต่อจาก Hour 1
 
-Supabase มี Table `issues` พร้อมข้อมูลตัวอย่าง 3 แถว และ `.env.local` มีค่าเชื่อมต่อแล้ว
+ตอนนี้ Supabase มี Table `issues` พร้อมข้อมูลตัวอย่าง 3 แถว และ `.env.local` มีค่าเชื่อมต่อแล้ว
 
-ชั่วโมงนี้จะให้หน้าเว็บอ่านข้อมูลจาก Supabase แทน Mock Data:
+**ปัญหา:** หน้าเว็บยังแสดง Mock Data ไม่ใช่ข้อมูลใน Supabase
+
+**ชั่วโมงนี้:** ให้หน้าเว็บอ่านข้อมูลจาก Supabase ตามลำดับนี้
 
 ```text
 Supabase → lib/issues.ts → page.tsx → IssueList
 ```
 
-- `lib/issues.ts` รวม Function ที่คุยกับ Database
-- `page.tsx` เรียก Function แล้วส่งข้อมูลให้ Component แสดง
+`lib/issues.ts` รวม Function ที่คุยกับ Database ส่วน `page.tsx` เรียก Function แล้วส่งข้อมูลให้ Component แสดง
 
 ---
 

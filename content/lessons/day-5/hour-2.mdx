@@ -34,15 +34,17 @@ app/layout.tsx             ← แก้ไข
 
 ## Slide 1: ต่อจาก Hour 1
 
-Server Client และ Proxy อ่านและต่ออายุ Session ใน Cookie ได้แล้ว แต่ยังไม่มีหน้า Login
+ตอนนี้ Server Client และ Proxy อ่านและต่ออายุ Session ใน Cookie ได้แล้ว
 
-ชั่วโมงนี้จะต่อให้ครบ:
+**ปัญหา:** ยังไม่มีหน้า Login ผู้ใช้จึงเข้าสู่ระบบไม่ได้
+
+**ชั่วโมงนี้:** สร้าง Login และ Logout ให้ครบตามลำดับนี้
 
 ```text
 Login → Supabase ตรวจบัญชี → เก็บ Session → ใช้งาน → Logout
 ```
 
-รหัสผ่านถูกส่งไปตรวจที่ Server Action และไม่ถูกเก็บใน State หรือ Table ของเรา
+รหัสผ่านถูกส่งไปตรวจที่ Server Action และไม่ถูกเก็บใน State หรือ Table ของ Project
 
 ---
 
