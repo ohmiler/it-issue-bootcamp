@@ -1,12 +1,16 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { BookOpen, ChevronDown, FileText, FolderOpen } from "lucide-react";
+import { LessonOutlineNav } from "@/components/lesson-outline-nav";
 import { courseDays, getLessonsByDay, lessonHref } from "@/lib/course";
+import type { SlideOutlineItem } from "@/lib/slides";
 
 type SidebarNavProps = {
   currentSlug?: string;
+  outline?: SlideOutlineItem[];
 };
 
-export function SidebarNav({ currentSlug }: SidebarNavProps) {
+export function SidebarNav({ currentSlug, outline }: SidebarNavProps) {
   return (
     <aside className="workbench-sidebar">
       <div className="workbench-sidebar__title">Explorer</div>
@@ -28,17 +32,22 @@ export function SidebarNav({ currentSlug }: SidebarNavProps) {
               {getLessonsByDay(day.day).map((lesson) => {
                 const active = lesson.slug === currentSlug;
                 return (
-                  <Link
-                    key={lesson.slug}
-                    href={lessonHref(lesson)}
-                    className={active ? "is-active" : undefined}
-                  >
-                    <FileText size={15} aria-hidden="true" />
-                    <span>
-                      hour-{lesson.hour}.mdx
-                      <small>{lesson.title}</small>
-                    </span>
-                  </Link>
+                  <Fragment key={lesson.slug}>
+                    <Link
+                      href={lessonHref(lesson)}
+                      className={active ? "is-active" : undefined}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      <FileText size={15} aria-hidden="true" />
+                      <span>
+                        hour-{lesson.hour}.mdx
+                        <small>{lesson.title}</small>
+                      </span>
+                    </Link>
+                    {active && outline && outline.length > 0 ? (
+                      <LessonOutlineNav items={outline} />
+                    ) : null}
+                  </Fragment>
                 );
               })}
             </div>

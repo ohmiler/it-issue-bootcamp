@@ -17,20 +17,20 @@ type CodeChangeProps = {
   removedLines?: string;
 };
 
-function readCodeText(node: ReactNode): string {
+function readNodeText(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") {
     return String(node);
   }
 
   if (!isValidElement(node)) {
-    return Children.toArray(node).map(readCodeText).join("");
+    return Children.toArray(node).map(readNodeText).join("");
   }
 
   const props = node.props as {
     children?: ReactNode;
     "data-line"?: unknown;
   };
-  const text = readCodeText(props.children);
+  const text = readNodeText(props.children);
 
   return props["data-line"] === undefined ? text : `${text}\n`;
 }
@@ -77,7 +77,7 @@ async function CodeChange({
   language = "tsx",
   removedLines = "",
 }: CodeChangeProps) {
-  const normalizedCode = readCodeText(children)
+  const normalizedCode = readNodeText(children)
     .replaceAll("\\n", "\n")
     .replace(/\n[ \t]*\n/g, "\n")
     .trimEnd();
@@ -192,7 +192,15 @@ export const mdxComponents: MDXComponents = {
     );
   },
   h1: (props) => <h1 {...props} />,
-  h2: (props) => <h2 {...props} />,
+  h2: ({ children, ...props }) => {
+    const slideNumber = readNodeText(children).match(/^Slide\s+(\d+)/)?.[1];
+
+    return (
+      <h2 id={slideNumber ? `slide-${slideNumber}` : undefined} {...props}>
+        {children}
+      </h2>
+    );
+  },
   h3: (props) => <h3 {...props} />,
   p: (props) => <p {...props} />,
   ul: (props) => <ul {...props} />,

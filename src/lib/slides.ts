@@ -17,6 +17,22 @@ const slideHeadingPattern = /^##\s+Slide\s+(\d+):?\s*(.+)?$/;
 const slideBreakPattern = /^\{\/\*\s*slide-break:\s*(.+?)\s*\*\/\}$/;
 const secondLevelHeadingPattern = /^##\s+/;
 
+export type SlideOutlineItem = {
+  index: number;
+  title: string;
+};
+
+export function getSlideOutline(raw: string): SlideOutlineItem[] {
+  return splitLessonSlides(raw).map(({ index, title }) => ({
+    index,
+    title: stripInlineMarkdown(title),
+  }));
+}
+
+export function stripInlineMarkdown(text: string) {
+  return text.replace(/[`*]/g, "");
+}
+
 export function splitLessonSlides(raw: string): LessonSlideSource[] {
   const { content } = matter(raw);
   const lines = content.split(/\r?\n/);

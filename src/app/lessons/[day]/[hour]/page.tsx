@@ -4,7 +4,8 @@ import { Clock, Goal, Presentation } from "lucide-react";
 import { CourseShell } from "@/components/course-shell";
 import { LessonPager } from "@/components/lesson-pager";
 import { getLesson, lessonSlidesHref, lessons } from "@/lib/course";
-import { compileLessonMdx } from "@/lib/mdx";
+import { compileLessonMdx, readLessonMdxSource } from "@/lib/mdx";
+import { getSlideOutline } from "@/lib/slides";
 
 type LessonPageProps = {
   params: Promise<{
@@ -42,9 +43,10 @@ export default async function LessonPage({ params }: LessonPageProps) {
   }
 
   const { content, frontmatter, heading } = await compileLessonMdx(lesson.slug);
+  const outline = getSlideOutline(await readLessonMdxSource(lesson.slug));
 
   return (
-    <CourseShell currentSlug={lesson.slug}>
+    <CourseShell currentSlug={lesson.slug} outline={outline}>
       <header className="lesson-header">
         <p className="lesson-header__eyebrow">
           Day {lesson.day} / Hour {lesson.hour}
@@ -77,6 +79,20 @@ export default async function LessonPage({ params }: LessonPageProps) {
           </div>
         </div>
       </header>
+
+      <details className="lesson-outline-compact">
+        <summary>สไลด์ในชั่วโมงนี้ ({outline.length})</summary>
+        <ol>
+          {outline.map((item) => (
+            <li key={item.index}>
+              <a href={`#slide-${item.index}`}>
+                <span>{item.index}</span>
+                <span>{item.title}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
 
       <article className="lesson-prose">{content}</article>
       <LessonPager lesson={lesson} />

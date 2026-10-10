@@ -336,7 +336,7 @@ code {
   gap: 0.12rem;
 }
 
-.workbench-folder__items a {
+.workbench-folder__items > a {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
@@ -352,12 +352,12 @@ code {
     border-color 150ms ease;
 }
 
-.workbench-folder__items a svg {
+.workbench-folder__items > a svg {
   margin-top: 0.1rem;
   color: #c586c0;
 }
 
-.workbench-folder__items a small {
+.workbench-folder__items > a small {
   display: block;
   margin-top: 0.08rem;
   color: var(--muted-strong);
@@ -365,13 +365,100 @@ code {
   line-height: 1.25;
 }
 
-.workbench-folder__items a:hover,
-.workbench-folder__items a:focus-visible,
-.workbench-folder__items a.is-active {
+.workbench-folder__items > a:hover,
+.workbench-folder__items > a:focus-visible,
+.workbench-folder__items > a.is-active {
   border-color: color-mix(in srgb, var(--accent-strong) 35%, transparent);
   background: var(--accent-soft);
   color: var(--text-strong);
   outline: 0;
+}
+
+.workbench-outline {
+  display: grid;
+  gap: 0.05rem;
+  margin: 0.1rem 0 0.45rem 1.6rem;
+  border-left: 1px solid var(--border);
+  padding: 0.1rem 0 0.1rem 0.4rem;
+  list-style: none;
+}
+
+.workbench-outline a,
+.lesson-outline-compact a {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.2rem;
+  border-radius: 4px;
+  padding: 0.28rem 0.45rem;
+  color: var(--muted-strong);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.workbench-outline a span:first-child,
+.lesson-outline-compact a span:first-child {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.workbench-outline a:hover,
+.lesson-outline-compact a:hover {
+  background: var(--panel-soft);
+  color: var(--text-strong);
+}
+
+.workbench-outline a:focus-visible,
+.lesson-outline-compact a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.workbench-outline a[aria-current] {
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent-strong);
+  color: var(--text-strong);
+}
+
+.workbench-outline a[aria-current] span:first-child {
+  color: var(--accent-strong);
+}
+
+.lesson-outline-compact {
+  display: none;
+  margin: 0 0 2rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.lesson-outline-compact summary {
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.lesson-outline-compact ol {
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0 0.5rem 0.6rem;
+  list-style: none;
+}
+
+.lesson-outline-compact a {
+  padding: 0.45rem 0.5rem;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1020px) {
+  .lesson-outline-compact {
+    display: block;
+  }
 }
 
 .workbench-editor-area {
@@ -755,6 +842,13 @@ code {
   }
 }
 
+@media (min-width: 1021px) {
+  .workbench-shell {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
 @media (max-width: 1020px) {
   .workbench-body {
     grid-template-columns: 3rem minmax(0, 1fr);
@@ -806,6 +900,7 @@ code {
 }
 
 .lesson-prose h2 {
+  scroll-margin-top: 1rem;
   margin: 2.25rem 0 0.75rem;
   color: var(--text-strong);
   font-size: 1.45rem;
@@ -1688,8 +1783,7 @@ code {
 
 .slide-command,
 .slide-counter,
-.slide-icon-button,
-.slide-control-hint {
+.slide-icon-button {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel);
@@ -1715,11 +1809,94 @@ code {
   color: var(--text-strong);
 }
 
+.slide-picker {
+  position: relative;
+}
+
 .slide-counter {
   min-width: 4.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   padding: 0.55rem 0.7rem;
-  text-align: center;
   font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.slide-counter:hover,
+.slide-counter[aria-expanded="true"] {
+  border-color: var(--accent-strong);
+  background: var(--panel-soft);
+  color: var(--text-strong);
+}
+
+.slide-picker__panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 30;
+  width: min(24rem, calc(100vw - 2rem));
+  max-height: min(60svh, 30rem);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 0.4rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.slide-picker__title {
+  margin: 0.3rem 0.5rem 0.45rem;
+  color: var(--muted-strong);
+  font-size: 0.78rem;
+}
+
+.slide-picker__panel ol {
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slide-picker__panel button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.25rem;
+  border-radius: 6px;
+  padding: 0.45rem 0.5rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+
+.slide-picker__panel button span:first-child {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.slide-picker__panel button:hover {
+  background: var(--panel-soft);
+  color: var(--text-strong);
+}
+
+.slide-picker__panel button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.slide-picker__panel button[aria-current] {
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent-strong);
+  color: var(--text-strong);
 }
 
 .slide-stage {
@@ -1971,12 +2148,18 @@ code {
   transition: width 180ms ease;
 }
 
+.slide-next-lesson {
+  min-height: 2.6rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .slide-control-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.6rem;
-  color: var(--muted-strong);
+  flex-shrink: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 @media (min-width: 761px) and (max-width: 1040px) {
@@ -2000,6 +2183,10 @@ code {
   .slide-topbar__actions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .slide-control-hint {
+    display: none;
   }
 
   .slide-stage {

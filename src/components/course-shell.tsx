@@ -1,13 +1,19 @@
 import Link from "next/link";
 import { BookOpen, Files, GitBranch, Search, TerminalSquare } from "lucide-react";
 import { SidebarNav } from "@/components/sidebar-nav";
+import type { SlideOutlineItem } from "@/lib/slides";
 
 type CourseShellProps = {
   children: React.ReactNode;
   currentSlug?: string;
+  outline?: SlideOutlineItem[];
 };
 
-export function CourseShell({ children, currentSlug }: CourseShellProps) {
+export function CourseShell({
+  children,
+  currentSlug,
+  outline,
+}: CourseShellProps) {
   const activeFile = currentSlug
     ? `${currentSlug.replace("/", "-")}.mdx`
     : "overview.tsx";
@@ -49,7 +55,7 @@ export function CourseShell({ children, currentSlug }: CourseShellProps) {
           </Link>
         </nav>
 
-        <SidebarNav currentSlug={currentSlug} />
+        <SidebarNav currentSlug={currentSlug} outline={outline} />
 
         <main className="workbench-editor-area">
           <div className="workbench-tabs" aria-label="Open files">
@@ -79,7 +85,10 @@ export function CourseShell({ children, currentSlug }: CourseShellProps) {
             </Link>
           </div>
 
-          <div className="workbench-editor-panel">
+          <div
+            className="workbench-editor-panel"
+            key={currentSlug ?? "overview"}
+          >
             <div className="workbench-editor-content">{children}</div>
           </div>
         </main>
