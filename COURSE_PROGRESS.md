@@ -36,7 +36,7 @@
 
 ## หลักในการตรวจรอบถัดไป
 
-- ใช้กฎ Slide Budget & Clarity ใน `AGENTS.md` กับ Day 1-2 ต่อ; ที่ 1366x768 กล่องโค้ดใน slide mode แสดงได้ราว 14 บรรทัด (นับบรรทัดว่างด้วย) หลังปรับ `.slide-prose pre` เป็น `min(50svh, 24rem)` ถ้าเกินให้แยก slide
+- ใช้กฎ Slide Budget & Clarity ใน `AGENTS.md` กับ Day 1-2 ต่อ; ที่ 1366x768 กล่องโค้ดใน slide mode แสดงได้ราว 14 บรรทัด (นับบรรทัดว่างด้วย; `.slide-prose pre` สูง `min(52svh, 25rem)` ตัวอักษรราว 18px) ถ้าเกินให้แยก slide; Day 1-2 ยังมี slide ที่ล้นจอหรือกล่องโค้ดต้องเลื่อน 13 หน้า (เช่น Day 1 Hour 4 Slide 8, Day 2 Hour 2 Slide 6) ส่วน Day 3-5 ไม่ล้น
 - slide mode ใน `npm run dev` ขึ้น 404 ทุกบท ให้ตรวจผ่าน `npm run build` แล้วเปิดโฟลเดอร์ `out`
 - ทุก step ต้องนำไปสู่สถานะ project เมื่อจบ Day 4 และ Day 5
 - ลบ feature หรือ abstraction ที่สร้างแล้วไม่ได้ใช้ใน flow สุดท้าย

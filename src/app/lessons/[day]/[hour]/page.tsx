@@ -41,7 +41,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
     notFound();
   }
 
-  const { content, frontmatter } = await compileLessonMdx(lesson.slug);
+  const { content, frontmatter, heading } = await compileLessonMdx(lesson.slug);
 
   return (
     <CourseShell currentSlug={lesson.slug}>
@@ -49,7 +49,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
         <p className="lesson-header__eyebrow">
           Day {lesson.day} / Hour {lesson.hour}
         </p>
-        <h1>{lesson.title}</h1>
+        <h1>{heading ?? lesson.title}</h1>
         <p>{lesson.summary}</p>
         <div className="lesson-header__actions">
           <Link

@@ -1,7 +1,11 @@
 import { notFound } from "next/navigation";
 import { SlideDeck } from "@/components/slide-deck";
 import { getLesson, lessonHref, lessons } from "@/lib/course";
-import { compileCourseMdxSource, readLessonMdxSource } from "@/lib/mdx";
+import {
+  compileCourseMdxSource,
+  readLessonMdxSource,
+  splitLessonHeading,
+} from "@/lib/mdx";
 import { splitLessonSlides } from "@/lib/slides";
 
 type LessonSlidesPageProps = {
@@ -62,7 +66,7 @@ export default async function LessonSlidesPage({
     <SlideDeck
       documentHref={lessonHref(lesson)}
       lessonLabel={`Day ${lesson.day} / Hour ${lesson.hour}`}
-      lessonTitle={lesson.title}
+      lessonTitle={splitLessonHeading(raw).heading ?? lesson.title}
       slideTitles={slides.map((slide) => slide.title)}
     >
       {slides.map((slide) => (

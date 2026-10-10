@@ -2,6 +2,7 @@ import type { MDXComponents } from "mdx/types";
 import { Children, isValidElement, type ReactNode } from "react";
 import { codeToTokens, type BundledLanguage } from "shiki";
 import { BoxModelDiagram } from "@/components/box-model-diagram";
+import { CopyCodeButton } from "@/components/copy-code-button";
 import { MermaidDiagram } from "@/components/mermaid-diagram";
 import {
   TeachingFlowDiagram,
@@ -88,61 +89,71 @@ async function CodeChange({
     theme: "dark-plus",
   });
 
-  return (
-    <pre className="lesson-code-change">
-      <code>
-        {lines.map((line, index) => {
-          const isAdded = addedLineNumbers.has(index + 1);
-          const isRemoved = removedLineNumbers.has(index + 1);
-          const changeType = isRemoved ? "removed" : isAdded ? "added" : null;
-          const lineTokens = tokens[index] ?? [];
+  const copyText = lines
+    .filter((_, index) => !removedLineNumbers.has(index + 1))
+    .map((line) => line.trimEnd())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/^\n+|\n+$/g, "");
 
-          return (
-            <span
-              className={`lesson-code-change__line${
-                changeType ? ` lesson-code-change__line--${changeType}` : ""
-              }`}
-              key={`${index}-${line}`}
-            >
+  return (
+    <div className="code-block">
+      <pre className="lesson-code-change">
+        <code>
+          {lines.map((line, index) => {
+            const isAdded = addedLineNumbers.has(index + 1);
+            const isRemoved = removedLineNumbers.has(index + 1);
+            const changeType = isRemoved ? "removed" : isAdded ? "added" : null;
+            const lineTokens = tokens[index] ?? [];
+
+            return (
               <span
-                aria-hidden="true"
-                className="lesson-code-change__marker"
+                className={`lesson-code-change__line${
+                  changeType ? ` lesson-code-change__line--${changeType}` : ""
+                }`}
+                key={`${index}-${line}`}
               >
-                {changeType === "added"
-                  ? "+"
-                  : changeType === "removed"
-                    ? "−"
-                    : " "}
+                <span
+                  aria-hidden="true"
+                  className="lesson-code-change__marker"
+                >
+                  {changeType === "added"
+                    ? "+"
+                    : changeType === "removed"
+                      ? "−"
+                      : " "}
+                </span>
+                <span>
+                  {lineTokens.length > 0
+                    ? lineTokens.map((token, tokenIndex) => (
+                        <span
+                          key={`${tokenIndex}-${token.content}`}
+                          style={{
+                            color: token.color,
+                            fontStyle:
+                              (token.fontStyle ?? 0) & 1
+                                ? "italic"
+                                : undefined,
+                            fontWeight:
+                              (token.fontStyle ?? 0) & 2 ? 700 : undefined,
+                            textDecoration:
+                              (token.fontStyle ?? 0) & 4
+                                ? "underline"
+                                : undefined,
+                          }}
+                        >
+                          {token.content}
+                        </span>
+                      ))
+                    : line || " "}
+                </span>
               </span>
-              <span>
-                {lineTokens.length > 0
-                  ? lineTokens.map((token, tokenIndex) => (
-                      <span
-                        key={`${tokenIndex}-${token.content}`}
-                        style={{
-                          color: token.color,
-                          fontStyle:
-                            (token.fontStyle ?? 0) & 1
-                              ? "italic"
-                              : undefined,
-                          fontWeight:
-                            (token.fontStyle ?? 0) & 2 ? 700 : undefined,
-                          textDecoration:
-                            (token.fontStyle ?? 0) & 4
-                              ? "underline"
-                              : undefined,
-                        }}
-                      >
-                        {token.content}
-                      </span>
-                    ))
-                  : line || " "}
-              </span>
-            </span>
-          );
-        })}
-      </code>
-    </pre>
+            );
+          })}
+        </code>
+      </pre>
+      {copyText.trim() ? <CopyCodeButton code={copyText} /> : null}
+    </div>
   );
 }
 
@@ -164,6 +175,22 @@ export const mdxComponents: MDXComponents = {
       variant={String(props.variant ?? "") as TeachingFlowDiagramVariant}
     />
   ),
+  figure: ({ children, ...props }) => {
+    if (!("data-rehype-pretty-code-figure" in props)) {
+      return <figure {...props}>{children}</figure>;
+    }
+
+    const language = isValidElement(children)
+      ? (children.props as { "data-language"?: string })["data-language"]
+      : undefined;
+
+    return (
+      <figure {...props} className="code-block">
+        {children}
+        {language === "text" ? null : <CopyCodeButton />}
+      </figure>
+    );
+  },
   h1: (props) => <h1 {...props} />,
   h2: (props) => <h2 {...props} />,
   h3: (props) => <h3 {...props} />,

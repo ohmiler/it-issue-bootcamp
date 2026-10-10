@@ -52,9 +52,50 @@ export async function readLessonMdxSource(slug: string) {
   return fs.readFile(filePath, "utf8");
 }
 
+const lessonHeadingPattern = /^(?:##\s+)?Day\s+\d+\s+-\s+ชั่วโมงที่\s+\d+:\s*(.+)$/;
+
+// The page header already shows the lesson title, so the document skips the
+// "# Title" and "Day N - ชั่วโมงที่ N: ..." lines that open every lesson file.
+export function splitLessonHeading(source: string) {
+  const lines = source.split(/\r?\n/);
+  const frontmatterEnd =
+    lines[0] === "---" ? lines.indexOf("---", 1) : -1;
+  const introEnd = lines.findIndex(
+    (line, index) => index > frontmatterEnd && /^#{2,3}\s+(?!Day\s)/.test(line),
+  );
+  const searchEnd = introEnd === -1 ? lines.length : introEnd;
+  let heading: string | undefined;
+  let removedTitle = false;
+
+  const body = lines.filter((line, index) => {
+    if (index <= frontmatterEnd || index >= searchEnd) {
+      return true;
+    }
+
+    if (!removedTitle && /^#\s+/.test(line)) {
+      removedTitle = true;
+      return false;
+    }
+
+    const headingMatch = heading === undefined && line.match(lessonHeadingPattern);
+
+    if (headingMatch) {
+      heading = headingMatch[1].trim();
+      return false;
+    }
+
+    return true;
+  });
+
+  return { heading, body: body.join("\n") };
+}
+
 export async function compileLessonMdx(slug: string) {
-  const filePath = path.join(root, "content", "lessons", `${slug}.mdx`);
-  return compileCourseMdx(filePath);
+  const raw = await readLessonMdxSource(slug);
+  const { heading, body } = splitLessonHeading(raw);
+  const compiled = await compileCourseMdxSource(body, true);
+
+  return { ...compiled, heading };
 }
 
 export async function compileSupportMdx(

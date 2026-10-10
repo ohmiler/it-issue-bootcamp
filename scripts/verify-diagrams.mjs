@@ -92,7 +92,7 @@ if (!css.includes("  .slide-prose .teaching-flow__item {\n    flex: 0 0 auto;\n 
   failures.push("Mobile slide Teaching Flow items should reset their desktop basis so nodes do not become too tall.");
 }
 
-if (!css.includes(".slide-prose h2 {\n  margin: 0 0 1.3rem;\n  padding-top: 0.12em;\n  font-size: clamp(2.45rem, 4.2vw, 4.25rem);\n  line-height: 1.28;\n  overflow: visible;\n}")) {
+if (!css.includes(".slide-prose h2 {\n  margin: 0 0 1.1rem;\n  padding-top: 0.12em;\n  font-size: clamp(2rem, 2.9vw, 3.25rem);\n  line-height: 1.3;\n  overflow: visible;\n}")) {
   failures.push("Slide h2 headings need Thai-safe top padding and line-height so vowels and tone marks are not clipped.");
 }
 
