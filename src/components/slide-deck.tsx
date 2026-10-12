@@ -55,6 +55,8 @@ export function SlideDeck({
   const [hasReadHash, setHasReadHash] = useState(false);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const slideFrameRef = useRef<HTMLElement>(null);
+  const deckRef = useRef<HTMLDivElement>(null);
+  const topbarRef = useRef<HTMLElement>(null);
   const pickerButtonRef = useRef<HTMLButtonElement>(null);
   const pickerPanelRef = useRef<HTMLDivElement>(null);
   const activeTitle = slideTitles[activeIndex] ?? "สไลด์";
@@ -99,6 +101,27 @@ export function SlideDeck({
     url.hash = `slide-${activeIndex + 1}`;
     window.history.replaceState(null, "", url);
   }, [activeIndex, hasReadHash]);
+
+  // The topbar grows when the title wraps or a font renders taller (e.g. Thai
+  // on iPad Safari), so the slide frame pads by its measured height.
+  useEffect(() => {
+    const deck = deckRef.current;
+    const topbar = topbarRef.current;
+
+    if (!deck || !topbar) {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      deck.style.setProperty(
+        "--slide-topbar-height",
+        `${topbar.offsetHeight}px`,
+      );
+    });
+
+    observer.observe(topbar);
+    return () => observer.disconnect();
+  }, []);
 
   const closePicker = useCallback((returnFocus: boolean) => {
     setIsPickerOpen(false);
@@ -190,8 +213,8 @@ export function SlideDeck({
   }, [activeIndex, closePicker, goToSlide, isPickerOpen, slides.length]);
 
   return (
-    <div className="slide-mode">
-      <header className="slide-topbar">
+    <div className="slide-mode" ref={deckRef}>
+      <header className="slide-topbar" ref={topbarRef}>
         <div className="slide-topbar__title">
           <span className="slide-topbar__eyebrow">
             <Presentation size={16} aria-hidden="true" />
