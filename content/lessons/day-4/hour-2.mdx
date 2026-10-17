@@ -141,7 +141,7 @@ function mapIssue(row: DbIssue): Issue {
 
 Component เดิมใช้ชื่อ `reporterName` แต่ Database ส่ง `reporter_name` มา
 
-`mapIssue` แปลง 1 แถวจาก Database ให้เป็น `Issue` เราจึงไม่ต้องแก้ `IssueList` หรือ `StatusBadge` เลย
+`mapIssue` แปลง 1 แถวจาก Database ให้เป็น `Issue` จึงไม่ต้องแก้ `IssueList` หรือ `StatusBadge` เลย
 
 ---
 
@@ -199,7 +199,7 @@ return (data ?? []).map((row) => mapIssue(row as DbIssue));
 
 ## Slide 8: ให้หน้า `/issues` อ่านจาก Supabase
 
-<LessonCallout type="action">แก้บางส่วนใน `app/issues/page.tsx`: เปลี่ยน Import และบรรทัดประกาศ Function แล้วเพิ่มบรรทัดอ่านข้อมูล โดยเก็บ `return` เดิมไว้</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/issues/page.tsx`: ลบบรรทัดสีแดงและเพิ่มบรรทัดสีเขียวตามตัวอย่าง</LessonCallout>
 
 <CodeChange language="tsx" removedLines="2,5" addedLines="3,6,7">
 
@@ -211,6 +211,9 @@ import { getIssues } from "@/lib/issues";
 export default function IssuesPage() {
 export default async function IssuesPage() {
   const issues = await getIssues();
+
+  // return เดิม
+}
 ```
 
 </CodeChange>
@@ -238,7 +241,7 @@ export default async function IssuesPage() {
 
 ## Slide 10: เปลี่ยนหน้า Home เป็นหน้าแนะนำ
 
-<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: เปลี่ยน Import ด้านบนตามตัวอย่าง</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: เปลี่ยน Import แล้วแทน `<IssueBoard />` ด้วย `<main>` นี้ โดยเก็บส่วนหัวและส่วนท้ายไว้</LessonCallout>
 
 <CodeChange language="tsx" removedLines="1,2" addedLines="3">
 
@@ -250,17 +253,7 @@ import Link from "next/link";
 
 </CodeChange>
 
-หน้า Home จะไม่แสดงฟอร์มและตารางของ Day 3 แล้ว แต่เป็นหน้าแนะนำที่มีปุ่มพาไป `/issues`
-
-เพราะตอนนี้หน้า `/issues` อ่านข้อมูลจริงแล้ว และ Hour 3 จะให้หน้า `/issues/new` บันทึกข้อมูล
-
----
-
-## Slide 11: เพิ่มปุ่มไปหน้ารายการ
-
-<LessonCallout type="action">แก้บางส่วนใน `app/page.tsx`: แทน `<IssueBoard initialIssues={issues} />` ด้วย `<main>` นี้ โดยเก็บส่วนหัวและส่วนท้ายเดิมไว้</LessonCallout>
-
-<CodeChange language="tsx" addedLines="1,2,3,4,5,6,7,8,9,10">
+<CodeChange language="tsx" addedLines="1,2,3,4,5,6,7,8,9,10,11">
 
 ```tsx
 <main className="mx-auto max-w-5xl px-6 py-12">
@@ -268,7 +261,8 @@ import Link from "next/link";
   <p className="mt-2 text-slate-600">ดูรายการปัญหาที่แจ้งเข้ามาและติดตามสถานะ</p>
   <Link
     href="/issues"
-    className="mt-6 inline-block rounded-md bg-teal-700 px-4 py-2 font-semibold text-white hover:bg-teal-800"
+    className="mt-6 inline-block rounded-md bg-teal-700 px-4 py-2
+      font-semibold text-white hover:bg-teal-800"
   >
     ดูรายการปัญหา
   </Link>
@@ -277,11 +271,9 @@ import Link from "next/link";
 
 </CodeChange>
 
-หน้า Home จะมีปุ่มพาไปหน้า `/issues`
-
 ---
 
-## Slide 12: อ่าน Issue รายการเดียว
+## Slide 11: อ่าน Issue รายการเดียว
 
 <LessonCallout type="action">เพิ่ม Function ใหม่ `getIssueById` ใน `lib/issues.ts` ต่อจาก `getIssues`</LessonCallout>
 
@@ -308,7 +300,7 @@ export async function getIssueById(id: string): Promise<Issue | null> {
 
 ---
 
-## Slide 13: ให้หน้ารายละเอียดอ่านจาก Supabase
+## Slide 12: ให้หน้ารายละเอียดอ่านจาก Supabase
 
 <LessonCallout type="action">แก้บางส่วนใน `app/issues/[id]/page.tsx`: เปลี่ยน Import และบรรทัดค้นหา `issue` เดิม</LessonCallout>
 
@@ -334,7 +326,7 @@ Import `notFound` และ `StatusBadge` เดิมให้เก็บไ�
 
 ---
 
-## Slide 14: จัดหน้ารายละเอียดด้วย Tailwind
+## Slide 13: จัดหน้ารายละเอียดด้วย Tailwind
 
 <LessonCallout type="action">แก้บางส่วนใน `app/issues/[id]/page.tsx`: แทน `<main>...</main>` ภายใน `return` ด้วยโค้ดนี้</LessonCallout>
 
@@ -358,7 +350,7 @@ Import `notFound` และ `StatusBadge` เดิมให้เก็บไ�
 
 ---
 
-## Slide 15: ทดสอบหน้ารายละเอียด
+## Slide 14: ทดสอบหน้ารายละเอียด
 
 <LessonCallout type="action">เปิด `/issues` กด **ดูรายละเอียด** แล้วลองเปิด `/issues/not-found`</LessonCallout>
 
@@ -368,7 +360,7 @@ Import `notFound` และ `StatusBadge` เดิมให้เก็บไ�
 
 ---
 
-## Slide 16: ลบ Mock Flow ที่ไม่ใช้แล้ว
+## Slide 15: ลบ Mock Flow ที่ไม่ใช้แล้ว
 
 <LessonCallout type="action">ค้นทั้งโปรเจกต์ว่าไม่มีไฟล์ไหน Import `IssueBoard` หรือ `@/data/issue` แล้วลบสองไฟล์นี้</LessonCallout>
 

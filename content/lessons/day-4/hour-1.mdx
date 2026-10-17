@@ -41,7 +41,7 @@ Supabase Dashboard → SQL Editor และ Table Editor
 
 ---
 
-## Slide 2: Supabase ช่วยอะไรเรา
+## Slide 2: Supabase ช่วยอะไร
 
 **Supabase** คือบริการที่ให้ Database แบบ Postgres พร้อมหน้าเว็บสำหรับจัดการข้อมูล
 
@@ -74,7 +74,7 @@ Project แบบฟรีเหมาะกับการฝึก แต่�
    - ปิด **Automatically expose new tables and functions**
    - เปิด **Enable automatic RLS**
 
-ปิดการเปิดเผย Table อัตโนมัติ เพราะเราจะให้สิทธิ์เฉพาะที่จำเป็นเองใน Slide 8
+ปิดการเปิดเผย Table อัตโนมัติ เพราะจะให้สิทธิ์เฉพาะที่จำเป็นเองในขั้นเปิด RLS
 
 ห้ามใส่ Password, Secret Key หรือ Service Role Key ลง GitHub
 
@@ -108,7 +108,7 @@ as enum ('OPEN', 'IN_PROGRESS', 'DONE');
 
 </CodeChange>
 
-**Enum** คือชนิดข้อมูลที่รับได้เฉพาะค่าที่กำหนด เหมือน Type ที่เราใช้ใน TypeScript:
+**Enum** คือชนิดข้อมูลที่รับได้เฉพาะค่าที่กำหนด เหมือน Type ที่ใช้ใน TypeScript:
 
 ```ts
 type IssueStatus = "OPEN" | "IN_PROGRESS" | "DONE";
@@ -150,7 +150,7 @@ create table public.issues (
 
 ## Slide 7: กติกาใน Table ช่วยกันข้อมูลผิด
 
-คำสั่งใน Slide 6 ไม่ได้กำหนดแค่ชื่อ Column แต่ใส่กติกาไว้ด้วย:
+คำสั่งสร้าง Table ไม่ได้กำหนดแค่ชื่อ Column แต่ใส่กติกาไว้ด้วย:
 
 | กติกา | ความหมาย |
 |---|---|
@@ -234,7 +234,7 @@ create policy "demo_update_issues"
 </CodeChange>
 
 - `using` ตรวจแถวเดิมก่อนแก้ และ `with check` ตรวจแถวหลังแก้
-- ต้องผ่านทั้ง `grant` ใน Slide 8 และ Policy นี้ จึงจะแก้ข้อมูลได้
+- ต้องผ่านทั้ง `grant` ในขั้นเปิด RLS และ Policy นี้ จึงจะแก้ข้อมูลได้
 
 Policy ที่ขึ้นต้นด้วย `demo_` ยอมให้ทุกคนแก้ทุกแถว Day 5 จะลบออกแล้วเปลี่ยนเป็น Policy ที่ตรวจผู้ใช้จริง
 

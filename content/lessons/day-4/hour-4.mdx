@@ -185,42 +185,23 @@ Import `Link`, `StatusBadge`, Type Import และ `statuses` เดิมใ�
 
 ---
 
-## Slide 7: เปลี่ยนปุ่มให้ส่งฟอร์ม
+## Slide 7: ให้ปุ่มสถานะส่งฟอร์ม
 
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แก้ Attribute ของ `<button>` ภายใน `statuses.map()`</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: แก้ปุ่มใน `statuses.map()` โดยเก็บ `className` เดิมไว้</LessonCallout>
 
-<CodeChange language="tsx" removedLines="2,3" addedLines="4">
-
-```tsx
-<button
-  key={status} type="button" disabled={issue.status === status}
-  onClick={() => onUpdateStatus(issue.id, status)}
-  type="submit" disabled={issue.status === status}
-  className="..."
->
-```
-
-</CodeChange>
-
-- `type="submit"` ทำให้ปุ่มส่งฟอร์มที่จะครอบในขั้นถัดไป
-- ลบ `onClick` เพราะไม่มี Callback จาก Board แล้ว และย้าย `key` ไปไว้ที่ `<form>`
-
-`className="..."` คือ Class เดิมของปุ่ม ให้เก็บไว้
-
----
-
-## Slide 8: ครอบปุ่มด้วยฟอร์ม
-
-<LessonCallout type="action">แก้บางส่วนใน `components/IssueList.tsx`: ครอบ `<button>` เดิมด้วย `<form>` และ Hidden Input ภายใน `statuses.map()`</LessonCallout>
-
-<CodeChange language="tsx" addedLines="2,3,4,8">
+<CodeChange language="tsx" removedLines="6,7" addedLines="2,3,4,8,13">
 
 ```tsx
 {statuses.map((status) => (
   <form key={status} action={updateIssueStatusAction}>
     <input type="hidden" name="id" value={issue.id} />
     <input type="hidden" name="status" value={status} />
-    <button ...>
+    <button
+      key={status} type="button" disabled={issue.status === status}
+      onClick={() => onUpdateStatus(issue.id, status)}
+      type="submit" disabled={issue.status === status}
+      className="..."
+    >
       {status}
     </button>
   </form>
@@ -229,14 +210,11 @@ Import `Link`, `StatusBadge`, Type Import และ `statuses` เดิมใ�
 
 </CodeChange>
 
-- **Hidden Input** คือช่องกรอกที่มองไม่เห็น ใช้แนบ `id` และ `status` ไปกับฟอร์ม
-- แต่ละปุ่มมีฟอร์มของตัวเอง จึงส่งสถานะของปุ่มนั้นไปให้ `updateIssueStatusAction`
-
-`<button ...>` คือปุ่มที่แก้ในขั้นก่อน ให้เก็บไว้ทั้งชุด
+**Hidden Input** คือช่องกรอกที่มองไม่เห็น ใช้แนบ `id` และ `status` ไปกับฟอร์มของแต่ละปุ่ม
 
 ---
 
-## Slide 9: ทดสอบเปลี่ยนสถานะ
+## Slide 8: ทดสอบเปลี่ยนสถานะ
 
 <LessonCallout type="action">เปิด `/issues` แล้วทดสอบปุ่มสถานะ</LessonCallout>
 
@@ -249,7 +227,7 @@ Import `Link`, `StatusBadge`, Type Import และ `statuses` เดิมใ�
 
 ---
 
-## Slide 10: ใครแก้สถานะได้บ้างตอนนี้
+## Slide 9: ใครแก้สถานะได้บ้างตอนนี้
 
 ตอนนี้ **ทุกคน** แก้สถานะได้ แม้ยังไม่ Login เพราะ Policy `demo_` ใน Hour 1 ให้ทุกแถวผ่าน
 
@@ -265,7 +243,7 @@ Import `Link`, `StatusBadge`, Type Import และ `statuses` เดิมใ�
 
 ---
 
-## Slide 11: ตรวจ Project ก่อน Deploy
+## Slide 10: ตรวจ Project ก่อน Deploy
 
 <LessonCallout type="action">รันคำสั่งเหล่านี้ในโฟลเดอร์หลักของโปรเจกต์ตามลำดับ</LessonCallout>
 
@@ -287,7 +265,7 @@ git push
 
 ---
 
-## Slide 12: Deploy บน Vercel
+## Slide 11: Deploy บน Vercel
 
 <LessonCallout type="action">เปิด Vercel Dashboard แล้ว Import Project จาก GitHub ตามขั้นตอนนี้</LessonCallout>
 
@@ -304,7 +282,7 @@ git push
 
 ---
 
-## Slide 13: ทดสอบบน Production
+## Slide 12: ทดสอบบน Production
 
 <LessonCallout type="action">เปิด Production URL แล้วทดสอบทุกการทำงาน</LessonCallout>
 
@@ -319,7 +297,7 @@ git push
 
 ---
 
-## Slide 14: สรุป Day 4
+## Slide 13: สรุป Day 4
 
 - อ่าน เพิ่ม และเปลี่ยนสถานะ Issue ใน Supabase ได้ และข้อมูลอยู่ถาวร
 - ระบบเปิดใช้งานได้จาก Production URL

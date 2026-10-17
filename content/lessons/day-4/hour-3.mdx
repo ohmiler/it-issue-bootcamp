@@ -92,31 +92,13 @@ export type NewIssueInput = {
 
 <LessonCallout type="action">สร้างไฟล์ใหม่ `app/actions.ts` แล้วใส่โค้ดเริ่มต้นนี้</LessonCallout>
 
-<CodeChange language="ts" addedLines="1,3">
+<CodeChange language="ts" addedLines="1,3,5,6,7,8,9,10,11,12">
 
 ```ts
 "use server";
 
 import type { NewIssueInput } from "@/types/issue";
-```
 
-</CodeChange>
-
-`"use server"` ต้องอยู่บรรทัดแรก เพื่อบอกว่า Function ที่ `export` จากไฟล์นี้เป็น Server Action ทำงานบน Server
-
-ตรงข้ามกับ `"use client"` ที่ใช้ใน Day 3 ซึ่งทำให้โค้ดทำงานใน Browser
-
-ไฟล์นี้จะรวม Action ทั้งหมดของระบบ ทั้งเพิ่ม Issue ในชั่วโมงนี้ และเปลี่ยนสถานะใน Hour 4
-
----
-
-## Slide 5: อ่านค่าจาก FormData
-
-<LessonCallout type="action">เพิ่ม Function ใหม่ `parseIssueInput` ใน `app/actions.ts` ต่อจาก Import</LessonCallout>
-
-<CodeChange language="ts" addedLines="1,2,3,4,5,6,7,8">
-
-```ts
 function parseIssueInput(formData: FormData): NewIssueInput {
   return {
     reporterName: String(formData.get("reporterName") ?? "").trim(),
@@ -129,11 +111,12 @@ function parseIssueInput(formData: FormData): NewIssueInput {
 
 </CodeChange>
 
-`parseIssueInput` อ่านค่าเหมือน `getIssueInput` ใน Day 3 ต่างกันตรงที่รับ `FormData` ที่ Next.js ส่งมาให้โดยตรง ไม่ต้องสร้างจากฟอร์มเอง
+- `"use server"` ต้องอยู่บรรทัดแรก บอกว่า Function ที่ `export` จากไฟล์นี้เป็น Server Action ตรงข้ามกับ `"use client"` ใน Day 3
+- `parseIssueInput` อ่านค่าเหมือน `getIssueInput` ใน Day 3 แต่รับ `FormData` ที่ Next.js ส่งมาให้โดยตรง
 
 ---
 
-## Slide 6: ตรวจข้อมูลบน Server
+## Slide 5: ตรวจข้อมูลบน Server
 
 <LessonCallout type="action">ย้าย Function `validateIssueInput` จาก `components/IssueForm.tsx` มาวางใน `app/actions.ts` ต่อจาก `parseIssueInput`</LessonCallout>
 
@@ -154,11 +137,11 @@ function validateIssueInput(input: NewIssueInput): string[] {
 
 โค้ดเหมือน Day 3 ทุกบรรทัด ใช้ตัดแล้ววางได้เลย
 
-ตอนนี้ `IssueForm.tsx` จะขึ้น Error ว่าหา `validateIssueInput` ไม่พบ ไม่เป็นไร Slide 11 จะลบส่วนที่เรียกใช้ออก
+ตอนนี้ `IssueForm.tsx` จะขึ้น Error ว่าหา `validateIssueInput` ไม่พบ ไม่เป็นไร ขั้นแก้ `IssueForm` ด้านล่างจะลบส่วนที่เรียกใช้ออก
 
 ---
 
-## Slide 7: เริ่ม Function เพิ่มข้อมูล
+## Slide 6: เริ่ม Function เพิ่มข้อมูล
 
 <LessonCallout type="action">แก้บางส่วนใน `lib/issues.ts`: เพิ่ม `NewIssueInput` ใน Type Import เดิม แล้วเพิ่ม `createIssue` ต่อจาก `getIssueById`</LessonCallout>
 
@@ -188,7 +171,7 @@ Comment บอกตำแหน่งที่จะวางโค้ดใน
 
 ---
 
-## Slide 8: เพิ่ม Issue ลง Table
+## Slide 7: เพิ่ม Issue ลง Table
 
 <LessonCallout type="action">แก้บางส่วนใน `lib/issues.ts`: แทน Comment ภายใน `createIssue` ด้วยโค้ดนี้</LessonCallout>
 
@@ -215,7 +198,7 @@ if (error) {
 
 ---
 
-## Slide 9: สร้าง Action ที่ฟอร์มเรียก
+## Slide 8: สร้าง Action ที่ฟอร์มเรียก
 
 <LessonCallout type="action">แก้บางส่วนใน `app/actions.ts`: เพิ่ม Import ต่อจาก Type Import แล้วเพิ่ม `createIssueAction` ท้ายไฟล์</LessonCallout>
 
@@ -249,7 +232,7 @@ export async function createIssueAction(formData: FormData) {
 
 ---
 
-## Slide 10: เอาโค้ดฝั่ง Browser ออกจาก IssueForm
+## Slide 9: เอาโค้ดฝั่ง Browser ออกจาก IssueForm
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: ลบส่วนบนของไฟล์ตามตัวอย่าง และเพิ่ม Import ของ Action</LessonCallout>
 
@@ -271,13 +254,13 @@ type IssueFormProps = { /* ... */ };
 
 </CodeChange>
 
-ตัวอย่างย่อแต่ละชุดด้วย `/* ... */` ให้ลบทั้งชุดจนถึงวงเล็บปิด ส่วน `validateIssueInput` ย้ายไปแล้วใน Slide 6
+ตัวอย่างย่อแต่ละชุดด้วย `/* ... */` ให้ลบทั้งชุดจนถึงวงเล็บปิด ส่วน `validateIssueInput` ย้ายไป `app/actions.ts` แล้ว
 
 ไฟล์นี้ไม่ต้องเป็น Client Component แล้ว เพราะ Server Action จะรับการส่งฟอร์มแทน
 
 ---
 
-## Slide 11: ลบ State และ Handler ของฟอร์ม
+## Slide 10: ลบ State และ Handler ของฟอร์ม
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: แก้บรรทัดประกาศ Component และลบ State กับ `handleSubmit` ภายใน</LessonCallout>
 
@@ -299,7 +282,7 @@ export function IssueForm() {
 
 ---
 
-## Slide 12: ให้ฟอร์มเรียก Server Action
+## Slide 11: ให้ฟอร์มเรียก Server Action
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เปลี่ยน Tag เปิด `<form>` และลบกล่องข้อความผิดพลาดใน `<fieldset>`</LessonCallout>
 
@@ -330,7 +313,7 @@ export function IssueForm() {
 
 ---
 
-## Slide 13: ให้ Browser เตือนความยาวขั้นต่ำ
+## Slide 12: ให้ Browser เตือนความยาวขั้นต่ำ
 
 <LessonCallout type="action">แก้บางส่วนใน `components/IssueForm.tsx`: เพิ่ม `minLength` ให้ช่องชื่อ หัวข้อ และรายละเอียด</LessonCallout>
 
@@ -354,7 +337,7 @@ export function IssueForm() {
 
 ---
 
-## Slide 14: จัดหน้า `/issues/new`
+## Slide 13: จัดหน้า `/issues/new`
 
 <LessonCallout type="action">แก้บางส่วนใน `app/issues/new/page.tsx`: แทน `<main>...</main>` เดิมด้วยโค้ดนี้</LessonCallout>
 
@@ -372,7 +355,7 @@ export function IssueForm() {
 
 ---
 
-## Slide 15: ทดสอบการบันทึก
+## Slide 14: ทดสอบการบันทึก
 
 <LessonCallout type="action">เปิด `/issues/new` แล้วทดสอบตามลำดับนี้</LessonCallout>
 
@@ -384,7 +367,7 @@ export function IssueForm() {
 
 ---
 
-## Slide 16: ถ้าบันทึกไม่สำเร็จ
+## Slide 15: ถ้าบันทึกไม่สำเร็จ
 
 | อาการ | ตรวจที่ |
 |---|---|
