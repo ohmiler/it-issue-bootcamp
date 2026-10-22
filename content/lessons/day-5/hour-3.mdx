@@ -102,7 +102,7 @@ create table public.profiles (
 
 </CodeChange>
 
-`auth.users` ดูแลอีเมลและรหัสผ่าน ส่วน Role เป็นข้อมูลของระบบเรา จึงเก็บแยกใน `profiles` โดยใช้ `id` เดียวกัน
+`auth.users` ดูแลอีเมลและรหัสผ่าน ส่วน Role เป็นข้อมูลของระบบนี้ จึงเก็บแยกใน `profiles` โดยใช้ `id` เดียวกัน
 
 - `role` เริ่มที่ `USER` ซึ่งมีสิทธิ์น้อยกว่า และ `check` รับได้แค่ `USER` หรือ `ADMIN`
 - `on delete cascade` ลบ Profile ตามเมื่อบัญชีถูกลบ
@@ -185,7 +185,7 @@ using (
 
 `exists (...)` ตรวจว่ามีแถวใน `profiles` ที่เป็นของผู้ใช้และ Role เป็น ADMIN หรือไม่
 
-ตอนนี้ Policy `demo_` ยังเปิดอยู่ ทุกคนจึงยังเห็นทุกแถว Slide 18 จะปิด Policy ทดลอง
+ตอนนี้ Policy `demo_` ยังเปิดอยู่ ทุกคนจึงยังเห็นทุกแถว ขั้นท้ายชั่วโมงนี้จะปิด Policy ทดลอง
 
 ---
 
@@ -240,27 +240,32 @@ created_by: userId,
 
 </CodeChange>
 
-`createIssue` รับ ID เจ้าของเพิ่ม แล้วบันทึกลง Column `created_by` ที่สร้างใน Slide 2
+`createIssue` รับ ID เจ้าของเพิ่ม แล้วบันทึกลง Column `created_by` ที่เพิ่มตอนต้นชั่วโมง
 
 ---
 
 ## Slide 9: ส่ง ID ผู้ใช้จาก Session
 
-<LessonCallout type="action">แก้บางส่วนใน `app/actions.ts`: ภายใน `createIssueAction` เก็บผลจาก `requireUser` แล้วส่ง `user.id` ให้ `createIssue`</LessonCallout>
+<LessonCallout type="action">แก้บางส่วนใน `app/actions.ts`: แก้สองบรรทัดใน `createIssueAction` ตามสีแดงและสีเขียว</LessonCallout>
 
-<CodeChange language="ts" removedLines="1,4" addedLines="2,5">
+<CodeChange language="ts" removedLines="2,8" addedLines="3,9">
 
 ```ts
-await requireUser();
-const user = await requireUser();
-// ...
-await createIssue(input);
-await createIssue(input, user.id);
+export async function createIssueAction(formData: FormData) {
+  await requireUser();
+  const user = await requireUser();
+  const input = parseIssueInput(formData);
+  const errors = validateIssueInput(input);
+  if (errors.length > 0) throw new Error(errors.join(", "));
+
+  await createIssue(input);
+  await createIssue(input, user.id);
+  revalidatePath("/issues");
+  redirect("/issues");
+}
 ```
 
 </CodeChange>
-
-`// ...` คือโค้ดเดิมที่ไม่ต้องแก้
 
 ID เจ้าของต้องมาจาก Session ห้ามรับจากฟอร์ม เพราะผู้ใช้แก้ค่าในฟอร์มได้ และ RLS จะตรวจซ้ำว่าตรงกับผู้ที่ Login
 
@@ -347,7 +352,7 @@ export async function updateIssueStatusAction(
 
 </CodeChange>
 
-ถ้า USER ส่งคำขอเปลี่ยนสถานะเข้ามาเอง Action จะหยุดก่อนแก้ Database ส่วน `/admin/issues` คือหน้าที่จะสร้างใน Slide 16
+ถ้า USER ส่งคำขอเปลี่ยนสถานะเข้ามาเอง Action จะหยุดก่อนแก้ Database ส่วน `/admin/issues` คือหน้าที่จะสร้างต่อจากนี้
 
 ---
 
@@ -525,7 +530,7 @@ grant select, insert, update on public.issues to authenticated;
 
 หน้า Policies ของ `issues` ต้องเหลือ 3 รายการที่สร้างในชั่วโมงนี้
 
-ถ้าหน้าเว็บ Error ให้ตรวจ Policy และโค้ดตาม Slide ก่อนหน้า ห้ามเปิด Policy `demo_` กลับมา
+ถ้าหน้าเว็บ Error ให้ตรวจ Policy และโค้ดตามขั้นก่อนหน้า ห้ามเปิด Policy `demo_` กลับมา
 
 ---
 

@@ -67,7 +67,7 @@ Session ถูกเก็บใน **Cookie** คือข้อมูลเล
 Login → Supabase สร้าง Session → เก็บใน Cookie → ทุกคำขอส่ง Cookie ไปที่ Server → Server รู้ว่าเป็นใคร
 ```
 
-Client ที่สร้างใน Day 4 ยังอ่าน Cookie ไม่ได้ เราจึงติดตั้ง `@supabase/ssr` ซึ่งช่วยให้ Supabase อ่านและเขียน Session ใน Cookie บน Server ของ Next.js ได้
+Client ที่สร้างใน Day 4 ยังอ่าน Cookie ไม่ได้ จึงต้องติดตั้ง `@supabase/ssr` ซึ่งช่วยให้ Supabase อ่านและเขียน Session ใน Cookie บน Server ของ Next.js ได้
 
 ---
 
@@ -168,7 +168,7 @@ const supabase = await createClient();
 
 Session มีวันหมดอายุ ก่อนหมด Supabase ต้องต่ออายุแล้วเขียน Cookie ใหม่
 
-แต่หน้าเว็บที่เป็น Server Component เขียน Cookie ไม่ได้ เราจึงใช้ **Proxy** คือไฟล์ที่ Next.js เรียกก่อนทุกคำขอจะถึงหน้าเว็บ:
+แต่หน้าเว็บที่เป็น Server Component เขียน Cookie ไม่ได้ จึงใช้ **Proxy** คือไฟล์ที่ Next.js เรียกก่อนทุกคำขอจะถึงหน้าเว็บ:
 
 ```text
 คำขอ → Proxy อ่านและต่ออายุ Session → หน้าเว็บหรือ Server Action
@@ -274,8 +274,8 @@ export const config = {
 
 | ถ้าเห็น Error | แก้ที่ |
 |---|---|
-| หา `@supabase/ssr` ไม่พบ | รันคำสั่งติดตั้งใน Slide 4 |
-| หา `createSupabaseServerClient` ไม่พบ | Import ใน `lib/issues.ts` ตาม Slide 7 |
+| หา `@supabase/ssr` ไม่พบ | รัน `npm install @supabase/ssr` |
+| หา `createSupabaseServerClient` ไม่พบ | เปลี่ยน Import ใน `lib/issues.ts` เป็น `createClient` |
 | `.from()` ไม่มีใน `Promise` | ใส่ `await createClient()` ให้ครบ 4 จุด |
 
 Hour 2 จะสร้างหน้า Login และ Logout
