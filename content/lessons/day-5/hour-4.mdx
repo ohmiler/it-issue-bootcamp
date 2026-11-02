@@ -42,17 +42,18 @@ source: "day-5-hour-4-security-llm-safe-and-final-demo.md"
 
 ## Slide 2: Request หนึ่งครั้งเดินทางอย่างไร
 
-ตัวอย่าง: ADMIN กดปุ่ม `DONE` ในหน้า `/admin/issues`
+ตัวอย่าง: ADMIN กดปุ่ม `DONE` ในหน้า `/admin/issues` คอลัมน์ซ้ายคือไฟล์หรือบริการที่ทำงานในขั้นนั้น
 
 ```text
-กดปุ่ม → ฟอร์มส่ง id และ status ไปที่ Server
+components/IssueList.tsx   กดปุ่ม → ฟอร์มส่ง id และ status ไปที่ Server
   ↓
-updateIssueStatusAction: requireAdmin() ตรวจ Login และ Role
-                         allowedStatuses ตรวจว่าสถานะถูกต้อง
+app/actions.ts             updateIssueStatusAction
+                           requireAdmin() ตรวจ Login และ Role
+                           allowedStatuses ตรวจว่าสถานะถูกต้อง
   ↓
-updateIssueStatus: ส่งคำสั่งแก้ข้อมูลผ่าน Supabase Client
+lib/issues.ts              updateIssueStatus ส่งคำสั่งแก้ข้อมูลผ่าน Supabase Client
   ↓
-Database: ตรวจ grant และ Policy ของ RLS ซ้ำ แล้วจึงแก้แถวใน issues
+Supabase                   ตรวจ grant และ Policy ของ RLS ซ้ำ แล้วจึงแก้แถวใน issues
 ```
 
 ถ้าไม่ผ่านขั้นไหน ระบบจะหยุดตรงนั้นก่อนถึง Database เช่น ยังไม่ Login จะถูกพาไป `/login` และ USER จะถูกพากลับ `/issues`
@@ -61,13 +62,13 @@ Database: ตรวจ grant และ Policy ของ RLS ซ้ำ แล้�
 
 ## Slide 3: แต่ละชั้นตรวจอะไร
 
-| ชั้น | ตอบคำถาม | ในโค้ดของ Project |
+| ชั้น | ตอบคำถาม | อยู่ที่ไหนใน Project |
 |---|---|---|
-| Authentication | ผู้ใช้คือใคร | `requireUser()` อ่าน Session |
-| Authorization | ผู้ใช้ทำสิ่งนี้ได้ไหม | `requireAdmin()` ตรวจ Role ใน `profiles` |
-| Validation | ข้อมูลที่ส่งมาถูกต้องไหม | `validateIssueInput` และ `allowedStatuses` |
-| `grant` | กลุ่มผู้ใช้นี้ใช้คำสั่งนี้กับ Table ได้ไหม | `grant select, insert, update ... to authenticated` |
-| RLS | ผู้ใช้คนนี้อ่านหรือแก้แถวไหนได้ | Policy `users_view_own_admins_view_all` |
+| Authentication | ผู้ใช้คือใคร | `requireUser()` ใน `lib/auth.ts` อ่าน Session |
+| Authorization | ผู้ใช้ทำสิ่งนี้ได้ไหม | `requireAdmin()` ใน `lib/auth.ts` ตรวจ Role ใน `profiles` |
+| Validation | ข้อมูลที่ส่งมาถูกต้องไหม | `validateIssueInput` และ `allowedStatuses` ใน `app/actions.ts` |
+| `grant` | กลุ่มผู้ใช้นี้ใช้คำสั่งนี้กับ Table ได้ไหม | `grant ... to authenticated` ที่รันใน Supabase SQL Editor |
+| RLS | ผู้ใช้คนนี้อ่านหรือแก้แถวไหนได้ | Policy ของ `issues` เช่น `users_view_own_admins_view_all` ใน Supabase |
 
 กลุ่มผู้ใช้ของ `grant` คือ `anon` (ยังไม่ Login) และ `authenticated` (Login แล้ว) ต่างจาก Role `USER` กับ `ADMIN` ที่ระบบนี้เก็บใน `profiles`
 
@@ -81,10 +82,10 @@ USER มองไม่เห็นปุ่มเปลี่ยนสถาน
 
 | จุดที่กัน | ผล |
 |---|---|
-| `canManage` | ซ่อนปุ่มจาก USER ช่วยให้ใช้ง่าย แต่ไม่ได้กันจริง |
-| `requireAdmin()` ในหน้า `/admin/issues` | USER พิมพ์ URL เองก็ถูกพากลับ `/issues` |
-| `requireAdmin()` ใน Server Action | USER ส่งฟอร์มเองก็ถูกหยุดก่อนแก้ข้อมูล |
-| Policy ของ RLS | ถ้าโค้ดฝั่ง Server พลาด Database ก็ยังไม่ยอมให้แก้ |
+| `canManage` ใน `components/IssueList.tsx` | ซ่อนปุ่มจาก USER ช่วยให้ใช้ง่าย แต่ไม่ได้กันจริง |
+| `requireAdmin()` ใน `app/admin/issues/page.tsx` | USER พิมพ์ URL เองก็ถูกพากลับ `/issues` |
+| `requireAdmin()` ใน `updateIssueStatusAction` ของ `app/actions.ts` | USER ส่งฟอร์มเองก็ถูกหยุดก่อนแก้ข้อมูล |
+| Policy `admins_update_issues` ใน Supabase | ถ้าโค้ดฝั่ง Server พลาด Database ก็ยังไม่ยอมให้แก้ |
 
 การป้องกันหลายชั้นแบบนี้เรียกว่า **Defense in Depth** ถ้าชั้นหนึ่งพลาด ชั้นถัดไปยังกันไว้
 
@@ -96,10 +97,10 @@ USER มองไม่เห็นปุ่มเปลี่ยนสถาน
 
 | คำถาม | ตัวอย่างความเสี่ยง | ระบบนี้กันด้วย |
 |---|---|---|
-| ผู้ใช้ทำเกินสิทธิ์ได้ไหม | USER แก้สถานะ Issue | `requireAdmin()` และ RLS |
-| ยังเปิดสิทธิ์ทดลองค้างไว้ไหม | Policy `demo_` ยังอยู่ | ลบ Policy `demo_` และถอนสิทธิ์ของ `anon` แล้ว |
-| เชื่อค่าจาก Browser ไหม | แก้ `status` หรือเจ้าของ Issue ในฟอร์มเอง | `allowedStatuses` และใช้ `user.id` จาก Session |
-| เอาข้อความผู้ใช้ไปต่อเป็นคำสั่ง SQL ไหม | ข้อความในฟอร์มกลายเป็นคำสั่งลบข้อมูล | `.insert()` และ `.eq()` ของ Supabase แยกค่าออกจากคำสั่ง |
+| ผู้ใช้ทำเกินสิทธิ์ได้ไหม | USER แก้สถานะ Issue | `requireAdmin()` ใน `app/actions.ts` และ Policy ใน Supabase |
+| ยังเปิดสิทธิ์ทดลองค้างไว้ไหม | Policy `demo_` ยังอยู่ | ลบ Policy `demo_` และถอนสิทธิ์ของ `anon` ใน SQL Editor แล้ว |
+| เชื่อค่าจาก Browser ไหม | แก้ `status` หรือเจ้าของ Issue ในฟอร์มเอง | `allowedStatuses` และ `user.id` จาก Session ใน `app/actions.ts` |
+| เอาข้อความผู้ใช้ไปต่อเป็นคำสั่ง SQL ไหม | ข้อความในฟอร์มกลายเป็นคำสั่งลบข้อมูล | `.insert()` และ `.eq()` ใน `lib/issues.ts` แยกค่าออกจากคำสั่ง |
 
 ประโยคที่ใช้ตรวจได้เสมอ: **ผู้ใช้ควบคุมค่าอะไรได้ และระบบตรวจค่านั้นที่ชั้นไหน**
 
@@ -139,10 +140,10 @@ USER มองไม่เห็นปุ่มเปลี่ยนสถาน
 
 | อาการ | เริ่มตรวจที่ |
 |---|---|
-| ปุ่มหรือข้อความแสดงไม่ถูก | Props และเงื่อนไขใน Component เช่น `canManage` |
-| กดส่งฟอร์มแล้วไม่ทำงาน | Server Action และ Error ใน Terminal ที่รัน `npm run dev` |
+| ปุ่มหรือข้อความแสดงไม่ถูก | Props และเงื่อนไขใน `components/` เช่น `canManage` ใน `IssueList.tsx` |
+| กดส่งฟอร์มแล้วไม่ทำงาน | Server Action ใน `app/actions.ts` และ Error ใน Terminal ที่รัน `npm run dev` |
 | ขึ้น `permission denied` หรือ `row-level security` | `grant` และ Policy ใน Supabase |
-| เพิ่มข้อมูลได้แต่หน้ารายการไม่แสดง | Login อยู่ไหม, `created_by` ถูกบันทึกไหม และ Policy ของ `select` |
+| เพิ่มข้อมูลได้แต่หน้ารายการไม่แสดง | Login อยู่ไหม, `created_by` ใน `createIssue` ของ `lib/issues.ts` และ Policy ของ `select` |
 | ขึ้น `fetch failed` ทุกหน้า | Supabase Project ถูกพักไว้ไหม ถ้าใช่ให้กด Restore ใน Dashboard |
 | เครื่องตัวเองใช้ได้แต่ Production ไม่ได้ | Environment Variables และ Logs ใน Vercel |
 
